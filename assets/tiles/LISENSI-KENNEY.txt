@@ -5,4 +5,5 @@ Aset bebas dipakai untuk proyek pribadi maupun komersial. Atribusi tidak wajib, 
 sebagai terima kasih.
 
 Perubahan oleh CodeIn City: setiap tile diberi tepi 1 piksel (extrude; margin 1, spacing 2) supaya tidak muncul
-garis antar-tile saat diperbesar. Isi gambarnya tidak diubah.
+garis antar-tile saat diperbesar, dan warnanya digeser ke nuansa hangat (rumput hijau zaitun, batu dan aspal
+cokelat-abu, air toska) supaya serasi dengan Kantor CodeIn News. Bentuk gambarnya tidak diubah.
