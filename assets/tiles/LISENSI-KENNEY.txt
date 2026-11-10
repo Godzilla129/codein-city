@@ -1,0 +1,8 @@
+urban.png berasal dari "RPG Urban Pack" karya Kenney (https://kenney.nl/assets/rpg-urban-pack).
+
+Lisensi: Creative Commons Zero, CC0 1.0 (http://creativecommons.org/publicdomain/zero/1.0/)
+Aset bebas dipakai untuk proyek pribadi maupun komersial. Atribusi tidak wajib, tetapi tetap kami cantumkan
+sebagai terima kasih.
+
+Perubahan oleh CodeIn City: setiap tile diberi tepi 1 piksel (extrude; margin 1, spacing 2) supaya tidak muncul
+garis antar-tile saat diperbesar. Isi gambarnya tidak diubah.

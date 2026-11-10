@@ -1,0 +1,4 @@
+.DS_Store
+Thumbs.db
+*.tiled-session
+node_modules/

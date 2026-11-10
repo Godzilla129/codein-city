@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CodeIn City</title>
+<meta name="description" content="Kota kecil komunitas CodeIn. Jalan-jalan, masuk ke gedung, dan lihat proyek anggota. Get in, Learn and Grow with CodeIn.">
+<meta property="og:title" content="CodeIn City">
+<meta property="og:description" content="Kota kecil komunitas CodeIn. Jalan-jalan, masuk ke gedung, dan lihat proyek anggota.">
+<meta property="og:image" content="https://codeinhub.my.id/assets/og.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#141830">
+<link rel="icon" href="assets/ikon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Kota (kanvas Phaser) -->
+<div id="game" aria-label="Peta CodeIn City. Gunakan tombol Tempat untuk daftar gedung tanpa harus berjalan."></div>
+<div id="label" aria-hidden="true"></div>
+
+<!-- Bilah atas -->
+<header id="hud" hidden>
+  <div class="merek"><b>CodeIn City</b><span id="jam"></span></div>
+  <div class="tombol-hud">
+    <button type="button" class="tbl" id="btn-tempat">📍 Tempat</button>
+    <button type="button" class="tbl" id="btn-profil" title="Ganti karakter atau nama"><span class="muka" id="hud-muka"></span><span id="hud-nama"></span></button>
+  </div>
+</header>
+
+<!-- Tombol aksi saat dekat pintu / warga, dan petunjuk -->
+<button type="button" class="tbl aksi" id="aksi" hidden></button>
+<p id="petunjuk" hidden>Jalan: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> atau panah · Aksi: <kbd>E</kbd></p>
+<div id="joy" hidden><i></i></div>
+
+<!-- Dialog isi gedung -->
+<div class="tirai" id="panel" hidden>
+  <section class="kotak" role="dialog" aria-modal="true" aria-labelledby="panel-judul">
+    <h2 id="panel-judul"></h2>
+    <div id="panel-isi"></div>
+    <div class="baris-tombol" id="panel-tombol"></div>
+  </section>
+</div>
+
+<!-- Layar judul: pilih karakter dan nama -->
+<div class="tirai judul" id="judul" hidden>
+  <form class="kotak" id="form-judul" novalidate>
+    <p class="kecil">Komunitas CodeIn</p>
+    <h1>CodeIn City</h1>
+    <p class="moto">Get in, Learn and Grow with CodeIn</p>
+    <fieldset>
+      <legend>Pilih karaktermu</legend>
+      <div class="karakter" id="pilih-karakter" role="radiogroup" aria-label="Pilih karakter"></div>
+    </fieldset>
+    <label for="nama">Nama panggilan</label>
+    <input id="nama" name="nama" type="text" maxlength="16" autocomplete="nickname" placeholder="Kosongkan untuk nama acak" spellcheck="false">
+    <p class="pesan" id="pesan-nama" role="status"></p>
+    <button type="submit" class="tbl utama">Mulai jelajah</button>
+  </form>
+</div>
+
+<noscript><p style="padding:24px;font:16px system-ui">CodeIn City butuh JavaScript. Sementara itu, kunjungi <a href="https://news.codeinhub.my.id/">CodeIn News</a>.</p></noscript>
+
+<!-- Urutan berkas penting: setiap berkas memakai isi berkas sebelumnya -->
+<script src="vendor/phaser.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/profil.js"></script>
+<script src="js/panel.js"></script>
+<script src="js/kendali.js"></script>
+<script src="js/kota.js"></script>
+<script src="js/judul.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
