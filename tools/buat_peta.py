@@ -82,9 +82,9 @@ autotile("tanah", plaza, 81)
 pad = cells(7, 16, 11, 19)                   # pelataran Papan Pengumuman
 autotile("tanah", pad, 89)
 
-# ---------- 4. air: air mancur dan kolam taman ----------
-fountain, pond = cells(22, 16, 25, 18), cells(36, 23, 39, 25)
-for water in (fountain, pond):
+# ---------- 4. air: air mancur alun-alun ----------
+fountain = cells(22, 16, 25, 18)
+for water in (fountain,):
     autotile("jalan", water, 170)
     for c in water:
         block(*c)
@@ -171,10 +171,33 @@ for x in range(2, 46):                        # pohon acak di baris paling utara
         tree(x, 2, rnd.choice("AAB"))
     if rnd.random() < .4 and x not in (23, 24):
         tree(x, 33, rnd.choice("ABO"))
-# taman kecil di sela bangunan utara
-for (x, y, k) in ((7, 5, "A"), (9, 7, "B"), (6, 8, "O"), (10, 4, "A"), (24, 5, "A"), (25, 7, "B"), (24, 8, "O"),
-                  (38, 5, "A"), (40, 7, "A"), (37, 8, "B"), (41, 4, "O"), (39, 3, "B")):
+# sela bangunan utara: dulu taman kecil, sekarang tempat baliho dan videotron (lihat bagian 7)
+for (x, y, k) in ((7, 4, "B"), (41, 4, "B")):
     tree(x, y, k)
+
+# ---------- papan dunia: videotron dan baliho ----------
+# Papan digambar sebagai elemen HTML di atas kanvas (lihat js/papan.js). Di peta cukup ditandai: letak, ukuran, tiang.
+# Nomor baliho = nomor slot billboard di CodeIn News (1 sampai 6).
+boards = []
+
+
+def board(kind, order, x0, y0, w, h, ground):
+    """Papan selebar w tile, tinggi h tile, mulai dari (x0, y0). ground = baris trotoar di depannya (tempat membaca).
+    Tapak papan tidak bisa dilewati; dua tiangnya turun sampai tepat di atas trotoar."""
+    boards.append((kind, order, x0, y0, w, h, ground))
+    for c in cells(x0, y0, x0 + w - 1, y0 + h - 1):
+        block(*c)
+    for y in range(y0 + h, ground):
+        block(x0, y); block(x0 + w - 1, y)
+
+
+board("videotron", 1, 23, 4, 4, 3, 9)       # di antara CodeIn News dan Galeri
+board("baliho", 1, 2, 4, 4, 3, 9)           # jalan utama, sisi barat
+board("baliho", 2, 8, 4, 4, 3, 9)
+board("baliho", 3, 37, 4, 4, 3, 9)          # jalan utama, sisi timur
+board("baliho", 4, 42, 4, 4, 3, 9)
+board("baliho", 5, 33, 23, 4, 3, 28)        # taman selatan
+board("baliho", 6, 38, 23, 4, 3, 28)
 # pagar tanaman antara alun-alun dan gedung selatan (terbuka di jalan setapak)
 for x in range(6, 42):
     if x not in (23, 24):
@@ -192,10 +215,10 @@ for (x, y, idx) in ((36, 16, 276), (37, 16, 277), (39, 16, 303), (40, 16, 304), 
     thing(x, y, idx)
 for (x, y, k) in ((35, 20, "A"), (41, 20, "B"), (38, 20, "O"), (35, 15, "B"), (41, 15, "A")):
     tree(x, y, k)
-# taman kolam (selatan kanan)
-for (x, y, k) in ((34, 22, "A"), (41, 22, "A"), (34, 26, "B"), (41, 26, "O"), (40, 24, "B")):
+# taman baliho (selatan kanan): dua baliho menghadap jalan selatan, bangku di antaranya
+for (x, y, k) in ((32, 23, "B"), (35, 22, "A"), (40, 22, "A"), (37, 24, "O"), (32, 26, "B")):
     tree(x, y, k)
-thing(35, 27, 250); thing(38, 27, 250)
+thing(37, 27, 250)
 lamp(37, 22)
 # perabot jalan
 thing(23, 10, 306); thing(11, 10, 280); thing(36, 10, 280); thing(26, 10, 278)
@@ -227,11 +250,12 @@ def obj(layer_list, name, x, y, w=0, h=0, **props):
 doors, points = [], []
 
 
-def door(ident, name, dx, dy, action, target="", zone=None):
+def door(ident, name, dx, dy, action, target="", zone=None, label=True):
     """Zona interaksi = satu baris di depan pintu, dilebarkan setengah tile kiri-kanan."""
     zx, zy, zw, zh = zone or ((dx - .5) * T, (dy + 1) * T, 2 * T, T)
+    extra = {} if label else {"tanpa_label": 1}
     obj(doors, name, zx, zy, zw, zh, id=ident, aksi=action, tujuan=target,
-        label_x=int((dx + .5) * T), label_y=int((dy - 1) * T + 4))
+        label_x=int((dx + .5) * T), label_y=int((dy - 1) * T + 4), **extra)
 
 
 door("news", "CodeIn News", 17, 8, "pindah", "https://news.codeinhub.my.id/")
@@ -241,7 +265,15 @@ door("kunci-a", "Segera dibuka", 19, 27, "panel", "kunci")
 door("kunci-b", "Segera dibuka", 28, 27, "panel", "kunci")
 door("papan", "Papan Pengumuman", 9, 17, "panel")
 door("gerbang", "Gerbang Kota", 46, 30, "panel", zone=(45 * T, 29 * T, 2 * T, 3 * T))
+# zona baca di trotoar depan setiap papan (nama papan tidak ditulis di atasnya: tanpa_label)
+for (kind, order, x0, y0, w, h, ground) in boards:
+    ident = "videotron" if kind == "videotron" else f"baliho-{order}"
+    door(ident, "Videotron Sedang Ramai" if kind == "videotron" else "Baliho", x0, ground - 1, "panel", kind,
+         zone=(x0 * T, ground * T, w * T, T), label=False)
 obj(points, "mulai", 24 * T, 19 * T + 8)
+papan = []          # layer objek "papan": kotak papan + nomor slot + panjang tiang (piksel)
+for (kind, order, x0, y0, w, h, ground) in boards:
+    obj(papan, kind, x0 * T, y0 * T, w * T, h * T, urutan=order, tiang=(ground - y0 - h) * T)
 for (x, y) in lamps:
     obj(points, "lampu", x * T + 8, y * T + 8)
 
@@ -249,10 +281,10 @@ for (x, y) in lamps:
 tile_layers = [{"id": i + 1, "name": n, "type": "tilelayer", "x": 0, "y": 0, "width": W, "height": H,
                 "opacity": .45 if n == "tabrakan" else 1, "visible": True, "data": L[n]} for i, n in enumerate(LAYERS)]
 obj_layers = [{"id": len(LAYERS) + 1 + i, "name": n, "type": "objectgroup", "draworder": "topdown", "x": 0, "y": 0,
-               "opacity": 1, "visible": True, "objects": o} for i, (n, o) in enumerate((("pintu", doors), ("titik", points)))]
+               "opacity": 1, "visible": True, "objects": o} for i, (n, o) in enumerate((("pintu", doors), ("titik", points), ("papan", papan)))]
 tmj = {"type": "map", "version": "1.10", "tiledversion": "1.11.0", "orientation": "orthogonal", "renderorder": "right-down",
        "infinite": False, "width": W, "height": H, "tilewidth": T, "tileheight": T, "compressionlevel": -1,
-       "nextlayerid": len(LAYERS) + 3, "nextobjectid": oid[0] + 1, "layers": tile_layers + obj_layers,
+       "nextlayerid": len(LAYERS) + 4, "nextobjectid": oid[0] + 1, "layers": tile_layers + obj_layers,
        "tilesets": [{"firstgid": 1, "name": "urban", "image": "../tiles/urban.png", "imagewidth": 486, "imageheight": 324,
                      "tilewidth": T, "tileheight": T, "margin": 1, "spacing": 2, "columns": COLS, "tilecount": 486}]}
 out = Path(__file__).resolve().parent.parent / "assets" / "maps" / "kota.tmj"

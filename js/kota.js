@@ -2,8 +2,9 @@
    Peta dibaca dari assets/maps/kota.tmj (dibuat dan diubah dengan Tiled):
      layer ubin  : tanah, jalan, bangunan, hiasan (di bawah karakter), atas (di atas karakter),
                    tabrakan (tidak digambar; setiap ubin di layer ini tidak bisa dilewati)
-     layer objek : pintu (kotak interaksi; properti id, aksi, tujuan, label_x, label_y), titik (mulai, lampu)
-   Teks nama gedung, nama karakter, dan balon ucapan digambar sebagai elemen HTML di atas kanvas supaya tajam. */
+     layer objek : pintu (kotak interaksi; properti id, aksi, tujuan, label_x, label_y, tanpa_label), titik (mulai, lampu),
+                   papan (kotak baliho/videotron; properti urutan = nomor slot, tiang = panjang tiang)
+   Teks nama gedung, nama karakter, balon ucapan, dan isi papan digambar sebagai elemen HTML di atas kanvas supaya tajam. */
 
 const Kota = (() => {
   const T = KOTA.ubin;
@@ -12,7 +13,7 @@ const Kota = (() => {
   const JARAK_SAPA = 22;
 
   let adegan = null, pemain = null, profil = null, arah = "bawah", pernahJalan = false, pindah = false;
-  let pintu = [], warga = [], dekat = null, tempel = [], lapisanMalam = null, cahaya = [], faseKini = null;
+  let pintu = [], papan = [], warga = [], dekat = null, tempel = [], lapisanMalam = null, cahaya = [], faseKini = null;
   const tekan = new Set();          // tombol keyboard yang sedang ditekan
 
   /* ---------- waktu: siang dan malam mengikuti jam WIB ---------- */
@@ -32,6 +33,7 @@ const Kota = (() => {
   function terapkanWaktu() {
     const f = fase(), h = jamWIB(), jj = String(Math.floor(h)).padStart(2, "0"), mm = String(Math.floor(h % 1 * 60)).padStart(2, "0");
     $("jam").textContent = `${f.nama} · ${jj}.${mm} WIB`;
+    document.body.dataset.fase = f.nama;          // dipakai CSS: baliho sedikit meredup saat malam
     if (!adegan || (faseKini && faseKini.nama === f.nama)) return;
     faseKini = f;
     lapisanMalam.setFillStyle(f.warna, f.alfa);
@@ -74,7 +76,12 @@ const Kota = (() => {
       pintu = peta.getObjectLayer("pintu").objects.map(o => {
         const p = prop(o);
         return {id: p.id, nama: o.name, aksi: p.aksi, tujuan: p.tujuan || "", x: o.x, y: o.y, w: o.width, h: o.height,
-                lx: p.label_x ?? o.x + o.width / 2, ly: p.label_y ?? o.y - T};
+                lx: p.label_x ?? o.x + o.width / 2, ly: p.label_y ?? o.y - T, tanpaLabel: !!p.tanpa_label};
+      });
+      const lapisPapan = peta.getObjectLayer("papan");
+      papan = (lapisPapan ? lapisPapan.objects : []).map(o => {
+        const p = prop(o);
+        return {jenis: o.name, urutan: p.urutan || 1, x: o.x, y: o.y, w: o.width, h: o.height, tiang: p.tiang || 2 * T};
       });
       const titik = peta.getObjectLayer("titik").objects;
       const mulai = titik.find(o => o.name === "mulai") || {x: lebar / 2, y: tinggi / 2};
@@ -103,8 +110,19 @@ const Kota = (() => {
         return {...w, s, ke: 1 % w.rute.length, tunggu: 600, arah: "bawah", giliran: 0, balon: null};
       });
 
+      // baliho dan videotron: dua tiang digambar di kanvas, papannya elemen HTML dari papan.js
+      for (const b of papan) {
+        const bawah = b.y + b.h + b.tiang, g = this.add.graphics().setDepth(10 + bawah - 2);
+        for (const x of [b.x + 6, b.x + b.w - 9]) {
+          g.fillStyle(0x3B2A20).fillRect(x, b.y + b.h - 2, 3, b.tiang).fillRect(x - 1, bawah - 3, 5, 2);
+          g.fillStyle(0x8A7361).fillRect(x + 1, b.y + b.h - 2, 1, b.tiang - 1);
+        }
+        tempelkan(Papan.buat(b.jenis, b.urutan), () => [b.x + b.w / 2, b.y + b.h]);
+      }
+
       // papan nama gedung
       for (const p of pintu) {
+        if (p.tanpaLabel) continue;
         const d = document.createElement("div");
         d.className = "papan" + (p.tujuan === "kunci" ? " kunci" : "") + (p.aksi === "pindah" ? " utama" : "");
         d.textContent = (p.tujuan === "kunci" ? "🔒 " : "") + p.nama;
@@ -125,7 +143,10 @@ const Kota = (() => {
       // kamera
       const cam = this.cameras.main;
       cam.setBounds(0, 0, lebar, tinggi).startFollow(pemain, true).setRoundPixels(true);
-      const aturZoom = () => cam.setZoom(Phaser.Math.Clamp(Math.floor(Math.min(this.scale.width / 352, this.scale.height / 208)), 2, 4));
+      const aturZoom = () => {
+        cam.setZoom(Phaser.Math.Clamp(Math.floor(Math.min(this.scale.width / 352, this.scale.height / 208)), 2, 4));
+        $("label").style.setProperty("--z", cam.zoom);       // ukuran papan HTML mengikuti zoom kamera
+      };
       aturZoom(); this.scale.on("resize", aturZoom);
       cam.fadeIn(500, 20, 24, 48);
 
@@ -192,7 +213,8 @@ const Kota = (() => {
     if (profil && !pindah) {
       const fx = pemain.x, fy = pemain.body.bottom - 2;
       const p = pintu.find(p => fx >= p.x && fx <= p.x + p.w && fy >= p.y - 2 && fy <= p.y + p.h + 2);
-      if (p) baru = {kunci: "p:" + p.id, pintu: p, teks: p.aksi === "pindah" ? `Masuk ${p.nama}` : p.tujuan === "kunci" ? "Periksa gedung" : `Lihat ${p.nama}`};
+      if (p) baru = {kunci: "p:" + p.id, pintu: p, teks: p.aksi === "pindah" ? `Masuk ${p.nama}` : p.tujuan === "kunci" ? "Periksa gedung"
+        : p.tujuan === "baliho" ? "Baca baliho" : p.tujuan === "videotron" ? "Lihat kabar ramai" : `Lihat ${p.nama}`};
       else {
         const w = warga.find(w => Phaser.Math.Distance.Between(w.s.x, w.s.y, pemain.x, pemain.y) < JARAK_SAPA);
         if (w) baru = {kunci: "w:" + w.nama, warga: w, teks: `Sapa ${w.nama}`};
@@ -208,7 +230,7 @@ const Kota = (() => {
     if (dekat.warga) bicara(dekat.warga); else lewat(dekat.pintu);
   }
   function lewat(p) {
-    if (p.aksi !== "pindah") { Panel.gedung(p.tujuan || p.id, p.nama); return; }
+    if (p.aksi !== "pindah") { if (!Papan.tangani(p)) Panel.gedung(p.tujuan || p.id, p.nama); return; }
     // pindah halaman: posisi disimpan supaya saat kembali pengunjung muncul di depan gedung ini
     pindah = true; Kendali.lepas(); tekan.clear();
     Profil.simpanPosisi(p.x + p.w / 2, p.y + p.h / 2);
@@ -234,6 +256,18 @@ const Kota = (() => {
   addEventListener("keyup", e => tekan.delete(e.code));
   addEventListener("blur", () => tekan.clear());
   $("aksi").onclick = () => { aksi(); $("aksi").blur(); };
+
+  /* ---------- ketuk atau klik papan: isinya bisa dibaca tanpa berjalan mendekat ---------- */
+  let tekanAwal = null;
+  $("game").addEventListener("pointerdown", e => { tekanAwal = {x: e.clientX, y: e.clientY, t: e.timeStamp}; });
+  $("game").addEventListener("pointerup", e => {
+    const a = tekanAwal; tekanAwal = null;
+    if (!a || !adegan || !profil || pindah || Panel.terbuka()) return;
+    if (Math.hypot(e.clientX - a.x, e.clientY - a.y) > 10 || e.timeStamp - a.t > 500) return;     // geseran = joystick, bukan ketukan
+    const kotak = $("game").getBoundingClientRect(), t = adegan.cameras.main.getWorldPoint(e.clientX - kotak.left, e.clientY - kotak.top);
+    const b = papan.find(b => t.x >= b.x && t.x <= b.x + b.w && t.y >= b.y && t.y <= b.y + b.h);
+    if (b) { Kendali.lepas(); Papan.buka(b.jenis, b.urutan); }
+  });
 
   /* ---------- dipakai berkas lain ---------- */
   function pakaiProfil() {

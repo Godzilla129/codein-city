@@ -7,8 +7,9 @@ const el = (tag, cls, teks) => { const e = document.createElement(tag); if (cls)
 const Panel = (() => {
   let sebelum = null;     // elemen yang punya fokus sebelum dialog dibuka
 
-  function buka(judul, isi, tombol) {
-    sebelum = document.activeElement;
+  // tombol: [{teks, utama, aksi}] (menutup dialog lalu menjalankan aksi). fokus: elemen yang diberi fokus, bawaan = tombol pertama.
+  function buka(judul, isi, tombol, fokus) {
+    if ($("panel").hidden) sebelum = document.activeElement;      // dialog yang berganti isi tetap ingat fokus semula
     $("panel-judul").textContent = judul;
     $("panel-isi").replaceChildren(...isi);
     const baris = $("panel-tombol"); baris.replaceChildren();
@@ -18,10 +19,13 @@ const Panel = (() => {
       baris.append(b);
     }
     $("panel").hidden = false;
-    baris.querySelector("button").focus();
+    $("panel").scrollTop = 0;
+    (fokus || baris.querySelector("button")).focus();
   }
   function tutup() {
     if ($("panel").hidden) return;
+    // fokus yang tertinggal di kolom formulir membuat tombol jalan (WASD, E) tidak terbaca setelah dialog ditutup
+    if ($("panel").contains(document.activeElement)) document.activeElement.blur();
     $("panel").hidden = true;
     if (sebelum && document.contains(sebelum)) sebelum.focus();
   }
@@ -56,7 +60,7 @@ const Panel = (() => {
     if ($("panel").hidden) return;
     if (e.key === "Escape") { e.preventDefault(); tutup(); }
     if (e.key === "Tab") {    // fokus tetap di dalam dialog
-      const f = [...$("panel").querySelectorAll("button, a[href]")], i = f.indexOf(document.activeElement);
+      const f = [...$("panel").querySelectorAll("button, a[href], input, select")].filter(x => !x.disabled && x.tabIndex >= 0), i = f.indexOf(document.activeElement);
       e.preventDefault(); f[(i + (e.shiftKey ? f.length - 1 : 1)) % f.length].focus();
     }
   });
