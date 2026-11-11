@@ -345,8 +345,11 @@ const Kota = (() => {
   addEventListener("keydown", e => {
     if (Panel.terbuka() || e.ctrlKey || e.metaKey || e.altKey) return;
     if ((e.code === "KeyE" || e.code === "Space" || e.code === "Enter") && !sedangMengetik(e)) {
-      // Enter tanpa pintu atau warga di dekat pemain membuka kolom obrolan
-      if (!e.repeat && !aksi() && e.code === "Enter" && typeof Ramai !== "undefined") Ramai.fokus();
+      // Enter selalu membuka kolom obrolan selama obrolan tersambung (juga di depan pintu, karena orang berkumpul di sana).
+      // Kalau obrolan mati, Enter kembali jadi tombol aksi seperti E dan spasi.
+      if (e.repeat) { e.preventDefault(); return; }
+      if (e.code === "Enter" && typeof Ramai !== "undefined" && Ramai.tersambung()) Ramai.fokus();
+      else aksi();
       e.preventDefault(); return;
     }
     if (sedangMengetik(e) && e.target.tagName === "INPUT") return;

@@ -9,7 +9,7 @@ const KOTA = {
 
   // Alamat CodeIn News. Isi baliho dan videotron diambil dari sini, pengajuan baliho juga dikirim ke sini (lihat js/papan.js).
   news: "https://news.codeinhub.my.id",
-  // Alamat layanan "ramai" (pengunjung lain dan obrolan, lihat js/ramai.js dan folder server/). Kosongkan untuk mematikan.
+  // Alamat layanan "ramai" (pengunjung lain dan obrolan, lihat js/ramai.js dan bagian "Layanan ramai" di README). Kosongkan untuk mematikan.
   live: "wss://live.codeinhub.my.id",
   // Pilihan warna pita baliho. Harus sama dengan SWATCHES di server CodeIn News (dashboard/services/billboards.py).
   warna: ["#E9A23B", "#2A9D8F", "#E06D53", "#5466D1", "#3E9E5A", "#C94F7C"],
