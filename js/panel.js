@@ -46,7 +46,8 @@ const Panel = (() => {
   function tempat() {
     const ul = el("ul", "tempat"), sudah = new Set();
     for (const p of Kota.pintu()) {
-      const kunci = p.aksi === "pindah" ? p.id : (p.tujuan || p.id);
+      // baliho dan gedung terkunci cukup muncul sekali; rumah dan gerbang masing-masing punya baris sendiri
+      const kunci = p.aksi === "pindah" || p.tujuan === "rumah" || p.tujuan === "gerbang" ? p.id : (p.tujuan || p.id);
       if (sudah.has(kunci)) continue; sudah.add(kunci);
       const li = el("li"), b = el("button", "tbl", "Ke sana"); b.type = "button";
       b.onclick = () => { tutup(); Kota.pindahKe(p.id); };

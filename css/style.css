@@ -20,6 +20,8 @@ button,input{font:inherit;color:inherit}
 /* label di atas kanvas */
 .papan{font-family:var(--judul);background:var(--kertas);border:2px solid var(--tinta);border-radius:6px;padding:1px 8px;font-weight:600;font-size:14px;box-shadow:0 2px 0 var(--tinta)}
 .papan.utama{background:var(--emas)}
+.papan.rumah{background:var(--kertas-2);font-size:12px;font-weight:500;padding:0 6px}
+.nama.lain{color:#C8ECFF}
 .papan.kunci{background:#D9D2C6;color:var(--redup);font-weight:400}
 .nama{font-size:12px;color:#fff;text-shadow:0 1px 0 #000,1px 0 0 #000,-1px 0 0 #000,0 -1px 0 #000;font-weight:600}
 .nama.saya{color:#FFE7A8;font-size:13px}
@@ -27,18 +29,19 @@ button,input{font:inherit;color:inherit}
   padding:6px 10px;font-size:14px;line-height:1.3;box-shadow:0 3px 0 var(--tinta);z-index:2}
 
 /* papan dunia: baliho (poster kertas, pita warna pilihan pemasang) dan videotron (layar gelap).
-   Ukurannya 64 x 48 piksel dunia dikali zoom kamera (--z diisi kota.js), jadi selalu pas dengan tiangnya di kanvas. */
-.pw{--u:calc(1px * var(--z, 2));width:calc(64 * var(--u));height:calc(48 * var(--u));z-index:-1;display:flex;flex-direction:column;overflow:hidden;
+   Ukurannya (--pw x --ph piksel dunia, dari peta) dikali zoom kamera (--z diisi kota.js), jadi selalu pas dengan tiangnya di kanvas. */
+.pw{--u:calc(1px * var(--z, 2));width:calc(var(--pw, 80) * var(--u));height:calc(var(--ph, 64) * var(--u));z-index:-1;display:flex;flex-direction:column;overflow:hidden;
   white-space:normal!important;border:calc(1.5 * var(--u)) solid var(--tinta);border-radius:calc(2 * var(--u));box-shadow:0 calc(1.5 * var(--u)) 0 var(--tinta)}
 .pw-judul{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;font:600 calc(6.4 * var(--u))/1.14 var(--judul)}
 .pw-cap,.pw-kaki,.pw-catatan{font-size:max(11px, calc(4.6 * var(--u)));line-height:1.15}
 .pw-kaki{margin-top:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pw-sub{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:max(11px, calc(4.6 * var(--u)));line-height:1.2}
 .baliho{background:var(--kertas);color:var(--tinta);padding:0 calc(3 * var(--u)) calc(2 * var(--u));gap:calc(1 * var(--u))}
 .baliho .pw-pita{flex:none;height:calc(5 * var(--u));margin:0 calc(-3 * var(--u)) calc(.5 * var(--u));background:var(--tema, var(--emas));border-bottom:var(--u) solid var(--tinta)}
 .baliho .pw-cap,.baliho .pw-kaki{color:var(--redup)}
 .baliho.kosong{background:var(--kertas-2);border-style:dashed;justify-content:center;align-items:center;text-align:center;padding-top:calc(2 * var(--u));box-shadow:none}
 .baliho.kosong .pw-catatan{color:var(--redup)}
-body[data-fase="Malam"] #label .baliho{filter:brightness(.84)}      /* malam: baliho disorot lampu, videotron tetap terang */
+body[data-fase="Malam"][data-ruang="kota"] #label .baliho{filter:brightness(.84)}      /* malam: baliho disorot lampu, videotron tetap terang */
 .layar{background:var(--malam);color:var(--kertas);border-color:#0B0E1E;box-shadow:0 calc(1.5 * var(--u)) 0 #0B0E1E;padding:calc(2.5 * var(--u)) calc(3 * var(--u));gap:calc(1.5 * var(--u))}
 .pw-kepala{display:flex;justify-content:space-between;gap:calc(2 * var(--u));font:600 max(11px, calc(4.8 * var(--u)))/1.15 var(--judul);color:var(--emas)}
 .layar .pw-judul{font-size:calc(6 * var(--u));-webkit-line-clamp:3}
@@ -46,6 +49,17 @@ body[data-fase="Malam"] #label .baliho{filter:brightness(.84)}      /* malam: ba
 .layar .pw-catatan{color:#CFCADB}
 .layar.ganti .pw-judul,.layar.ganti .pw-kaki{animation:ganti .35s ease-out}
 @keyframes ganti{from{opacity:0}}
+/* Papan Pengumuman: papan gabus berbingkai kayu, tiga pengumuman teratas ditempel sebagai kertas */
+.gabus{background:#B98A56;color:var(--tinta);border-color:#5E3F22;box-shadow:0 calc(1.5 * var(--u)) 0 #5E3F22;padding:calc(2 * var(--u)) calc(3 * var(--u)) calc(3 * var(--u));gap:calc(2 * var(--u))}
+.gabus .pw-kepala{color:#2B1D15;justify-content:center}
+.pw-kertas{flex:1;min-height:0;display:flex;align-items:flex-start;gap:calc(2.5 * var(--u))}
+.pw-kertas span{flex:1;min-width:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden;background:var(--kertas);
+  padding:calc(1.5 * var(--u)) calc(2 * var(--u));font-size:max(10px, calc(4.2 * var(--u)));line-height:1.22;box-shadow:0 var(--u) 0 rgba(59,42,32,.4)}
+.pw-kertas span:nth-child(2){background:#FFF1BF;transform:rotate(-1.2deg)}
+.pw-kertas span:nth-child(3){transform:rotate(1deg)}
+/* papan tulis di Markas */
+.tulis{background:#FBFBF7;color:var(--tinta);border-color:#5B5F73;box-shadow:0 calc(1.5 * var(--u)) 0 #5B5F73;padding:calc(3 * var(--u)) calc(4 * var(--u));gap:calc(1.5 * var(--u))}
+.pw-baris{font-size:max(11px, calc(4.8 * var(--u)));line-height:1.2}
 .titik{flex:none;display:inline-block;width:.7em;height:.7em;border-radius:50%;background:var(--c, #A8998A)}
 
 /* tombol */
@@ -75,6 +89,27 @@ kbd{display:inline-block;min-width:22px;padding:0 5px;border:2px solid var(--tin
 @media (hover:none){ .aksi kbd{display:none} }
 #petunjuk{position:fixed;left:12px;bottom:12px;margin:0;background:rgba(252,248,241,.92);border:2px solid var(--tinta);border-radius:8px;padding:4px 10px;font-size:13px}
 #petunjuk kbd{margin:0 1px}
+/* jumlah orang (di bilah atas) dan obrolan (kiri bawah) */
+#ramai{display:flex;align-items:center;gap:5px}
+#ramai .titik{--c:#2F9E5F;width:8px;height:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#obrol{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom));width:min(340px, calc(100vw - 24px));display:flex;flex-direction:column;gap:6px;pointer-events:none}
+#obrol-log{list-style:none;margin:0;padding:0;max-height:32vh;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+#obrol-log li{max-width:100%;background:rgba(20,24,48,.78);color:var(--kertas);border-radius:8px;padding:3px 8px;font-size:14px;line-height:1.3;overflow-wrap:anywhere;transition:opacity .4s}
+#obrol-log b{color:#FFE7A8;font-weight:600;margin-right:6px}
+#obrol-log li.kabar{color:#CFCADB}
+#obrol-log li.lama{opacity:0}
+#obrol:focus-within #obrol-log{overflow-y:auto;pointer-events:auto}
+#obrol:focus-within #obrol-log li.lama{opacity:1}
+#obrol-form{display:flex;gap:6px;pointer-events:auto}
+#obrol-isi{flex:1;min-width:0;min-height:44px;padding:0 10px;background:rgba(252,248,241,.95);border:3px solid var(--tinta);border-radius:10px;font-size:16px}
+#obrol-isi::placeholder{color:#6E5A49}
+body:has(#obrol:not([hidden])) #petunjuk{left:auto;right:12px}
+/* layar sempit: tombol aksi naik ke atas kolom obrolan, dan baris obrolan pindah ke bawah bilah atas supaya tidak tertutup tombol itu */
+@media (max-width:700px){
+  body:has(#obrol:not([hidden])) .aksi{bottom:calc(72px + env(safe-area-inset-bottom))}
+  #obrol-log{position:fixed;left:12px;top:calc(84px + env(safe-area-inset-top));width:min(300px, calc(100vw - 24px));max-height:24vh}
+}
 #joy{position:fixed;width:88px;height:88px;margin:-44px 0 0 -44px;border-radius:50%;border:3px solid rgba(255,255,255,.7);background:rgba(255,255,255,.15);pointer-events:none}
 #joy i{position:absolute;left:50%;top:50%;width:36px;height:36px;margin:-18px 0 0 -18px;border-radius:50%;background:rgba(255,255,255,.85);border:2px solid var(--tinta)}
 
@@ -115,7 +150,7 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 .status .titik{box-shadow:0 0 0 1.5px var(--tinta)}      /* kuning dan oranye terlalu pucat di atas kertas tanpa garis tepi */
 .galeri-aksi{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:4px}
 /* formulir pengajuan baliho */
-.pratinjau{--z:3;margin:0 auto 14px}
+.pratinjau{--z:2.5;margin:0 auto 14px}
 .isian{display:flex;flex-direction:column}
 .isian label,.isian .label{display:block;font-weight:600;margin:0 0 10px}
 .isian .label{margin-bottom:6px}
@@ -133,4 +168,4 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
   .tombol-hud{flex-wrap:nowrap} .tombol-hud .tbl{padding:0 10px}
   #hud-nama{display:none}
 }
-@media (prefers-reduced-motion:reduce){ .tbl:active{transform:none} .layar.ganti .pw-judul,.layar.ganti .pw-kaki{animation:none} }
+@media (prefers-reduced-motion:reduce){ .tbl:active{transform:none} .layar.ganti .pw-judul,.layar.ganti .pw-kaki{animation:none} #obrol-log li{transition:none} }

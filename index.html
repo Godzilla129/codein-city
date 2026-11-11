@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CodeIn City</title>
-<meta name="description" content="Kota kecil komunitas CodeIn. Jalan-jalan, baca kabar yang sedang ramai di videotron, dan lihat proyek anggota di baliho. Get in, Learn and Grow with CodeIn.">
+<meta name="description" content="Kota kecil komunitas CodeIn. Jalan-jalan, bertemu pengunjung lain, mengobrol, baca kabar yang sedang ramai, dan lihat proyek anggota di baliho. Get in, Learn and Grow with CodeIn.">
 <meta property="og:title" content="CodeIn City">
 <meta property="og:description" content="Kota kecil komunitas CodeIn. Jalan-jalan, masuk ke gedung, dan lihat proyek anggota.">
 <meta property="og:image" content="https://codeinhub.my.id/assets/og.png">
@@ -24,7 +24,7 @@
 
 <!-- Bilah atas -->
 <header id="hud" hidden>
-  <div class="merek"><b>CodeIn City</b><span id="jam"></span></div>
+  <div class="merek"><b>CodeIn City</b><span id="jam"></span><span id="ramai" hidden><i class="titik"></i><span id="ramai-teks"></span></span></div>
   <div class="tombol-hud">
     <button type="button" class="tbl" id="btn-tempat">📍 Tempat</button>
     <button type="button" class="tbl" id="btn-profil" title="Ganti karakter atau nama"><span class="muka" id="hud-muka"></span><span id="hud-nama"></span></button>
@@ -33,8 +33,18 @@
 
 <!-- Tombol aksi saat dekat pintu / warga, dan petunjuk -->
 <button type="button" class="tbl aksi" id="aksi" hidden></button>
-<p id="petunjuk" hidden>Jalan: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> atau panah · Aksi: <kbd>E</kbd></p>
+<p id="petunjuk" hidden>Jalan: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> atau panah · Aksi: <kbd>E</kbd> · Obrol: <kbd>Enter</kbd></p>
 <div id="joy" hidden><i></i></div>
+
+<!-- Obrolan: muncul hanya saat tersambung ke layanan ramai -->
+<div id="obrol" hidden>
+  <ol id="obrol-log" aria-live="polite" aria-label="Obrolan kota"></ol>
+  <form id="obrol-form" autocomplete="off">
+    <label class="sr" for="obrol-isi">Tulis pesan untuk pengunjung lain</label>
+    <input id="obrol-isi" type="text" maxlength="120" placeholder="Tulis pesan, lalu Enter" enterkeyhint="send" spellcheck="false">
+    <button type="submit" class="tbl">Kirim</button>
+  </form>
+</div>
 
 <!-- Dialog isi gedung -->
 <div class="tirai" id="panel" hidden>
@@ -72,6 +82,8 @@
 <script src="js/papan.js"></script>
 <script src="js/kendali.js"></script>
 <script src="js/kota.js"></script>
+<script src="js/lalulintas.js"></script>
+<script src="js/ramai.js"></script>
 <script src="js/judul.js"></script>
 <script src="js/main.js"></script>
 </body>

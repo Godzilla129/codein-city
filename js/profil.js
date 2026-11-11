@@ -2,12 +2,12 @@
    Tidak ada data yang dikirim ke server. */
 
 const Profil = (() => {
-  const KUNCI = "codein-city-profil", KUNCI_POSISI = "codein-city-posisi";
+  const KUNCI = "codein-city-profil", KUNCI_POSISI = "codein-city-posisi-2";
 
   // Kata yang tidak boleh ada di nama. Kata pendek dicek per kata utuh, kata panjang dicek sebagai potongan.
   const KASAR_PANJANG = ["anjing", "anjir", "anjay", "bangsat", "bajingan", "kontol", "memek", "ngentot", "jancok", "jancuk",
     "goblok", "tolol", "bego", "babi", "kampret", "keparat", "brengsek", "pepek", "pantek", "puki", "lonte", "pelacur",
-    "perek", "bokep", "titit", "toket", "idiot", "fuck", "shit", "bitch", "pussy", "porn", "nigg", "cunt", "penis", "vagina"];
+    "perek", "bokep", "titit", "toket", "idiot", "fuck", "shit", "bitch", "pussy", "porn", "nigg", "negro", "cunt", "penis", "vagina"];
   const KASAR_PENDEK = ["asu", "tai", "sex", "seks", "dick"];   // "Dicky" tetap boleh
   const DIPESAN = ["admin", "moderator", "official", "codein"];   // supaya tidak ada yang menyamar jadi pengurus
 
