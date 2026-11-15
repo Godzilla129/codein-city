@@ -16,7 +16,9 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 - **Enam baliho** (empat di jalan utama, dua di taman selatan) berisi proyek anggota. Nomor baliho sama dengan nomor slot billboard di CodeIn News. Di dalam Galeri, keenamnya dipajang sebagai karya di dinding.
 - Pengajuan baliho langsung dari kota: lewat penjaga Galeri atau dari depan balihonya. Admin memutuskan di halaman admin CodeIn News.
 - **Papan Pengumuman** berupa papan gabus: tiga pengumuman teratas terbaca langsung dari jauh.
-- Sebelas warga yang bisa disapa, sepuluh di antaranya punya rumah di kampung.
+- Sebelas warga yang bisa disapa, sepuluh di antaranya punya rumah di kampung. Warga kota punya jadwal pagi, siang, sore, dan malam (WIB): berjalan ke tempatnya lewat trotoar dan zebra cross, jalan-jalan kecil di sekitarnya, dan malam hari sebagian besar pulang ke rumah.
+- Markas CodeIn: Patung Pendiri dengan plakat, dan Kak Rani di meja resepsionis yang membacakan pengumuman terbaru.
+- Warkop CodeIn sengaja dikunci sebagai tantangan untuk anggota yang mau ikut membangun kota.
 - Kendaraan masuk dan keluar lewat gerbang, dan berhenti kalau ada orang di depannya.
 - Tombol **Tempat** untuk berpindah langsung ke depan gedung tanpa berjalan. Papan bisa diketuk atau diklik dari jauh.
 - Siang dan malam mengikuti jam WIB, dengan lampu jalan yang menyala saat malam.
@@ -33,7 +35,8 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/panel.js` | Dialog dan daftar tempat |
 | `js/papan.js` | Papan HTML: baliho, videotron, Papan Pengumuman, papan Markas, dialog Galeri, dan formulir pengajuan baliho |
 | `js/kendali.js` | Kendali sentuh |
-| `js/kota.js` | Adegan (Phaser) untuk semua peta: pemain, warga, pintu, masuk dan keluar gedung, patung, siang dan malam |
+| `js/kota.js` | Adegan (Phaser) untuk semua peta: pemain, pintu, masuk dan keluar gedung, patung, siang dan malam |
+| `js/warga.js` | Warga dan jadwal hariannya: pencarian jalur, jalan-jalan kecil, pulang ke rumah, ucapan per waktu |
 | `js/lalulintas.js` | Kendaraan yang mengikuti jalur di peta dan berhenti untuk pejalan kaki |
 | `js/ramai.js` | Pengunjung lain dan obrolan (WebSocket ke layanan ramai) |
 | `js/judul.js` | Layar judul |
@@ -76,7 +79,9 @@ Kota ini statis, jadi posisi pengunjung dan obrolan lewat satu layanan kecil di 
 
 ## Mengubah isi teks
 
-Buka `js/config.js`. Isi papan pengumuman ada di `panel.papan.daftar` (tiga yang teratas tampil di papan gabus), teks setiap gedung di `panel`, papan di dinding Markas di `info`, dan warga beserta ucapannya di `warga`.
+Buka `js/config.js`. Isi papan pengumuman ada di `panel.papan.daftar` (tiga yang teratas tampil di papan gabus), teks setiap gedung di `panel`, papan di dinding Markas di `info`, dan warga beserta jadwal dan ucapannya di `warga` (penjelasan formatnya ada di komentar di atas daftar itu). Teks plakat Patung Pendiri ada di `panel.pendiri`. Pembagian jam pagi, siang, sore, dan malam ada di `waktu`.
+
+Untuk mencoba jadwal warga di jam tertentu, buka `?jam=8`, `?jam=12`, `?jam=16`, atau `?jam=21`.
 
 Isi baliho tidak diubah di sini. Baliho diisi dari halaman admin CodeIn News (`/admin`): setujui pengajuan atau ubah slot, dan dalam dua menit baliho di kota ikut berubah.
 
@@ -114,8 +119,10 @@ Situs diterbitkan lewat Cloudflare (Workers dengan aset statis) yang terhubung k
 | 3 | Baliho, videotron, dan pengajuan baliho dari kota | Selesai |
 | 4 | Kota diperluas, kampung warga, kendaraan, Markas dan Galeri bisa dimasuki | Selesai |
 | 5 | Pengunjung lain terlihat dan obrolan | Selesai |
-| 6 | Warkop CodeIn (pintu ke obrolan suara grup) | Berikutnya |
-| 7 | Kantor Redaksi CodeIn News jadi ruangan piksel di dalam kota | Rencana |
+| 6 | Tahap 1: perbaikan dialog Tempat, obrolan, dan perpindahan; Patung Pendiri dan resepsionis; jadwal harian warga | Selesai |
+| 7 | Tahap 2: rumah untuk proyek anggota (subdomain), lahan kosong | Rencana |
+| 8 | Kantor Redaksi CodeIn News jadi ruangan piksel di dalam kota | Rencana |
+| - | Warkop CodeIn: dibuka bersama anggota yang mau ikut membangun | Menunggu kontributor |
 
 ## Lisensi aset
 

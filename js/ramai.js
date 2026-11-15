@@ -119,6 +119,7 @@ const Ramai = (() => {
   function tampil() {
     $("ramai").hidden = !tersambung;
     $("obrol").hidden = !tersambung;
+    $("petunjuk-obrol").hidden = !tersambung;          // petunjuk "Obrol: Enter" hanya muncul kalau obrolan memang bisa dipakai
     $("ramai-teks").textContent = jumlah > 1 ? `${jumlah} orang di kota` : "Kamu sendirian di kota";
   }
   // nama = null untuk kabar dari kota (masuk, pergi, pesan ditolak)
@@ -144,5 +145,8 @@ const Ramai = (() => {
     fokus: () => { if (tersambung) $("obrol-isi").focus(); },
     orang: () => [...lain.values()].filter(o => o.s).map(o => o.s),
     tersambung: () => tersambung, jumlah: () => jumlah,
+    // kalimat untuk pengunjung yang menekan Enter saat obrolan tidak bisa dipakai
+    alasan: () => !ALAMAT ? "Obrolan tidak tersedia di kota ini."
+      : "Obrolan belum tersambung ke server. Kota tetap bisa dijelajahi, coba lagi sebentar.",
   };
 })();

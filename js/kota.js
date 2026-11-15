@@ -5,7 +5,8 @@
      layer objek : pintu (kotak interaksi; properti id, aksi, tujuan, ke, penghuni, label_x, label_y, tanpa_label),
                    titik (mulai, lampu, patung, pancuran), papan (kotak papan HTML; properti id, urutan, tiang),
                    rute (garis jalur kendaraan, dipakai lalulintas.js)
-   aksi pintu: pindah = buka alamat web, masuk/keluar = ganti peta, panel = buka dialog.
+   aksi pintu: pindah = buka alamat web, masuk/keluar = ganti peta, panel = buka dialog (tujuan "sapa" = menyapa warga "penghuni").
+   Warga dan jadwal hariannya diurus js/warga.js. Titik "patung" punya properti jenis (lihat KOTA.patung).
    Teks nama gedung, nama karakter, balon ucapan, dan isi papan digambar sebagai elemen HTML di atas kanvas supaya tajam. */
 
 const Kota = (() => {
@@ -14,11 +15,10 @@ const Kota = (() => {
   const ARAH = ["bawah", "kiri", "kanan", "atas"];               // nomor arah yang dikirim lewat jaringan
   const PETA = ["kota", "markas", "galeri"];
   const frame = (k, arah, langkah) => (KOTA.karakter[k].baris + langkah) * 27 + KOLOM[arah];
-  const JARAK_SAPA = 22;
   const tenang = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let adegan = null, pemain = null, profil = null, arah = "bawah", jalan = false, pernahJalan = false, pindah = false, ruang = "kota";
-  let pintu = [], papan = [], warga = [], dekat = null, tempel = [], lapisanMalam = null, cahaya = [], faseKini = null, balonSaya = null;
+  let pintu = [], papan = [], dekat = null, tempel = [], lapisanMalam = null, cahaya = [], faseKini = null, balonSaya = null;
   const tekan = new Set();          // tombol keyboard yang sedang ditekan
   const saatSiapList = [], tiapBingkaiList = [];      // dipanggil berkas lain (lalulintas.js, ramai.js)
 
@@ -29,6 +29,14 @@ const Kota = (() => {
     const d = new Date();
     return (d.getUTCHours() + 7 + d.getUTCMinutes() / 60) % 24;
   }
+  // pagi, siang, sore, atau malam menurut KOTA.waktu (dipakai jadwal warga dan tulisan di bilah atas)
+  function waktu() {
+    const h = jamWIB(), urut = KOTA.waktu;
+    let kini = urut[urut.length - 1];
+    for (const w of urut) if (h >= w.mulai) kini = w;
+    return h < urut[0].mulai ? urut[urut.length - 1] : kini;
+  }
+  // warna langit dan lampu (lebih halus dari pembagian waktu: ada fajar dan senja)
   function fase() {
     const h = jamWIB();
     if (h >= 18.5 || h < 5) return {nama: "Malam", warna: 0x4a55a0, alfa: .8, lampu: true};
@@ -38,8 +46,8 @@ const Kota = (() => {
   }
   function terapkanWaktu() {
     const f = fase(), h = jamWIB(), jj = String(Math.floor(h)).padStart(2, "0"), mm = String(Math.floor(h % 1 * 60)).padStart(2, "0");
-    $("jam").textContent = `${f.nama} · ${jj}.${mm} WIB`;
-    document.body.dataset.fase = f.nama;          // dipakai CSS: baliho di luar sedikit meredup saat malam
+    $("jam").textContent = `${waktu().nama} · ${jj}.${mm} WIB`;
+    document.body.dataset.fase = f.nama;          // dipakai CSS: baliho di luar sedikit meredup saat langit gelap
     if (!adegan || !lapisanMalam || (faseKini && faseKini.nama === f.nama)) return;
     faseKini = f;
     lapisanMalam.setFillStyle(f.warna, f.alfa);
@@ -63,19 +71,23 @@ const Kota = (() => {
     return () => { clearTimeout(waktu); lepaskan(t); };
   }
 
-  // Patung perunggu dibuat dari gambar karakter: tiap piksel diganti warna perunggu sesuai terangnya.
-  function teksturPatung(sc) {
-    if (sc.textures.exists("patung")) return;
-    const k = KOTA.patung.karakter, f = frame(k, "bawah", 0), kol = f % 27, bar = Math.floor(f / 27);
-    const kanvas = sc.textures.createCanvas("patung", T, T), c = kanvas.getContext();
+  // Patung dibuat dari gambar karakter: tiap piksel diganti warna bahan (perunggu atau batu) sesuai terangnya.
+  const BAHAN = {perunggu: [[58, 40, 24], [112, 80, 42], [166, 124, 66], [214, 176, 108]],
+                 batu: [[64, 62, 70], [112, 110, 118], [162, 160, 166], [214, 212, 216]]};
+  function teksturPatung(sc, jenis) {
+    const kunci = "patung-" + jenis, cfg = KOTA.patung[jenis] || KOTA.patung.pemula;
+    if (sc.textures.exists(kunci)) return kunci;
+    const f = frame(cfg.karakter, "bawah", 0), kol = f % 27, bar = Math.floor(f / 27);
+    const kanvas = sc.textures.createCanvas(kunci, T, T), c = kanvas.getContext();
     c.drawImage(sc.textures.get("ubin").getSourceImage(), 1 + kol * 18, 1 + bar * 18, T, T, 0, 0, T, T);
-    const d = c.getImageData(0, 0, T, T), tangga = [[58, 40, 24], [112, 80, 42], [166, 124, 66], [214, 176, 108]];
+    const d = c.getImageData(0, 0, T, T), tangga = BAHAN[cfg.bahan] || BAHAN.perunggu;
     for (let i = 0; i < d.data.length; i += 4) {
       if (!d.data[i + 3]) continue;
       const terang = (d.data[i] * .3 + d.data[i + 1] * .59 + d.data[i + 2] * .11) / 255, w = tangga[Math.min(3, Math.floor(terang * 4))];
       d.data[i] = w[0]; d.data[i + 1] = w[1]; d.data[i + 2] = w[2];
     }
     c.putImageData(d, 0, 0); kanvas.refresh();
+    return kunci;
   }
 
   class Adegan extends Phaser.Scene {
@@ -142,13 +154,6 @@ const Kota = (() => {
       tempelkan(papanNama, () => [pemain.x, pemain.y - 14]);
       this.papanNama = papanNama;
 
-      // warga di peta ini
-      warga = KOTA.warga.filter(w => (w.ruang || "kota") === ruang).map(w => {
-        const [x, y] = w.rute[0], s = this.add.sprite(x * T + 8, y * T + 12, "orang", frame(w.karakter, "bawah", 0)).setOrigin(.5, .8);
-        tempelkan(el("div", "nama", w.nama), () => [s.x, s.y - 14]);
-        return {...w, s, ke: 1 % w.rute.length, tunggu: 600, arah: "bawah", giliran: 0, hapusBalon: null};
-      });
-
       // papan HTML (baliho, videotron, pengumuman, papan info). Di luar ruangan papan berdiri di atas dua tiang.
       for (const b of papan) {
         if (!dalam && b.tiang > 0) {
@@ -171,11 +176,10 @@ const Kota = (() => {
         tempelkan(d, () => [p.lx, p.ly]);
       }
 
-      // patung dan pancuran air di alun-alun
-      const tp = titik.find(o => o.name === "patung");
-      if (tp) {
-        teksturPatung(this);
-        this.add.image(tp.x, tp.y, "patung").setOrigin(.5, 1).setScale(2).setDepth(10 + tp.y);
+      // patung (Si Pemula di alun-alun, Patung Pendiri di Markas) dan pancuran air
+      for (const tp of titik.filter(o => o.name === "patung")) {
+        const kunci = teksturPatung(this, prop(tp).jenis || "pemula");
+        this.add.image(tp.x, tp.y, kunci).setOrigin(.5, 1).setScale(2).setDepth(10 + tp.y);
       }
       titik.filter(o => o.name === "pancuran").forEach((o, i) => {
         const cincin = this.add.ellipse(o.x, o.y + 2, 9, 5).setStrokeStyle(1, 0xffffff, .7).setDepth(4);
@@ -241,47 +245,18 @@ const Kota = (() => {
       } else { pemain.anims.stop(); pemain.setFrame(frame(k, arah, 0)); }
       pemain.setDepth(10 + pemain.y);
 
-      gerakWarga(dt);
       cariTerdekat();
       for (const f of tiapBingkaiList) f(dt);
     }
-  }
-
-  /* ---------- warga: berjalan mengikuti rute, berhenti kalau pemain mendekat ---------- */
-  function gerakWarga(dt) {
-    for (const w of warga) {
-      const s = w.s, jarak = Phaser.Math.Distance.Between(s.x, s.y, pemain.x, pemain.y);
-      s.setDepth(10 + s.y);
-      if (jarak < JARAK_SAPA && profil) {            // menghadap pemain
-        const dx = pemain.x - s.x, dy = pemain.y - s.y;
-        w.arah = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "kiri" : "kanan") : (dy < 0 ? "atas" : "bawah");
-        s.anims.stop(); s.setFrame(frame(w.karakter, w.arah, 0)); continue;
-      }
-      if (w.rute.length < 2) { s.setFrame(frame(w.karakter, w.hadap || "bawah", 0)); continue; }      // warga yang berjaga di tempat
-      if (w.tunggu > 0) { w.tunggu -= dt; s.anims.stop(); s.setFrame(frame(w.karakter, w.arah, 0)); continue; }
-      const [tx, ty] = w.rute[w.ke], gx = tx * T + 8, gy = ty * T + 12, dx = gx - s.x, dy = gy - s.y, sisa = Math.hypot(dx, dy);
-      const langkah = (w.laju || 26) * dt / 1000;
-      if (sisa <= langkah) {
-        s.setPosition(gx, gy); w.ke = (w.ke + 1) % w.rute.length; w.tunggu = 700 + Math.random() * 2200;
-      } else {
-        s.x += dx / sisa * langkah; s.y += dy / sisa * langkah;
-        w.arah = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "kiri" : "kanan") : (dy < 0 ? "atas" : "bawah");
-        s.anims.play(`jalan-${w.karakter}-${w.arah}`, true);
-      }
-    }
-  }
-  function bicara(w) {
-    if (w.buka) { Papan.tangani({id: w.buka, tujuan: ""}); return; }      // warga penjaga: langsung membuka dialognya
-    if (w.hapusBalon) w.hapusBalon();
-    w.hapusBalon = balon(w.s, w.ucapan[w.giliran++ % w.ucapan.length]);
   }
 
   /* ---------- interaksi: pintu atau warga terdekat ---------- */
   function teksAksi(p) {
     if (p.aksi === "pindah" || p.aksi === "masuk") return `Masuk ${p.nama}`;
     if (p.aksi === "keluar") return "Keluar ke kota";
+    if (p.id === "pendiri") return "Baca plakat patung";
     return {kunci: "Periksa gedung", baliho: ruang === "galeri" ? "Lihat karya" : "Baca baliho", videotron: "Lihat kabar ramai",
-            rumah: "Ketuk pintu", info: "Baca papan"}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
+            rumah: "Ketuk pintu", info: "Baca papan", sapa: `Sapa ${p.penghuni}`}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
   }
   function cariTerdekat() {
     let baru = null;
@@ -290,8 +265,8 @@ const Kota = (() => {
       const p = pintu.find(p => fx >= p.x && fx <= p.x + p.w && fy >= p.y - 2 && fy <= p.y + p.h + 2);
       if (p) baru = {kunci: "p:" + p.id, pintu: p, teks: teksAksi(p)};
       else {
-        const w = warga.find(w => Phaser.Math.Distance.Between(w.s.x, w.s.y, pemain.x, pemain.y) < JARAK_SAPA);
-        if (w) baru = {kunci: "w:" + w.nama, warga: w, teks: `Sapa ${w.nama}`};
+        const w = Warga.terdekat(pemain.x, pemain.y);
+        if (w) baru = {kunci: "w:" + w.def.nama, warga: w, teks: `Sapa ${w.def.nama}`};
       }
     }
     if ((baru && baru.kunci) === (dekat && dekat.kunci)) return;
@@ -301,19 +276,35 @@ const Kota = (() => {
   }
   function aksi() {
     if (!dekat || pindah || Panel.terbuka()) return false;
-    if (dekat.warga) bicara(dekat.warga); else lewat(dekat.pintu);
+    if (dekat.warga) Warga.sapa(dekat.warga); else lewat(dekat.pintu);
     return true;
   }
+  // Ganti peta seketika; peta baru muncul dengan fade-in dari gelap. Tidak menunggu animasi fade-out selesai,
+  // supaya perpindahan tidak tertahan di browser yang jarang menggambar ulang (tab latar, mode hemat daya).
   function gantiPeta(kunci, pintuId) {
     if (pindah) return;
     pindah = true; Kendali.lepas(); tekan.clear();
-    const cam = adegan.cameras.main;
-    cam.once("camerafadeoutcomplete", () => adegan.scene.restart({peta: kunci, pintu: pintuId}));
-    cam.fadeOut(240, 20, 24, 48);
+    adegan.scene.restart({peta: kunci, pintu: pintuId});
   }
+  // rumah diketuk: penghuninya di dalam (malam) atau sedang di luar (sebut tempatnya sekarang)
   function rumah(p) {
-    const w = KOTA.warga.find(w => p.penghuni.includes(w.nama)), isi = [el("p", null, "Tok, tok. Tidak ada yang menjawab.")];
-    isi.push(el("p", null, w && w.tempat ? `${p.penghuni} sedang di luar. Biasanya ada ${w.tempat}.` : `${p.penghuni} sedang di luar.`));
+    const nama = KOTA.warga.filter(w => p.penghuni.includes(w.nama)).map(w => w.nama), isi = [el("p", null, "Tok, tok.")];
+    const posisi = nama.map(n => [n, Warga.dimana(n)]).filter(([, d]) => d);
+    if (posisi.length && posisi.every(([, d]) => d.diRumah)) {
+      isi.push(el("p", null, `${p.penghuni} sudah di rumah, tapi sedang istirahat. Coba lagi besok pagi.`));
+    } else {
+      isi.push(el("p", null, "Tidak ada yang menjawab."));
+      for (const [n, d] of posisi) {
+        if (d.diRumah) isi.push(el("p", null, `${n} sudah tidur.`));
+        else if (d.pulang) isi.push(el("p", null, `${n} sedang dalam perjalanan pulang.`));
+        else isi.push(el("p", null, `${n} sedang di luar${d.ket ? ", " + d.ket : ""}.`));
+      }
+    }
+    Panel.buka(p.nama, isi, [{teks: "Tutup"}]);
+  }
+  function toko(p) {
+    const d = Warga.dimana("Mbak Tika"), isi = [el("p", null, "Toko ini belum bisa dimasuki. Isinya masih disiapkan.")];
+    if (d) isi.push(el("p", null, d.diRumah ? "Mbak Tika sudah pulang. Tokonya buka lagi besok pagi." : `Mbak Tika sedang ${d.ket}.`));
     Panel.buka(p.nama, isi, [{teks: "Tutup"}]);
   }
   function lewat(p) {
@@ -324,7 +315,10 @@ const Kota = (() => {
     }
     if (p.aksi !== "pindah") {
       if (Papan.tangani(p)) return;
-      if (p.tujuan === "rumah") rumah(p); else Panel.gedung(KOTA.panel[p.id] ? p.id : p.tujuan, p.nama);
+      if (p.tujuan === "rumah") rumah(p);
+      else if (p.tujuan === "sapa") Warga.sapaNama(p.penghuni);
+      else if (p.id === "toko") toko(p);
+      else Panel.gedung(KOTA.panel[p.id] ? p.id : p.tujuan, p.nama);
       return;
     }
     // pindah halaman: posisi disimpan supaya saat kembali pengunjung muncul di depan gedung ini
@@ -333,7 +327,10 @@ const Kota = (() => {
     const u = new URL(p.tujuan);
     u.searchParams.set("dari", "kota"); u.searchParams.set("k", profil.karakter); u.searchParams.set("n", profil.nama);
     const cam = adegan.cameras.main;
-    cam.once("camerafadeoutcomplete", () => { location.href = u.href; });
+    let pergi = false;
+    const berangkat = () => { if (!pergi) { pergi = true; location.href = u.href; } };
+    cam.once("camerafadeoutcomplete", berangkat);
+    setTimeout(berangkat, 600);        // cadangan kalau animasi tertahan
     cam.fadeOut(420, 20, 24, 48);
   }
   // kembali lewat tombol Back: halaman dari cache browser dinyalakan lagi
@@ -341,19 +338,21 @@ const Kota = (() => {
   addEventListener("pagehide", () => { if (pemain && profil && !pindah && ruang === "kota") Profil.simpanPosisi(pemain.x, pemain.y); });
 
   /* ---------- keyboard ---------- */
-  const sedangMengetik = e => e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(e.target.tagName);
+  // mengetik = fokus di kolom isian. Tombol dan tautan yang sedang fokus tetap boleh memakai Enter dan spasi sendiri,
+  // tetapi E selalu untuk aksi (sebelumnya E tidak bekerja kalau fokus tertinggal di tombol Tempat setelah berpindah).
+  const mengetik = e => e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+  const diTombol = e => e.target instanceof HTMLElement && /^(BUTTON|A)$/.test(e.target.tagName);
   addEventListener("keydown", e => {
-    if (Panel.terbuka() || e.ctrlKey || e.metaKey || e.altKey) return;
-    if ((e.code === "KeyE" || e.code === "Space" || e.code === "Enter") && !sedangMengetik(e)) {
-      // Enter selalu membuka kolom obrolan selama obrolan tersambung (juga di depan pintu, karena orang berkumpul di sana).
-      // Kalau obrolan mati, Enter kembali jadi tombol aksi seperti E dan spasi.
+    if (Panel.terbuka() || e.ctrlKey || e.metaKey || e.altKey || mengetik(e)) return;
+    if (e.code === "KeyE" || ((e.code === "Space" || e.code === "Enter") && !diTombol(e))) {
+      // Enter membuka kolom obrolan selama obrolan tersambung (juga di depan pintu, karena orang berkumpul di sana).
+      // Kalau obrolan tidak tersambung, Enter menjalankan aksi; tanpa aksi di dekat pemain, muncul kabar singkat.
       if (e.repeat) { e.preventDefault(); return; }
       if (e.code === "Enter" && typeof Ramai !== "undefined" && Ramai.tersambung()) Ramai.fokus();
-      else aksi();
+      else if (!aksi() && e.code === "Enter" && typeof Ramai !== "undefined") kabar(Ramai.alasan());
       e.preventDefault(); return;
     }
-    if (sedangMengetik(e) && e.target.tagName === "INPUT") return;
-    if (e.code === "KeyT" && typeof Ramai !== "undefined") { Ramai.fokus(); e.preventDefault(); return; }
+    if (e.code === "KeyT" && typeof Ramai !== "undefined" && Ramai.tersambung()) { Ramai.fokus(); e.preventDefault(); return; }
     tekan.add(e.code);
     if (e.code.startsWith("Arrow")) e.preventDefault();
   });
@@ -379,12 +378,26 @@ const Kota = (() => {
     adegan.papanNama.textContent = profil.nama;
   }
   function mulai(p) { profil = p; if (adegan) pakaiProfil(); }
+  // Pindah seketika ke depan sebuah pintu (tombol "Ke sana"). Posisi, kamera, label, dan tombol aksi diperbarui saat itu juga;
+  // fade-in hanya hiasan dan tidak ditunggu.
   function pindahKe(id) {
     const p = pintu.find(x => x.id === id);
-    if (!p || !pemain) return;
+    if (!p || !pemain || pindah) return;
+    const x = p.x + p.w / 2, y = p.y + p.h / 2;
+    tekan.clear(); Kendali.lepas();
+    pemain.body.reset(x, y);
+    arah = "atas"; pemain.anims.stop(); pemain.setFrame(frame(profil ? profil.karakter : 0, arah, 0)); pemain.setDepth(10 + y);
     const cam = adegan.cameras.main;
-    cam.once("camerafadeoutcomplete", () => { pemain.setPosition(p.x + p.w / 2, p.y + p.h / 2); arah = "atas"; cam.fadeIn(220, 20, 24, 48); });
-    cam.fadeOut(180, 20, 24, 48);
+    cam.centerOn(x, y); cam.preRender();
+    perbaruiTempel(); cariTerdekat();
+    cam.fadeIn(220, 20, 24, 48);
+  }
+  // kabar singkat di tengah atas layar (misalnya "obrolan belum tersambung")
+  let waktuKabar = 0;
+  function kabar(teks) {
+    if (!teks) return;
+    const k = $("kabar-kota"); k.textContent = teks; k.hidden = false;
+    clearTimeout(waktuKabar); waktuKabar = setTimeout(() => { k.hidden = true; }, 3200);
   }
   function masuk(id) { const p = pintu.find(x => x.id === id); if (p) lewat(p); }
   function ucap(teks) { if (!pemain) return; if (balonSaya) balonSaya(); balonSaya = balon(pemain, teks, 6000); }
@@ -398,10 +411,10 @@ const Kota = (() => {
   }
 
   return {
-    nyalakan, mulai, pindahKe, masuk, ucap, balon, tempelkan, lepaskan, frame, ARAH,
+    nyalakan, mulai, pindahKe, masuk, ucap, balon, tempelkan, lepaskan, frame, ARAH, waktu, kabar,
     pintu: () => pintu, ruang: () => ruang, profil: () => profil, adegan: () => adegan,
     posisi: () => pemain ? {x: pemain.x, y: pemain.y, arah, jalan} : null,
-    orang: () => pemain ? [pemain, ...warga.map(w => w.s)] : [],            // semua yang perlu dihindari kendaraan
+    orang: () => pemain ? [pemain, ...Warga.sprites()] : [],                // semua yang perlu dihindari kendaraan
     saatSiap: f => saatSiapList.push(f), tiapBingkai: f => tiapBingkaiList.push(f),
   };
 })();

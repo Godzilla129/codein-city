@@ -33,7 +33,8 @@
 
 <!-- Tombol aksi saat dekat pintu / warga, dan petunjuk -->
 <button type="button" class="tbl aksi" id="aksi" hidden></button>
-<p id="petunjuk" hidden>Jalan: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> atau panah · Aksi: <kbd>E</kbd> · Obrol: <kbd>Enter</kbd></p>
+<p id="petunjuk" hidden>Jalan: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> atau panah · Aksi: <kbd>E</kbd><span id="petunjuk-obrol" hidden> · Obrol: <kbd>Enter</kbd></span></p>
+<p id="kabar-kota" role="status" hidden></p>
 <div id="joy" hidden><i></i></div>
 
 <!-- Obrolan: muncul hanya saat tersambung ke layanan ramai -->
@@ -82,6 +83,7 @@
 <script src="js/papan.js"></script>
 <script src="js/kendali.js"></script>
 <script src="js/kota.js"></script>
+<script src="js/warga.js"></script>
 <script src="js/lalulintas.js"></script>
 <script src="js/ramai.js"></script>
 <script src="js/judul.js"></script>

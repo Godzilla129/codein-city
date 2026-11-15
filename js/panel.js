@@ -19,7 +19,7 @@ const Panel = (() => {
       baris.append(b);
     }
     $("panel").hidden = false;
-    $("panel").scrollTop = 0;
+    $("panel").scrollTop = 0; $("panel-isi").scrollTop = 0;
     (fokus || baris.querySelector("button")).focus();
   }
   function tutup() {
@@ -50,10 +50,12 @@ const Panel = (() => {
       const kunci = p.aksi === "pindah" || p.tujuan === "rumah" || p.tujuan === "gerbang" ? p.id : (p.tujuan || p.id);
       if (sudah.has(kunci)) continue; sudah.add(kunci);
       const li = el("li"), b = el("button", "tbl", "Ke sana"); b.type = "button";
-      b.onclick = () => { tutup(); Kota.pindahKe(p.id); };
+      // fokus dikembalikan ke permainan, supaya E dan Enter langsung bekerja di tempat tujuan
+      b.onclick = () => { tutup(); if (document.activeElement) document.activeElement.blur(); Kota.pindahKe(p.id); };
       li.append(el("span", null, p.nama), b); ul.append(li);
     }
-    buka("Tempat di CodeIn City", [el("p", null, "Pilih tempat untuk langsung berpindah ke depannya."), ul], [{teks: "Tutup"}]);
+    const judul = {kota: "Tempat di CodeIn City", markas: "Tempat di Markas CodeIn", galeri: "Tempat di Galeri Showcase"}[Kota.ruang()] || "Tempat";
+    buka(judul, [el("p", null, "Pilih tempat untuk langsung berpindah ke depannya."), ul], [{teks: "Tutup"}]);
   }
 
   $("panel").addEventListener("click", e => { if (e.target.id === "panel") tutup(); });

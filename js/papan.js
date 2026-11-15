@@ -309,5 +309,8 @@ const Papan = (() => {
   setInterval(() => { if (!document.hidden && kabar.length > 1) { giliran++; for (const e of layar) gambarLayar(e, true); } }, GANTI);
   addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - terakhir > SEGAR / 2) segarkan(); });   // kembali ke tab ini
 
-  return {buat, buka, bersih, tangani};
+  // judul kabar paling ramai saat ini (dipakai ucapan warga di dekat videotron), atau "" kalau belum ada
+  const kabarTeratas = () => keadaan.kabar === "siap" && kabar.length ? kabar[0].title : "";
+
+  return {buat, buka, bersih, tangani, kabarTeratas};
 })();

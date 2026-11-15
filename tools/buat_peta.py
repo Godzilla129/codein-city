@@ -192,9 +192,9 @@ def kota():
             idx = 461 if col == 0 else 463 if col == 2 else (462 if y % 2 == 0 else idx)
         p.put("tanah", x, y, idx)
     p.lantai |= asphalt
-    for cx in (21, 39):                       # zebra cross di depan CodeIn News dan Galeri
+    for (cx, cy) in ((21, 13), (39, 13), (36, 34)):    # zebra cross: depan CodeIn News, depan Galeri, jalan selatan (ke kampung)
         for i, idx in enumerate((405, 432, 459)):
-            p.put("tanah", cx, 13 + i, idx)
+            p.put("tanah", cx, cy + i, idx)
 
     # ---------- trotoar, alun-alun, pelataran ----------
     sidewalk = (cells(2, 11, 77, 12) | cells(7, 16, 72, 16) | cells(7, 16, 7, 33) | cells(72, 16, 72, 33) | cells(7, 33, 72, 33)
@@ -216,7 +216,7 @@ def kota():
     p.autotile("bangunan", base, BATU)
     for c in pool:
         p.block(*c)
-    p.obj(p.points, "patung", 40 * T, 21 * T + 6)
+    p.obj(p.points, "patung", 40 * T, 21 * T + 6, jenis="pemula")
     for (x, y) in ((38, 19), (41, 19), (38, 22), (41, 22)):
         p.obj(p.points, "pancuran", x * T + 8, y * T + 8)
     p.door("patung", "Patung Si Pemula", 39, 17, "panel", zone=(37 * T, 23 * T, 6 * T, T), label_x=40 * T, label_y=19 * T + 2)
@@ -368,6 +368,16 @@ def markas():
     # dua papan di dinding: tentang CodeIn dan rencana kota
     p.board("info", "tentang", 3, 1, 6, 3, 4, name="Tentang CodeIn")
     p.board("info", "rencana", 13, 1, 6, 3, 4, name="Rencana kota")
+    # Patung Pendiri di tengah dinding utara, di atas alas batu, diapit dua pot
+    p.autotile("bangunan", cells(10, 4, 11, 4), BATU)
+    p.block(10, 4)
+    p.block(11, 4)
+    p.obj(p.points, "patung", 11 * T, 4 * T + 6, jenis="pendiri")
+    p.door("pendiri", "Patung Pendiri (Jull)", 10, 4, "panel", zone=(int(9.5 * T), 5 * T, 3 * T, T), label_x=11 * T, label_y=2 * T + 2)
+    # meja resepsionis di sisi kanan; Kak Rani berdiri di belakangnya, tamu menyapa dari depan meja
+    for x in (15, 16, 17):
+        p.thing(x, 9, 275)
+    p.door("resepsionis", "Meja resepsionis", 16, 9, "panel", "sapa", zone=(15 * T, 10 * T, 3 * T, T), label=False, penghuni="Kak Rani")
     # meja rapat dengan bangku di kiri-kanannya
     for x in range(8, 14):
         p.thing(x, 7, 275)
@@ -376,9 +386,8 @@ def markas():
         p.thing(x + 1, 8, 381)
     for (x, y, idx) in ((1, 5, 303), (1, 6, 304), (1, 7, 303), (20, 5, 304), (20, 6, 303), (20, 7, 300)):
         p.thing(x, y, idx)                     # rak di sisi ruangan
-    for (x, y, k) in ((1, 10, "P"), (20, 10, "Q"), (10, 4, "Q"), (11, 4, "Q")):
+    for (x, y, k) in ((1, 10, "P"), (20, 10, "Q"), (9, 4, "Q"), (12, 4, "Q")):
         p.tree(x, y, k)
-    p.thing(16, 10, 250)
     p.thing(4, 10, 250)
     p.tulis("markas")
 
