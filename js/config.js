@@ -48,6 +48,7 @@ const KOTA = {
       judul: "Papan Pengumuman",
       // tiga yang teratas ikut tampil di papan gabus di kota
       daftar: [
+        "Kantor Redaksi CodeIn News sudah bisa dimasuki. Lihat Eko, Tekno, dan Rina bekerja, lalu sapa mereka.",
         "Rumah proyek dibuka. Punya situs atau game web? Datangi rumah kosong di kota dan ajukan, tinggal unggah zip.",
         "Di Markas CodeIn sekarang ada Patung Pendiri dan meja resepsionis. Kak Rani yang jaga.",
         "Warga kota punya jadwal harian. Malam hari kebanyakan pulang ke kampung di selatan.",
@@ -88,8 +89,18 @@ const KOTA = {
     },
   },
 
-  // Papan di dinding Markas. baris = teks singkat di papannya, isi dan daftar = teks lengkap di dialog.
+  // Papan di dinding Markas dan Kantor Redaksi. baris = teks singkat di papannya, isi dan daftar = teks lengkap di dialog.
   info: {
+    "cara-kerja": {
+      judul: "Cara kerja redaksi",
+      baris: ["Eko: ekonomi.", "Tekno: teknologi.", "Rina: berita umum."],
+      isi: ["Tiga redaktur ini bekerja sesuai kabar yang benar-benar masuk ke CodeIn News, bukan animasi acak."],
+      daftar: ["Mengetik di meja: ada kabar baru di bidangnya dalam 25 menit terakhir. Layar komputernya menyala.",
+               "Ngopi di dapur: belum ada kabar baru 25 menit sampai 3 jam.",
+               "Tertidur di meja: sepi lebih dari 3 jam, biasanya malam atau akhir pekan.",
+               "Rapat di meja rapat: ada bagian penting sistem yang bermasalah.",
+               "Dua kali sehari, pukul 06.45 dan 16.30 WIB, kabar-kabar itu dirangkum jadi Buku Harian. Sapa redakturnya untuk membaca bukunya."],
+    },
     tentang: {
       judul: "Tentang CodeIn",
       baris: ["Komunitas teknologi.", "Belajar bareng, pamer karya.", "Get in, Learn and Grow."],
@@ -99,12 +110,12 @@ const KOTA = {
     },
     rencana: {
       judul: "Rencana kota",
-      baris: ["Sudah: kota, baliho, obrolan.", "Warga punya jadwal harian.", "Warkop: menunggu kontributor."],
+      baris: ["Sudah: kota, baliho, obrolan.", "Rumah proyek, Kantor Redaksi.", "Warkop: menunggu kontributor."],
       isi: ["Kota ini dibangun bertahap."],
       daftar: ["Sudah jadi: kota yang bisa dijelajahi, baliho dan videotron, pengunjung lain dan obrolan, Markas dan Galeri yang bisa dimasuki, warga dengan jadwal pagi sampai malam.",
                "Warkop CodeIn sengaja dikunci sampai ada anggota yang mau ikut membangun kota ini.",
-               "Berikutnya: rumah untuk proyek anggota, dan Kantor Redaksi CodeIn News dibangun ulang sebagai ruangan piksel di dalam kota.",
-               "Rumah proyek: anggota bisa mengajukan rumah untuk situs proyeknya, tinggal unggah zip."],
+               "Rumah proyek: anggota bisa mengajukan rumah untuk situs proyeknya, tinggal unggah zip.",
+               "Kantor Redaksi CodeIn News: Eko, Tekno, dan Rina bekerja sesuai kabar yang benar-benar masuk."],
     },
   },
 
@@ -115,6 +126,7 @@ const KOTA = {
   //   ket = keterangan tempat, dipakai saat rumahnya diketuk ("Bu Sari sedang di luar, ada di ...").
   //   ucapan = kalimat saat disapa. {kabar} diganti judul kabar paling ramai, {pengumuman} diganti pengumuman terbaru.
   //   ruang = peta selain kota (Markas, Galeri): warga di sana berjaga di satu titik dan tidak punya jadwal.
+  //   Redaktur di Kantor Redaksi bukan warga: mereka diatur js/redaksi.js dari data CodeIn News.
   warga: [
     {nama: "Bu Sari", karakter: 2, jadwal: {
       pagi:  {di: [15, 22], r: 2, ket: "di depan Papan Pengumuman",

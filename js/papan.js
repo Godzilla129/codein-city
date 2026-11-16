@@ -148,7 +148,7 @@ const Papan = (() => {
       }
       isi.push(ol, el("p", "redup", "Rangkuman lengkapnya ada di Buku Harian, di perpustakaan CodeIn News."));
     }
-    Panel.buka("Sedang ramai", isi, [{teks: "Masuk CodeIn News", utama: true, aksi: () => Kota.masuk("news")}, {teks: "Tutup"}]);
+    Panel.buka("Sedang ramai", isi, [{teks: "Baca di CodeIn News", utama: true, aksi: () => Kota.bukaNews("/")}, {teks: "Tutup"}]);
   }
 
   function panelInfo(id) {

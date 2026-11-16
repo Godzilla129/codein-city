@@ -81,13 +81,14 @@ const RumahProyek = (() => {
     if (f.email.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim())) return ["email", "Format email belum benar."];
     const wa = f.wa.replace(/\D/g, "").length;
     if (f.wa.trim() && (wa < 9 || wa > 15)) return ["wa", "Nomor WhatsApp belum benar."];
+    if (!f.setuju) return ["setuju", "Centang persetujuan Aturan Rumah Proyek dulu."];
     return null;
   }
 
   function formulir(rumahId) {
     if (!isian) {
       const pf = Profil.muat(), nama = pf && !/^Pengunjung \d+$/.test(pf.nama) ? pf.nama : "";
-      isian = {judul: "", nama: "", deskripsi: "", pemilik: nama, email: "", wa: "", rumah: "", website: "", namaDiubah: false};
+      isian = {judul: "", nama: "", deskripsi: "", pemilik: nama, email: "", wa: "", rumah: "", website: "", setuju: false, namaDiubah: false};
     }
     const f = isian, kosong = rumahKosong();
     if (rumahId) f.rumah = rumahId;
@@ -119,6 +120,13 @@ const RumahProyek = (() => {
     const labelPilih = el("label", null, "Rumah pilihan"); labelPilih.append(pilih);
     const jebakan = el("input", "jebakan"); jebakan.name = "website"; jebakan.tabIndex = -1; jebakan.autocomplete = "off"; jebakan.setAttribute("aria-hidden", "true");
     jebakan.oninput = () => { f.website = jebakan.value; };
+    // persetujuan aturan: wajib dicentang, halaman aturannya ada di layanan CodeIn Rumah
+    const setuju = el("label", "setuju"), centang = el("input"), aturan = el("a", null, "Aturan Rumah Proyek");
+    centang.type = "checkbox"; centang.name = "setuju"; centang.checked = f.setuju;
+    centang.onchange = () => { f.setuju = centang.checked; pesan.textContent = ""; };
+    aturan.href = `https://rumah.${DOMAIN}/aturan`; aturan.target = "_blank"; aturan.rel = "noopener";
+    const teksSetuju = el("span"); teksSetuju.append("Aku sudah membaca dan setuju dengan ", aturan, ".");
+    setuju.append(centang, teksSetuju); medan.setuju = centang;
     const kirim = el("button", "tbl utama", "Kirim pengajuan"); kirim.type = "submit";
     form.append(kolomJudul, kolomNama, alamat,
       kolom("Deskripsi singkat", "deskripsi", 120, "text", "Maksimal 120 huruf"),
@@ -127,7 +135,7 @@ const RumahProyek = (() => {
       kolom("Nomor WhatsApp", "wa", 20, "tel", "08…"),
       el("p", "redup", "Isi email atau WhatsApp, salah satu cukup. Kunci upload dikirim ke situ. Hanya admin CodeIn yang bisa melihatnya."));
     if (kosong.length) form.append(labelPilih);
-    form.append(jebakan, pesan, kirim);
+    form.append(setuju, jebakan, pesan, kirim);
     form.onsubmit = async e => {
       e.preventDefault();
       const salah = periksa(f);

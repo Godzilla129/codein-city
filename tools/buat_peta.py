@@ -1,4 +1,4 @@
-"""Pembuat peta CodeIn City -> assets/maps/kota.tmj, markas.tmj, galeri.tmj (format Tiled JSON).
+"""Pembuat peta CodeIn City -> assets/maps/kota.tmj, markas.tmj, galeri.tmj, redaksi.tmj (format Tiled JSON).
 
 PERHATIAN: skrip ini menulis ulang ketiga peta dari nol. Setelah peta diubah lewat aplikasi Tiled,
 JANGAN jalankan skrip ini lagi (perubahan di Tiled akan hilang). Skrip disimpan sebagai dokumentasi
@@ -233,7 +233,7 @@ def kota():
     p.building(29, 27, 7, "merah", KREM, 32, 339, [(30, 335, None), (34, 335, None)])                            # rumah proyek 2
     p.building(43, 27, 7, "oranye", ABU_KREM, 46, 285, [(44, *ARCH_L), (48, *ARCH_L)])                           # Toko Mbak Tika
 
-    p.door("news", "CodeIn News", 21, 10, "pindah", "https://news.codeinhub.my.id/")
+    p.door("news", "CodeIn News", 21, 10, "masuk", "redaksi")
     p.door("galeri", "Galeri Showcase", 39, 10, "masuk", "galeri")
     p.door("markas", "Markas CodeIn", 13, 32, "masuk", "markas")
     p.door("warkop", "Warkop CodeIn", 23, 32, "panel", "kunci")
@@ -411,6 +411,38 @@ def galeri():
     p.tulis("galeri")
 
 
+def redaksi():
+    """Kantor Redaksi CodeIn News. Eko, Tekno, dan Rina diatur js/redaksi.js (keadaannya dari data CodeIn News),
+    jadi di peta ini cukup meja, zona sapa di depan meja, dan titik-titik yang dipakai skrip itu."""
+    p = ruangan(24, 10, ABU_KREM, 3, KREM, 12, "news")
+    p.board("info", "cara-kerja", 2, 1, 5, 3, 4, name="Cara kerja redaksi")
+    p.board("videotron", "layar-redaksi", 9, 1, 8, 3, 4, name="Sedang ramai")
+    # tiga meja redaksi; agen duduk di baris 5 (di belakang meja), pengunjung menyapa dari baris 7
+    for agen, x0 in (("Eko", 3), ("Tekno", 11), ("Rina", 19)):
+        for x in range(x0, x0 + 3):
+            p.thing(x, 6, 275)
+        p.obj(p.points, "meja", (x0 + 1) * T + 8, 5 * T + 12, agen=agen)
+        p.door("meja-" + agen.lower(), "Meja " + agen, x0 + 1, 6, "panel", "redaksi",
+               zone=(x0 * T, 7 * T, 3 * T, T), label=False, penghuni=agen)
+    # dapur kecil di kiri bawah: rak dan mesin kopi (mesin kopinya digambar js/redaksi.js)
+    p.thing(1, 8, 304)
+    p.thing(1, 9, 303)
+    p.block(2, 9)
+    p.obj(p.points, "kopi", 2 * T + 8, 9 * T + 12)
+    # meja rapat di kanan bawah; agen berkumpul di baris 8 saat ada gangguan sistem
+    for x in range(19, 23):
+        p.thing(x, 9, 275)
+    for x in (19, 21):
+        p.thing(x, 10, 381)
+    # terminal untuk membaca CodeIn News di situsnya
+    p.thing(8, 9, 275)
+    p.door("baca", "Baca CodeIn News", 8, 9, "pindah", "https://news.codeinhub.my.id/")
+    for (x, y, k) in ((1, 5, "P"), (24, 5, "P"), (24, 10, "Q"), (8, 4, "Q"), (17, 4, "Q")):
+        p.tree(x, y, k)
+    p.tulis("redaksi")
+
+
 kota()
 markas()
 galeri()
+redaksi()

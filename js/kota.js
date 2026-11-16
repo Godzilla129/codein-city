@@ -1,4 +1,4 @@
-/* CodeIn City · adegan (Phaser 3). Satu adegan dipakai untuk semua peta: kota, dan interior Markas serta Galeri.
+/* CodeIn City · adegan (Phaser 3). Satu adegan dipakai untuk semua peta: kota, dan interior Markas, Galeri, serta Kantor Redaksi.
    Peta dibaca dari assets/maps/<nama>.tmj (dibuat dan diubah dengan Tiled):
      layer ubin  : tanah, jalan, bangunan, hiasan (di bawah karakter), atas (di atas karakter),
                    tabrakan (tidak digambar; setiap ubin di layer ini tidak bisa dilewati)
@@ -6,14 +6,14 @@
                    titik (mulai, lampu, patung, pancuran), papan (kotak papan HTML; properti id, urutan, tiang),
                    rute (garis jalur kendaraan, dipakai lalulintas.js)
    aksi pintu: pindah = buka alamat web, masuk/keluar = ganti peta, panel = buka dialog (tujuan "sapa" = menyapa warga "penghuni").
-   Warga dan jadwal hariannya diurus js/warga.js. Titik "patung" punya properti jenis (lihat KOTA.patung).
+   Warga dan jadwal hariannya diurus js/warga.js; Eko, Tekno, dan Rina di Kantor Redaksi diurus js/redaksi.js. Titik "patung" punya properti jenis (lihat KOTA.patung).
    Teks nama gedung, nama karakter, balon ucapan, dan isi papan digambar sebagai elemen HTML di atas kanvas supaya tajam. */
 
 const Kota = (() => {
   const T = KOTA.ubin;
   const KOLOM = {kiri: 23, bawah: 24, atas: 25, kanan: 26};      // kolom arah di urban.png
   const ARAH = ["bawah", "kiri", "kanan", "atas"];               // nomor arah yang dikirim lewat jaringan
-  const PETA = ["kota", "markas", "galeri"];
+  const PETA = ["kota", "markas", "galeri", "redaksi"];
   const frame = (k, arah, langkah) => (KOTA.karakter[k].baris + langkah) * 27 + KOLOM[arah];
   const tenang = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -257,7 +257,7 @@ const Kota = (() => {
     if (p.aksi === "keluar") return "Keluar ke kota";
     if (p.id === "pendiri") return "Baca plakat patung";
     return {kunci: "Periksa gedung", baliho: ruang === "galeri" ? "Lihat karya" : "Baca baliho", videotron: "Lihat kabar ramai",
-            rumah: "Ketuk pintu", info: "Baca papan", sapa: `Sapa ${p.penghuni}`,
+            rumah: "Ketuk pintu", info: "Baca papan", sapa: `Sapa ${p.penghuni}`, redaksi: `Sapa ${p.penghuni}`,
             proyek: p.proyek ? `Kunjungi ${p.proyek.judul}` : "Lihat rumah kosong"}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
   }
   function cariTerdekat() {
@@ -269,6 +269,10 @@ const Kota = (() => {
       else {
         const w = Warga.terdekat(pemain.x, pemain.y);
         if (w) baru = {kunci: "w:" + w.def.nama, warga: w, teks: `Sapa ${w.def.nama}`};
+        else if (ruang === "redaksi") {
+          const a = Redaksi.terdekat(pemain.x, pemain.y);
+          if (a) baru = {kunci: "r:" + a.def.nama, redaksi: a.def.nama, teks: `Sapa ${a.def.nama}`};
+        }
       }
     }
     if ((baru && baru.kunci) === (dekat && dekat.kunci)) return;
@@ -278,7 +282,7 @@ const Kota = (() => {
   }
   function aksi() {
     if (!dekat || pindah || Panel.terbuka()) return false;
-    if (dekat.warga) Warga.sapa(dekat.warga); else lewat(dekat.pintu);
+    if (dekat.warga) Warga.sapa(dekat.warga); else if (dekat.redaksi) Redaksi.buka(dekat.redaksi); else lewat(dekat.pintu);
     return true;
   }
   // Ganti peta seketika; peta baru muncul dengan fade-in dari gelap. Tidak menunggu animasi fade-out selesai,
@@ -321,17 +325,23 @@ const Kota = (() => {
       else if (p.tujuan === "sapa") Warga.sapaNama(p.penghuni);
       else if (p.id === "toko") toko(p);
       else if (p.tujuan === "proyek") RumahProyek.buka(p);
+      else if (p.tujuan === "redaksi") Redaksi.buka(p.penghuni);
       else Panel.gedung(KOTA.panel[p.id] ? p.id : p.tujuan, p.nama);
       return;
     }
-    // pindah halaman: posisi disimpan supaya saat kembali pengunjung muncul di depan gedung ini
+    pergi(p.tujuan, p.x + p.w / 2, p.y + p.h / 2);
+  }
+  // Pindah ke halaman lain (CodeIn News). Di kota, posisi disimpan supaya saat kembali pengunjung muncul di tempat yang sama;
+  // dari dalam gedung, posisi yang disimpan tetap posisi di depan gedung itu.
+  function pergi(alamat, x, y) {
+    if (pindah) return;
     pindah = true; Kendali.lepas(); tekan.clear();
-    Profil.simpanPosisi(p.x + p.w / 2, p.y + p.h / 2);
-    const u = new URL(p.tujuan);
+    if (ruang === "kota") Profil.simpanPosisi(x, y);
+    const u = new URL(alamat);
     u.searchParams.set("dari", "kota"); u.searchParams.set("k", profil.karakter); u.searchParams.set("n", profil.nama);
     const cam = adegan.cameras.main;
-    let pergi = false;
-    const berangkat = () => { if (!pergi) { pergi = true; location.href = u.href; } };
+    let berangkatSudah = false;
+    const berangkat = () => { if (!berangkatSudah) { berangkatSudah = true; location.href = u.href; } };
     cam.once("camerafadeoutcomplete", berangkat);
     setTimeout(berangkat, 600);        // cadangan kalau animasi tertahan
     cam.fadeOut(420, 20, 24, 48);
@@ -403,6 +413,8 @@ const Kota = (() => {
     clearTimeout(waktuKabar); waktuKabar = setTimeout(() => { k.hidden = true; }, 3200);
   }
   function masuk(id) { const p = pintu.find(x => x.id === id); if (p) lewat(p); }
+  // buka halaman CodeIn News (jalur = "/", "/buku/12", ...) dengan sapaan dari kota
+  function bukaNews(jalur) { if (pemain) pergi(KOTA.news.replace(/\/+$/, "") + (jalur || "/"), pemain.x, pemain.y); }
   function ucap(teks) { if (!pemain) return; if (balonSaya) balonSaya(); balonSaya = balon(pemain, teks, 6000); }
 
   function nyalakan() {
@@ -414,7 +426,7 @@ const Kota = (() => {
   }
 
   return {
-    nyalakan, mulai, pindahKe, masuk, ucap, balon, tempelkan, lepaskan, frame, ARAH, waktu, kabar,
+    nyalakan, mulai, pindahKe, masuk, bukaNews, ucap, balon, tempelkan, lepaskan, frame, ARAH, waktu, kabar,
     pintu: () => pintu, ruang: () => ruang, profil: () => profil, adegan: () => adegan,
     posisi: () => pemain ? {x: pemain.x, y: pemain.y, arah, jalan} : null,
     orang: () => pemain ? [pemain, ...Warga.sprites()] : [],                // semua yang perlu dihindari kendaraan

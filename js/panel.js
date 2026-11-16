@@ -55,7 +55,7 @@ const Panel = (() => {
       b.onclick = () => { tutup(); if (document.activeElement) document.activeElement.blur(); Kota.pindahKe(p.id); };
       li.append(el("span", null, nama), b); ul.append(li);
     }
-    const judul = {kota: "Tempat di CodeIn City", markas: "Tempat di Markas CodeIn", galeri: "Tempat di Galeri Showcase"}[Kota.ruang()] || "Tempat";
+    const judul = {kota: "Tempat di CodeIn City", markas: "Tempat di Markas CodeIn", galeri: "Tempat di Galeri Showcase", redaksi: "Tempat di Kantor Redaksi"}[Kota.ruang()] || "Tempat";
     buka(judul, [el("p", null, "Pilih tempat untuk langsung berpindah ke depannya."), ul], [{teks: "Tutup"}]);
   }
 

@@ -165,6 +165,9 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 .isian input,.isian select{display:block;width:100%;min-height:44px;margin-top:4px;padding:0 10px;background:#fff;border:3px solid var(--tinta);border-radius:10px;font-weight:400}
 .isian input::placeholder{color:#756353}
 .isian .jebakan{position:absolute;left:-9999px;width:1px;min-height:0;height:1px;opacity:0}
+.isian .setuju{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;font-weight:500}
+.isian .setuju input{width:24px;height:24px;min-height:0;margin:1px 0 0;padding:0;accent-color:#1F5E57}
+.isian .setuju a{color:inherit;font-weight:600;text-underline-offset:3px}
 .warna{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
 .warna button{width:44px;height:44px;padding:0;border:3px solid var(--tinta);border-radius:10px;cursor:pointer}
 .warna button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--kertas),0 0 0 6px var(--tinta)}
@@ -177,3 +180,4 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
   #hud-nama{display:none}
 }
 @media (prefers-reduced-motion:reduce){ .tbl:active{transform:none} .layar.ganti .pw-judul,.layar.ganti .pw-kaki{animation:none} #obrol-log li{transition:none} }
+#panel-isi a{color:#1F5E57;font-weight:600;text-underline-offset:3px}

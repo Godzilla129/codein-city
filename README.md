@@ -9,7 +9,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 - Layar judul: enam pilihan karakter dan nama panggilan dengan penyaring kata kasar.
 - Jalan dengan WASD atau tombol panah. Di ponsel, sentuh layar lalu geser.
 - Kota 80 x 64 petak: jalan utama dengan tiga gerbang, alun-alun dengan air mancur dan Patung Si Pemula, pojok pasar, dan kampung warga di selatan.
-- Gedung: CodeIn News (pindah ke `news.codeinhub.my.id`), Galeri Showcase dan Markas CodeIn (bisa dimasuki), Warkop CodeIn dan dua gedung lain (belum buka), Toko Mbak Tika.
+- Gedung: Kantor Redaksi CodeIn News, Galeri Showcase, dan Markas CodeIn (bisa dimasuki), Warkop CodeIn dan dua gedung lain (belum buka), Toko Mbak Tika.
 - **Pengunjung lain terlihat** di kota dan di dalam gedung, lengkap dengan nama. Jumlah orang tampil di bilah atas.
 - **Obrolan**: tekan Enter (atau T), ketik, lalu Enter. Pesan muncul sebagai balon di atas kepala dan di daftar obrolan. Tidak ada riwayat yang disimpan.
 - **Videotron** di sebelah CodeIn News: lima kabar yang sedang ramai dalam 24 jam, berganti tiap 6 detik.
@@ -18,8 +18,9 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 - **Papan Pengumuman** berupa papan gabus: tiga pengumuman teratas terbaca langsung dari jauh.
 - Sebelas warga yang bisa disapa, sepuluh di antaranya punya rumah di kampung. Warga kota punya jadwal pagi, siang, sore, dan malam (WIB): berjalan ke tempatnya lewat trotoar dan zebra cross, jalan-jalan kecil di sekitarnya, dan malam hari sebagian besar pulang ke rumah.
 - Markas CodeIn: Patung Pendiri dengan plakat, dan Kak Rani di meja resepsionis yang membacakan pengumuman terbaru.
+- **Kantor Redaksi CodeIn News**: Eko (ekonomi), Tekno (teknologi), dan Rina (berita umum) bekerja sesuai kabar yang benar-benar masuk: mengetik di meja dengan layar menyala, ngopi di dapur saat sepi, tertidur saat malam, dan rapat bersama saat bagian penting sistem bermasalah. Sapa mereka untuk melihat kabar yang mereka olah dan membuka Buku Harian; terminal di dekat pintu membuka `news.codeinhub.my.id`.
 - Warkop CodeIn sengaja dikunci sebagai tantangan untuk anggota yang mau ikut membangun kota.
-- Rumah proyek: empat bangunan (dua gedung dan dua rumah kampung) untuk situs proyek anggota. Pengunjung mengajukan dari kota, admin menyetujui di CodeIn News, anggota mengunggah zip situsnya di `rumah.codeinhub.my.id`, lalu situsnya tayang di `<nama>.codeinhub.my.id` dan namanya muncul di atas pintu rumahnya.
+- Rumah proyek: empat bangunan (dua gedung dan dua rumah kampung) untuk situs proyek anggota. Pengunjung mengajukan dari kota, admin menyetujui di CodeIn News, anggota mengunggah zip situsnya di `rumah.codeinhub.my.id` (wajib menyetujui [Aturan Rumah Proyek](https://rumah.codeinhub.my.id/aturan)), lalu situsnya tayang di `<nama>.codeinhub.my.id` dan namanya muncul di atas pintu rumahnya.
 - Kendaraan masuk dan keluar lewat gerbang, dan berhenti kalau ada orang di depannya.
 - Tombol **Tempat** untuk berpindah langsung ke depan gedung tanpa berjalan. Papan bisa diketuk atau diklik dari jauh.
 - Siang dan malam mengikuti jam WIB, dengan lampu jalan yang menyala saat malam.
@@ -37,6 +38,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/papan.js` | Papan HTML: baliho, videotron, Papan Pengumuman, papan Markas, dialog Galeri, dan formulir pengajuan baliho |
 | `js/kendali.js` | Kendali sentuh |
 | `js/kota.js` | Adegan (Phaser) untuk semua peta: pemain, pintu, masuk dan keluar gedung, patung, siang dan malam |
+| `js/redaksi.js` | Kantor Redaksi: Eko, Tekno, dan Rina; keadaannya dihitung dari API publik CodeIn News, dialog tiap redaktur |
 | `js/rumah.js` | Rumah proyek anggota: nama di papan pintu, dialog, dan formulir pengajuan (data dari CodeIn News) |
 | `js/warga.js` | Warga dan jadwal hariannya: pencarian jalur, jalan-jalan kecil, pulang ke rumah, ucapan per waktu |
 | `js/lalulintas.js` | Kendaraan yang mengikuti jalur di peta dan berhenti untuk pejalan kaki |
@@ -44,7 +46,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/judul.js` | Layar judul |
 | `js/main.js` | Titik mulai |
 | `assets/maps/kota.tmj` | Peta kota, dibuka dan diubah dengan Tiled |
-| `assets/maps/markas.tmj`, `galeri.tmj` | Peta ruangan Markas CodeIn dan Galeri Showcase |
+| `assets/maps/markas.tmj`, `galeri.tmj`, `redaksi.tmj` | Peta ruangan Markas CodeIn, Galeri Showcase, dan Kantor Redaksi |
 | `assets/tiles/urban.png` | Tileset dan karakter (Kenney, CC0) |
 | `vendor/phaser.min.js` | Phaser 3.90.0 (lisensi MIT) |
 | `tools/buat_peta.py` | Pembuat ketiga peta. Sampai versi ini peta masih sama persis dengan hasil skrip. Jangan dijalankan lagi setelah peta diubah di Tiled |
@@ -124,7 +126,7 @@ Situs diterbitkan lewat Cloudflare (Workers dengan aset statis) yang terhubung k
 | 6 | Tahap 1: perbaikan dialog Tempat, obrolan, dan perpindahan; Patung Pendiri dan resepsionis; jadwal harian warga | Selesai |
 | 7 | Tahap 2: rumah proyek anggota dengan hosting situs statis (unggah zip) | Selesai |
 | - | Lahan kosong untuk rumah proyek berikutnya, akun anggota, poin | Rencana |
-| 8 | Kantor Redaksi CodeIn News jadi ruangan piksel di dalam kota | Rencana |
+| 8 | Kantor Redaksi CodeIn News jadi ruangan piksel di dalam kota | Selesai |
 | - | Warkop CodeIn: dibuka bersama anggota yang mau ikut membangun | Menunggu kontributor |
 
 ## Lisensi aset
