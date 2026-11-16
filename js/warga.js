@@ -196,11 +196,18 @@ const Warga = (() => {
   function resepsionis(w) {
     const p = KOTA.panel.papan.daftar || [], kunci = Kota.waktu().kunci;
     const isi = [el("p", null, w.def.salam[kunci] || "Selamat datang di Markas CodeIn!"),
-      el("p", null, "Aku Rani, resepsionis Markas. Aku yang menempel pengumuman di papan alun-alun. Yang terbaru:")];
-    if (p.length) { const ul = el("ul"); p.slice(0, 3).forEach(t => ul.append(el("li", null, t))); isi.push(ul); }
-    isi.push(el("p", null, "Mau memajang karya? Ajukan lewat Galeri Showcase atau langsung di depan baliho mana saja. Mau situs proyekmu punya rumah di kota? Datangi rumah kosong mana saja dan ajukan, tinggal unggah zip situsnya."),
-      el("p", null, "Penasaran sama Warkop CodeIn, atau mau ikut membangun kota ini? Sampaikan ke Jull lewat grup WhatsApp CodeIn."));
-    Panel.buka("Kak Rani · Resepsionis", isi, [{teks: "Ke Patung Pendiri", aksi: () => Kota.pindahKe("pendiri")}, {teks: "Tutup"}]);
+      el("p", null, "Aku Rani, resepsionis Markas. Semua pendaftaran di CodeIn City lewat aku:")];
+    const ul = el("ul");
+    ul.append(el("li", null, "Hosting proyek: situs, game web, atau portofolio tayang gratis di namaproyek." + KOTA.domain + " dan masuk Direktori Proyek."),
+      el("li", null, "Baliho: pajang proyek, acara, atau portofoliomu di baliho kota."));
+    isi.push(ul);
+    if (p.length) isi.push(el("p", "redup", "Pengumuman terbaru: " + p[0]));
+    isi.push(el("p", "redup", "Mau ikut membangun kota atau membuka Warkop CodeIn? Sampaikan ke Jull lewat grup WhatsApp CodeIn."));
+    Panel.buka("Kak Rani · Resepsionis", isi, [
+      {teks: "Daftar hosting proyek", utama: true, aksi: () => RumahProyek.formulir()},
+      {teks: "Pasang baliho", aksi: () => Papan.formulir(0)},
+      {teks: "Direktori proyek", aksi: () => RumahProyek.direktori()},
+      {teks: "Tutup"}]);
   }
   function sapa(w) {
     if (w.def.peran === "resepsionis") { resepsionis(w); return; }

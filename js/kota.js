@@ -413,6 +413,11 @@ const Kota = (() => {
     clearTimeout(waktuKabar); waktuKabar = setTimeout(() => { k.hidden = true; }, 3200);
   }
   function masuk(id) { const p = pintu.find(x => x.id === id); if (p) lewat(p); }
+  // Semua pendaftaran lewat Kak Rani: dari mana pun, pemain diantar ke depan meja resepsionis Markas
+  function keResepsionis() {
+    Panel.tutup();
+    if (ruang === "markas") pindahKe("resepsionis"); else gantiPeta("markas", "resepsionis");
+  }
   // buka halaman CodeIn News (jalur = "/", "/buku/12", ...) dengan sapaan dari kota
   function bukaNews(jalur) { if (pemain) pergi(KOTA.news.replace(/\/+$/, "") + (jalur || "/"), pemain.x, pemain.y); }
   function ucap(teks) { if (!pemain) return; if (balonSaya) balonSaya(); balonSaya = balon(pemain, teks, 6000); }
@@ -426,7 +431,7 @@ const Kota = (() => {
   }
 
   return {
-    nyalakan, mulai, pindahKe, masuk, bukaNews, ucap, balon, tempelkan, lepaskan, frame, ARAH, waktu, kabar,
+    nyalakan, mulai, pindahKe, masuk, keResepsionis, bukaNews, ucap, balon, tempelkan, lepaskan, frame, ARAH, waktu, kabar,
     pintu: () => pintu, ruang: () => ruang, profil: () => profil, adegan: () => adegan,
     posisi: () => pemain ? {x: pemain.x, y: pemain.y, arah, jalan} : null,
     orang: () => pemain ? [pemain, ...Warga.sprites()] : [],                // semua yang perlu dihindari kendaraan

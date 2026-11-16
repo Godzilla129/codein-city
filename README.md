@@ -14,13 +14,13 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 - **Obrolan**: tekan Enter (atau T), ketik, lalu Enter. Pesan muncul sebagai balon di atas kepala dan di daftar obrolan. Tidak ada riwayat yang disimpan.
 - **Videotron** di sebelah CodeIn News: lima kabar yang sedang ramai dalam 24 jam, berganti tiap 6 detik.
 - **Enam baliho** (empat di jalan utama, dua di taman selatan) berisi proyek anggota. Nomor baliho sama dengan nomor slot billboard di CodeIn News. Di dalam Galeri, keenamnya dipajang sebagai karya di dinding.
-- Pengajuan baliho langsung dari kota: lewat penjaga Galeri atau dari depan balihonya. Admin memutuskan di halaman admin CodeIn News.
+- Pengajuan baliho lewat Kak Rani di Markas. Admin memutuskan di halaman admin CodeIn News.
 - **Papan Pengumuman** berupa papan gabus: tiga pengumuman teratas terbaca langsung dari jauh.
 - Sebelas warga yang bisa disapa, sepuluh di antaranya punya rumah di kampung. Warga kota punya jadwal pagi, siang, sore, dan malam (WIB): berjalan ke tempatnya lewat trotoar dan zebra cross, jalan-jalan kecil di sekitarnya, dan malam hari sebagian besar pulang ke rumah.
 - Markas CodeIn: Patung Pendiri dengan plakat, dan Kak Rani di meja resepsionis yang membacakan pengumuman terbaru.
 - **Kantor Redaksi CodeIn News**: Eko (ekonomi), Tekno (teknologi), dan Rina (berita umum) bekerja sesuai kabar yang benar-benar masuk: mengetik di meja dengan layar menyala, ngopi di dapur saat sepi, tertidur saat malam, dan rapat bersama saat bagian penting sistem bermasalah. Sapa mereka untuk melihat kabar yang mereka olah dan membuka Buku Harian; terminal di dekat pintu membuka `news.codeinhub.my.id`.
 - Warkop CodeIn sengaja dikunci sebagai tantangan untuk anggota yang mau ikut membangun kota.
-- Rumah proyek: empat bangunan (dua gedung dan dua rumah kampung) untuk situs proyek anggota. Pengunjung mengajukan dari kota, admin menyetujui di CodeIn News, anggota mengunggah zip situsnya di `rumah.codeinhub.my.id` (wajib menyetujui [Aturan Rumah Proyek](https://rumah.codeinhub.my.id/aturan)), lalu situsnya tayang di `<nama>.codeinhub.my.id` dan namanya muncul di atas pintu rumahnya.
+- **Hosting proyek lewat Kak Rani**: semua pendaftaran (hosting proyek dan baliho) dilakukan di meja resepsionis Markas. Anggota mendaftar, admin menyetujui di CodeIn News, anggota mengunggah zip situsnya di `rumah.codeinhub.my.id` (wajib menyetujui [Aturan Rumah Proyek](https://rumah.codeinhub.my.id/aturan)), lalu situsnya tayang di `<nama>.codeinhub.my.id` dan tercantum di **Direktori Proyek**. Empat rumah di kota (dua gedung dan dua rumah kampung) adalah hadiah untuk proyek unggulan pilihan admin.
 - Kendaraan masuk dan keluar lewat gerbang, dan berhenti kalau ada orang di depannya.
 - Tombol **Tempat** untuk berpindah langsung ke depan gedung tanpa berjalan. Papan bisa diketuk atau diklik dari jauh.
 - Siang dan malam mengikuti jam WIB, dengan lampu jalan yang menyala saat malam.
@@ -39,7 +39,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/kendali.js` | Kendali sentuh |
 | `js/kota.js` | Adegan (Phaser) untuk semua peta: pemain, pintu, masuk dan keluar gedung, patung, siang dan malam |
 | `js/redaksi.js` | Kantor Redaksi: Eko, Tekno, dan Rina; keadaannya dihitung dari API publik CodeIn News, dialog tiap redaktur |
-| `js/rumah.js` | Rumah proyek anggota: nama di papan pintu, dialog, dan formulir pengajuan (data dari CodeIn News) |
+| `js/rumah.js` | Hosting proyek anggota: formulir pendaftaran, Direktori Proyek, dan nama proyek unggulan di pintu rumahnya (data dari CodeIn News) |
 | `js/warga.js` | Warga dan jadwal hariannya: pencarian jalur, jalan-jalan kecil, pulang ke rumah, ucapan per waktu |
 | `js/lalulintas.js` | Kendaraan yang mengikuti jalur di peta dan berhenti untuk pejalan kaki |
 | `js/ramai.js` | Pengunjung lain dan obrolan (WebSocket ke layanan ramai) |

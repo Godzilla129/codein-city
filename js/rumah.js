@@ -1,7 +1,9 @@
-/* CodeIn City · rumah proyek anggota (CodeIn Rumah).
-   Empat rumah di peta (pintu dengan tujuan "proyek": proyek-1 sampai proyek-4). Isinya diambil dari CodeIn News:
-     GET  /api/rumah          -> proyek yang sudah tayang beserta rumahnya
-     POST /api/rumah/ajukan   -> pengajuan rumah dari kota (admin menyetujui di /admin, lalu mengirim kunci upload)
+/* CodeIn City · hosting proyek anggota (CodeIn Rumah).
+   Semua anggota bisa menghosting situs proyeknya; pendaftarannya lewat Kak Rani di Markas (js/warga.js).
+   Semua situs yang tayang tercantum di Direktori Proyek. Empat rumah di peta (pintu dengan tujuan "proyek": proyek-1
+   sampai proyek-4) adalah hadiah untuk proyek unggulan yang dipilih admin, bukan syarat untuk dihosting.
+     GET  /api/rumah          -> semua proyek yang sudah tayang; yang dapat rumah membawa id rumahnya
+     POST /api/rumah/ajukan   -> pendaftaran hosting (admin menyetujui di /admin, lalu mengirim kunci upload)
    Situs proyeknya sendiri disajikan oleh layanan CodeIn Rumah di https://<nama>.codeinhub.my.id. */
 
 const RumahProyek = (() => {
@@ -22,7 +24,7 @@ const RumahProyek = (() => {
       const r = await fetch(API + "/api/rumah", {headers: {Accept: "application/json"}, signal: batas.signal});
       if (!r.ok) throw new Error("HTTP " + r.status);
       const d = await r.json();
-      daftar = Array.isArray(d) ? d.filter(s => s && s.rumah && s.judul && /^https:\/\//.test(s.url || "")) : [];
+      daftar = Array.isArray(d) ? d.filter(s => s && s.judul && /^https:\/\//.test(s.url || "")) : [];
       keadaan = "siap";
     } catch (e) {
       if (keadaan !== "siap") keadaan = "gagal";
@@ -44,7 +46,6 @@ const RumahProyek = (() => {
 
   /* ---------- dialog ---------- */
   const paragraf = t => el("p", null, t);
-  const rumahKosong = () => Kota.ruang() === "kota" ? Kota.pintu().filter(p => p.tujuan === "proyek" && !p.proyek) : [];
 
   function buka(p) {
     if (p.proyek) {
@@ -61,10 +62,9 @@ const RumahProyek = (() => {
       return;
     }
     Panel.buka(p.namaAsli || p.nama, [
-      paragraf("Rumah ini menunggu proyek anggota CodeIn."),
-      paragraf(`Punya situs, game web, atau portofolio? Ajukan rumah ini. Kalau disetujui admin, kamu dapat kunci upload, tinggal unggah zip situsmu, dan situsnya tayang di namaproyek.${DOMAIN}.`),
-      el("p", "redup", "Yang bisa tayang: HTML, CSS, JavaScript, gambar, suara, dan hasil build React, Vue, atau Vite. PHP dan database belum bisa."),
-    ], [{teks: "Ajukan rumah ini", utama: true, aksi: () => formulir(p.id)}, {teks: "Tutup"}]);
+      paragraf("Rumah ini disiapkan untuk proyek unggulan anggota CodeIn, dipilih admin dari proyek yang sudah tayang."),
+      paragraf(`Semua proyek bisa dihosting gratis di namaproyek.${DOMAIN} dan tercantum di Direktori Proyek. Daftarnya lewat Kak Rani di meja resepsionis Markas CodeIn.`),
+    ], [{teks: "Antar ke Kak Rani", utama: true, aksi: () => Kota.keResepsionis()}, {teks: "Direktori proyek", aksi: direktori}, {teks: "Tutup"}]);
   }
 
   // dari teks bebas ke subdomain: "Aetheria: Pengembara!" -> "aetheria-pengembara"
@@ -85,18 +85,12 @@ const RumahProyek = (() => {
     return null;
   }
 
-  function formulir(rumahId) {
+  function formulir() {
     if (!isian) {
       const pf = Profil.muat(), nama = pf && !/^Pengunjung \d+$/.test(pf.nama) ? pf.nama : "";
-      isian = {judul: "", nama: "", deskripsi: "", pemilik: nama, email: "", wa: "", rumah: "", website: "", setuju: false, namaDiubah: false};
+      isian = {judul: "", nama: "", deskripsi: "", pemilik: nama, email: "", wa: "", website: "", setuju: false, namaDiubah: false};
     }
-    const f = isian, kosong = rumahKosong();
-    if (rumahId) f.rumah = rumahId;
-    if (!kosong.some(p => p.id === f.rumah)) f.rumah = kosong[0] ? kosong[0].id : "";
-    if (!kosong.length && keadaan === "siap") {
-      Panel.buka("Rumah proyek penuh", [paragraf("Semua rumah proyek sedang ditempati."), paragraf("Sampaikan ke admin CodeIn lewat grup WhatsApp, rumah baru akan dibangun kalau peminatnya banyak.")], [{teks: "Tutup"}]);
-      return;
-    }
+    const f = isian;
     const form = el("form", "isian"), medan = {}, pesan = el("p", "pesan"); form.noValidate = true; pesan.setAttribute("role", "status");
     const alamat = el("p", "redup");
     const tulisAlamat = () => { alamat.textContent = f.nama ? `Alamat situsmu: ${f.nama}.${DOMAIN}` : `Alamat situsmu: namaproyek.${DOMAIN}`; };
@@ -114,10 +108,6 @@ const RumahProyek = (() => {
       i.value = i.value.toLowerCase().replace(/[^a-z0-9-]/g, ""); f.nama = i.value; f.namaDiubah = true; tulisAlamat();
     });
     tulisAlamat();
-    const pilih = el("select"); pilih.name = "rumah";
-    for (const p of kosong) { const o = el("option", null, p.namaAsli + " · " + ({"proyek-1": "dekat pojok pasar", "proyek-2": "selatan alun-alun", "proyek-3": "kampung barat", "proyek-4": "kampung timur"}[p.id] || p.id)); o.value = p.id; pilih.append(o); }
-    pilih.value = f.rumah; pilih.onchange = () => { f.rumah = pilih.value; };
-    const labelPilih = el("label", null, "Rumah pilihan"); labelPilih.append(pilih);
     const jebakan = el("input", "jebakan"); jebakan.name = "website"; jebakan.tabIndex = -1; jebakan.autocomplete = "off"; jebakan.setAttribute("aria-hidden", "true");
     jebakan.oninput = () => { f.website = jebakan.value; };
     // persetujuan aturan: wajib dicentang, halaman aturannya ada di layanan CodeIn Rumah
@@ -134,7 +124,6 @@ const RumahProyek = (() => {
       kolom("Email", "email", 80, "email", "nama@email.com"),
       kolom("Nomor WhatsApp", "wa", 20, "tel", "08…"),
       el("p", "redup", "Isi email atau WhatsApp, salah satu cukup. Kunci upload dikirim ke situ. Hanya admin CodeIn yang bisa melihatnya."));
-    if (kosong.length) form.append(labelPilih);
     form.append(setuju, jebakan, pesan, kirim);
     form.onsubmit = async e => {
       e.preventDefault();
@@ -148,14 +137,44 @@ const RumahProyek = (() => {
         if (!r.ok) throw new Error(d.error || `Server menolak pengajuan (kode ${r.status}).`);
         const alamatnya = `${f.nama}.${DOMAIN}`;
         isian = null;
-        Panel.buka("Pengajuan terkirim", [paragraf(`Terima kasih. Admin CodeIn akan meninjau pengajuanmu dan mengirim kunci upload lewat email atau WhatsApp yang kamu isi.`),
-          paragraf(`Setelah unggahanmu diterbitkan, situsnya tayang di ${alamatnya} dan namanya muncul di atas pintu rumah ini.`)], [{teks: "Tutup"}]);
+        Panel.buka("Pendaftaran terkirim", [paragraf("Terima kasih. Admin CodeIn akan meninjau pendaftaranmu dan mengirim kunci upload lewat email atau WhatsApp yang kamu isi."),
+          paragraf(`Setelah unggahanmu diterbitkan, situsnya tayang di ${alamatnya} dan masuk Direktori Proyek. Proyek yang bagus bisa dipilih admin untuk dapat rumah di kota.`)], [{teks: "Tutup"}]);
       } catch (err) {
         kirim.disabled = false;
         pesan.textContent = err instanceof TypeError ? "Belum terkirim: CodeIn News sedang tidak bisa dihubungi. Isianmu masih ada, coba lagi sebentar." : "Belum terkirim: " + err.message;
       }
     };
-    Panel.buka("Ajukan rumah proyek", [paragraf("Gratis untuk anggota CodeIn. Situsmu nanti di-hosting CodeIn dan punya rumah di kota ini."), form], [{teks: "Batal"}], medan.judul);
+    Panel.buka("Daftar hosting proyek", [paragraf(`Gratis untuk anggota CodeIn. Situsmu tayang di namaproyek.${DOMAIN} dan masuk Direktori Proyek. Yang bisa tayang: HTML, CSS, JavaScript, gambar, suara, dan hasil build React, Vue, atau Vite.`), form], [{teks: "Batal"}], medan.judul);
+  }
+
+  /* ---------- Direktori Proyek: semua situs anggota yang sudah tayang ---------- */
+  function direktori() {
+    const isi = [];
+    if (keadaan !== "siap") isi.push(el("p", "redup", keadaan === "gagal" ? "Direktori belum bisa dimuat. CodeIn News mungkin sedang tidak terjangkau, coba lagi sebentar." : "Memuat direktori…"));
+    else if (!daftar.length) isi.push(paragraf("Belum ada proyek yang tayang. Punyamu bisa jadi yang pertama."));
+    else {
+      isi.push(el("p", "redup", `${daftar.length} proyek anggota yang sudah tayang. Yang bertanda rumah sedang menempati rumah di kota.`));
+      const ul = el("ul", "galeri");
+      for (const s of [...daftar].sort((a, b) => (b.rumah ? 1 : 0) - (a.rumah ? 1 : 0) || a.judul.localeCompare(b.judul))) {
+        const li = el("li"), baris = el("div", "galeri-aksi"), buka = el("button", "tbl kecil-tbl", "Buka situsnya ↗");
+        buka.type = "button"; buka.onclick = () => window.open(s.url, "_blank", "noopener");
+        baris.append(buka);
+        if (s.rumah && Kota.ruang() === "kota") {
+          const ke = el("button", "tbl kecil-tbl", "Ke rumahnya"); ke.type = "button";
+          ke.onclick = () => { Panel.tutup(); Kota.pindahKe(s.rumah); };
+          baris.append(ke);
+        }
+        li.append(el("b", null, (s.rumah ? "🏠 " : "") + s.judul));
+        if (s.deskripsi) li.append(el("span", null, s.deskripsi));
+        li.append(el("span", "redup", [s.pemilik && "oleh " + s.pemilik, s.url.replace("https://", "")].filter(Boolean).join(" · ")));
+        li.append(baris); ul.append(li);
+      }
+      isi.push(ul);
+    }
+    // pendaftaran hanya di meja Kak Rani; dari tempat lain, pemain diantar ke sana
+    const daftarkan = Kota.ruang() === "markas" ? {teks: "Daftar hosting proyek", utama: true, aksi: () => formulir()}
+                                                : {teks: "Antar ke Kak Rani", utama: true, aksi: () => Kota.keResepsionis()};
+    Panel.buka("Direktori Proyek", isi, [daftarkan, {teks: "Tutup"}]);
   }
 
   Kota.saatSiap(() => terapkan());
@@ -163,5 +182,5 @@ const RumahProyek = (() => {
   setInterval(segarkan, SEGAR);
   addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - terakhir > SEGAR / 2) segarkan(); });
 
-  return {buka, formulir, daftar: () => daftar};
+  return {buka, formulir, direktori, daftar: () => daftar};
 })();

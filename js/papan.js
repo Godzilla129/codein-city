@@ -161,14 +161,14 @@ const Papan = (() => {
 
   function panelBaliho(n) {
     const s = slotKe(n), isi = [el("p", "redup", `Baliho nomor ${n}` + (s && !s.empty && s.badge ? ` · ${judulKecil(s.badge)}` : ""))];
-    const ajukan = {teks: "Ajukan proyekmu", aksi: () => formulir(n)};
+    const ajukan = {teks: "Daftar lewat Kak Rani", aksi: () => Kota.keResepsionis()};
     if (keadaan.slot !== "siap") {
       isi.push(keadaanP(keadaan.slot, "Memuat isi baliho…", "Isi baliho belum bisa dimuat. CodeIn News mungkin sedang tidak terjangkau, coba lagi sebentar."));
       Panel.buka("Baliho", isi, [{teks: "Tutup"}]); return;
     }
     if (!s || s.empty) {
       isi.push(paragraf("Baliho ini belum ada isinya."),
-        paragraf("Anggota CodeIn boleh memasang proyek, acara, atau portofolio di sini, gratis. Admin akan menghubungi kamu sebelum balihonya tayang."));
+        paragraf("Anggota CodeIn boleh memasang proyek, acara, atau portofolio di sini, gratis. Daftarnya lewat Kak Rani di meja resepsionis Markas CodeIn."));
       Panel.buka("Baliho kosong", isi, [{...ajukan, utama: true}, {teks: "Tutup"}]); return;
     }
     if (s.sub) isi.push(paragraf(s.sub));
@@ -198,8 +198,9 @@ const Papan = (() => {
       }
       isi.push(el("p", "redup", kosong ? `${kosong} dari ${JUMLAH} baliho masih kosong.` : "Semua baliho sedang terisi. Pengajuan baru masuk antrean admin."));
     }
-    Panel.buka("Galeri Showcase", isi, [{teks: "Ajukan baliho", utama: true, aksi: () => formulir(0)},
-      {teks: "Ajukan rumah proyek", aksi: () => RumahProyek.formulir("")}, {teks: "Tutup"}]);
+    isi.push(el("p", "redup", "Mau memasang baliho atau menghosting proyekmu? Daftarnya lewat Kak Rani di meja resepsionis Markas CodeIn."));
+    Panel.buka("Galeri Showcase", isi, [{teks: "Antar ke Kak Rani", utama: true, aksi: () => Kota.keResepsionis()},
+      {teks: "Direktori proyek", aksi: () => RumahProyek.direktori()}, {teks: "Tutup"}]);
   }
 
   /* ---------- formulir pengajuan baliho ---------- */
@@ -313,5 +314,5 @@ const Papan = (() => {
   // judul kabar paling ramai saat ini (dipakai ucapan warga di dekat videotron), atau "" kalau belum ada
   const kabarTeratas = () => keadaan.kabar === "siap" && kabar.length ? kabar[0].title : "";
 
-  return {buat, buka, bersih, tangani, kabarTeratas};
+  return {buat, buka, bersih, tangani, kabarTeratas, formulir};
 })();
