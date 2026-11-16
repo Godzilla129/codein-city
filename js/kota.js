@@ -253,6 +253,7 @@ const Kota = (() => {
 
   /* ---------- interaksi: pintu atau warga terdekat ---------- */
   function teksAksi(p) {
+    if (p.aksi === "pindah" && /^Baca /.test(p.nama)) return p.nama;          // terminal di Kantor Redaksi
     if (p.aksi === "pindah" || p.aksi === "masuk") return `Masuk ${p.nama}`;
     if (p.aksi === "keluar") return "Keluar ke kota";
     if (p.id === "pendiri") return "Baca plakat patung";
@@ -373,7 +374,8 @@ const Kota = (() => {
   addEventListener("blur", () => tekan.clear());
   $("aksi").onclick = () => { aksi(); $("aksi").blur(); };
 
-  /* ---------- ketuk atau klik papan: isinya bisa dibaca tanpa berjalan mendekat ---------- */
+  /* ---------- ketuk atau klik papan: isinya bisa dibaca tanpa berjalan mendekat ----------
+     Label kuning pintu (masuk gedung, buka CodeIn News) juga bisa diketuk langsung, karena bentuknya memang seperti tombol. */
   let tekanAwal = null;
   $("game").addEventListener("pointerdown", e => { tekanAwal = {x: e.clientX, y: e.clientY, t: e.timeStamp}; });
   $("game").addEventListener("pointerup", e => {
@@ -382,7 +384,10 @@ const Kota = (() => {
     if (Math.hypot(e.clientX - a.x, e.clientY - a.y) > 10 || e.timeStamp - a.t > 500) return;     // geseran = joystick, bukan ketukan
     const kotak = $("game").getBoundingClientRect(), t = adegan.cameras.main.getWorldPoint(e.clientX - kotak.left, e.clientY - kotak.top);
     const b = papan.find(b => t.x >= b.x && t.x <= b.x + b.w && t.y >= b.y && t.y <= b.y + b.h);
-    if (b) { Kendali.lepas(); Papan.buka(b); }
+    if (b) { Kendali.lepas(); Papan.buka(b); return; }
+    const kena = r => e.clientX >= r.left - 4 && e.clientX <= r.right + 4 && e.clientY >= r.top - 4 && e.clientY <= r.bottom + 4;
+    const p = pintu.find(p => (p.aksi === "pindah" || p.aksi === "masuk") && p.labelEl && !p.labelEl.hidden && kena(p.labelEl.getBoundingClientRect()));
+    if (p) { Kendali.lepas(); lewat(p); }
   });
 
   /* ---------- dipakai berkas lain ---------- */

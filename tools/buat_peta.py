@@ -436,7 +436,8 @@ def redaksi():
         p.thing(x, 10, 381)
     # terminal untuk membaca CodeIn News di situsnya
     p.thing(8, 9, 275)
-    p.door("baca", "Baca CodeIn News", 8, 9, "pindah", "https://news.codeinhub.my.id/")
+    # zona di samping kiri, kanan, dan bawah terminal; titik tengahnya (dipakai tombol "Ke sana") tetap di lantai, bukan di meja
+    p.door("baca", "Baca CodeIn News", 8, 9, "pindah", "https://news.codeinhub.my.id/", zone=(7 * T, 9 * T + 8, 3 * T, 24))
     for (x, y, k) in ((1, 5, "P"), (24, 5, "P"), (24, 10, "Q"), (8, 4, "Q"), (17, 4, "Q")):
         p.tree(x, y, k)
     p.tulis("redaksi")
