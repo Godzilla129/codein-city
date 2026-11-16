@@ -1,0 +1,4 @@
+# Pintu admin yang gampang diingat. Halaman admin tetap tinggal di server NewsAgent
+# (butuh database dan login Cloudflare Access), alamat ini hanya mengantar ke sana.
+/admin    https://news.codeinhub.my.id/admin  302
+/admin/*  https://news.codeinhub.my.id/admin  302
