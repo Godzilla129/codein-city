@@ -9,6 +9,8 @@ const KOTA = {
 
   // Alamat CodeIn News. Isi baliho dan videotron diambil dari sini, pengajuan baliho juga dikirim ke sini (lihat js/papan.js).
   news: "https://news.codeinhub.my.id",
+  // Domain utama. Situs proyek anggota tayang di <nama>.<domain> (lihat js/rumah.js).
+  domain: "codeinhub.my.id",
   // Alamat layanan "ramai" (pengunjung lain dan obrolan, lihat js/ramai.js dan bagian "Layanan ramai" di README). Kosongkan untuk mematikan.
   live: "wss://live.codeinhub.my.id",
   // Pilihan warna pita baliho. Harus sama dengan SWATCHES di server CodeIn News (dashboard/services/billboards.py).
@@ -46,6 +48,7 @@ const KOTA = {
       judul: "Papan Pengumuman",
       // tiga yang teratas ikut tampil di papan gabus di kota
       daftar: [
+        "Rumah proyek dibuka. Punya situs atau game web? Datangi rumah kosong di kota dan ajukan, tinggal unggah zip.",
         "Di Markas CodeIn sekarang ada Patung Pendiri dan meja resepsionis. Kak Rani yang jaga.",
         "Warga kota punya jadwal harian. Malam hari kebanyakan pulang ke kampung di selatan.",
         "Pengunjung lain terlihat dan bisa diajak mengobrol. Tekan Enter untuk mulai menulis.",
@@ -68,12 +71,6 @@ const KOTA = {
       judul: "Patung Si Pemula",
       isi: ["Patung perunggu seorang pemula yang baru masuk CodeIn.",
             "Di alasnya tertulis: Get in, Learn and Grow with CodeIn."],
-      tombol: [{teks: "Tutup"}],
-    },
-    kunci: {
-      judul: "Segera dibuka",
-      isi: ["Gedung ini masih kosong.",
-            "Proyek kamu bisa jadi gedung di kota ini. Selesaikan satu proyek, kabari admin CodeIn, dan gedung ini bisa jadi milik proyekmu."],
       tombol: [{teks: "Tutup"}],
     },
     warkop: {
@@ -107,7 +104,7 @@ const KOTA = {
       daftar: ["Sudah jadi: kota yang bisa dijelajahi, baliho dan videotron, pengunjung lain dan obrolan, Markas dan Galeri yang bisa dimasuki, warga dengan jadwal pagi sampai malam.",
                "Warkop CodeIn sengaja dikunci sampai ada anggota yang mau ikut membangun kota ini.",
                "Berikutnya: rumah untuk proyek anggota, dan Kantor Redaksi CodeIn News dibangun ulang sebagai ruangan piksel di dalam kota.",
-               "Kapan saja: gedung yang masih terkunci menunggu proyek anggota."],
+               "Rumah proyek: anggota bisa mengajukan rumah untuk situs proyeknya, tinggal unggah zip."],
     },
   },
 
@@ -188,7 +185,7 @@ const KOTA = {
       pagi:  {rute: [[41, 39], [41, 46]], ket: "jalan pagi di jalan kampung",
               ucapan: ["Pagi! Jalan kaki keliling kampung dulu, biar sehat."]},
       siang: {di: [48, 33], r: 1, ket: "di depan Toko Mbak Tika",
-              ucapan: ["Gedung yang masih terkunci itu menunggu proyek anggota. Mungkin proyekmu?"]},
+              ucapan: ["Rumah yang masih kosong itu bisa jadi rumah proyekmu. Ajukan saja, tinggal unggah zip situsnya."]},
       sore:  {rute: [[41, 39], [41, 60]], ket: "jalan sore ke arah Gerbang Selatan",
               ucapan: ["Tiap sore aku jalan kaki sampai dekat Gerbang Selatan."]},
       malam: {rute: [[26, 18], [53, 18], [53, 23], [26, 23]], laju: 18, ket: "jalan santai di alun-alun",

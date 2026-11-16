@@ -171,8 +171,9 @@ const Kota = (() => {
       for (const p of pintu) {
         if (p.tanpaLabel) continue;
         const kunci = p.tujuan === "kunci";
-        const d = el("div", "papan" + (kunci ? " kunci" : "") + (p.aksi === "pindah" || p.aksi === "masuk" ? " utama" : "") + (p.tujuan === "rumah" ? " rumah" : ""),
-          (kunci ? "🔒 " : "") + p.nama);
+        const d = el("div", "papan" + (kunci ? " kunci" : "") + (p.aksi === "pindah" || p.aksi === "masuk" ? " utama" : "")
+          + (p.tujuan === "rumah" ? " rumah" : "") + (p.tujuan === "proyek" ? " proyek" : ""), (kunci ? "🔒 " : "") + p.nama);
+        p.labelEl = d;                       // rumah proyek mengganti tulisannya setelah data dari CodeIn News datang
         tempelkan(d, () => [p.lx, p.ly]);
       }
 
@@ -256,7 +257,8 @@ const Kota = (() => {
     if (p.aksi === "keluar") return "Keluar ke kota";
     if (p.id === "pendiri") return "Baca plakat patung";
     return {kunci: "Periksa gedung", baliho: ruang === "galeri" ? "Lihat karya" : "Baca baliho", videotron: "Lihat kabar ramai",
-            rumah: "Ketuk pintu", info: "Baca papan", sapa: `Sapa ${p.penghuni}`}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
+            rumah: "Ketuk pintu", info: "Baca papan", sapa: `Sapa ${p.penghuni}`,
+            proyek: p.proyek ? `Kunjungi ${p.proyek.judul}` : "Lihat rumah kosong"}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
   }
   function cariTerdekat() {
     let baru = null;
@@ -318,6 +320,7 @@ const Kota = (() => {
       if (p.tujuan === "rumah") rumah(p);
       else if (p.tujuan === "sapa") Warga.sapaNama(p.penghuni);
       else if (p.id === "toko") toko(p);
+      else if (p.tujuan === "proyek") RumahProyek.buka(p);
       else Panel.gedung(KOTA.panel[p.id] ? p.id : p.tujuan, p.nama);
       return;
     }

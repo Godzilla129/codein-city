@@ -198,7 +198,7 @@ const Warga = (() => {
     const isi = [el("p", null, w.def.salam[kunci] || "Selamat datang di Markas CodeIn!"),
       el("p", null, "Aku Rani, resepsionis Markas. Aku yang menempel pengumuman di papan alun-alun. Yang terbaru:")];
     if (p.length) { const ul = el("ul"); p.slice(0, 3).forEach(t => ul.append(el("li", null, t))); isi.push(ul); }
-    isi.push(el("p", null, "Mau memajang karya? Ajukan lewat Galeri Showcase atau langsung di depan baliho mana saja. Hosting karya di subdomain CodeIn sedang disiapkan."),
+    isi.push(el("p", null, "Mau memajang karya? Ajukan lewat Galeri Showcase atau langsung di depan baliho mana saja. Mau situs proyekmu punya rumah di kota? Datangi rumah kosong mana saja dan ajukan, tinggal unggah zip situsnya."),
       el("p", null, "Penasaran sama Warkop CodeIn, atau mau ikut membangun kota ini? Sampaikan ke Jull lewat grup WhatsApp CodeIn."));
     Panel.buka("Kak Rani · Resepsionis", isi, [{teks: "Ke Patung Pendiri", aksi: () => Kota.pindahKe("pendiri")}, {teks: "Tutup"}]);
   }

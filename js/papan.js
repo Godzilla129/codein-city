@@ -198,7 +198,8 @@ const Papan = (() => {
       }
       isi.push(el("p", "redup", kosong ? `${kosong} dari ${JUMLAH} baliho masih kosong.` : "Semua baliho sedang terisi. Pengajuan baru masuk antrean admin."));
     }
-    Panel.buka("Galeri Showcase", isi, [{teks: "Ajukan proyekmu", utama: true, aksi: () => formulir(0)}, {teks: "Tutup"}]);
+    Panel.buka("Galeri Showcase", isi, [{teks: "Ajukan baliho", utama: true, aksi: () => formulir(0)},
+      {teks: "Ajukan rumah proyek", aksi: () => RumahProyek.formulir("")}, {teks: "Tutup"}]);
   }
 
   /* ---------- formulir pengajuan baliho ---------- */

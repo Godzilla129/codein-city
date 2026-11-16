@@ -46,13 +46,14 @@ const Panel = (() => {
   function tempat() {
     const ul = el("ul", "tempat"), sudah = new Set();
     for (const p of Kota.pintu()) {
-      // baliho dan gedung terkunci cukup muncul sekali; rumah dan gerbang masing-masing punya baris sendiri
-      const kunci = p.aksi === "pindah" || p.tujuan === "rumah" || p.tujuan === "gerbang" ? p.id : (p.tujuan || p.id);
+      // baliho dan rumah proyek yang kosong cukup muncul sekali; rumah warga, gerbang, dan rumah proyek berpenghuni punya baris sendiri
+      const kunci = p.aksi === "pindah" || p.tujuan === "rumah" || p.tujuan === "gerbang" || (p.tujuan === "proyek" && p.proyek) ? p.id : (p.tujuan || p.id);
       if (sudah.has(kunci)) continue; sudah.add(kunci);
+      const nama = p.tujuan === "proyek" && !p.proyek ? "Rumah proyek kosong" : p.nama;
       const li = el("li"), b = el("button", "tbl", "Ke sana"); b.type = "button";
       // fokus dikembalikan ke permainan, supaya E dan Enter langsung bekerja di tempat tujuan
       b.onclick = () => { tutup(); if (document.activeElement) document.activeElement.blur(); Kota.pindahKe(p.id); };
-      li.append(el("span", null, p.nama), b); ul.append(li);
+      li.append(el("span", null, nama), b); ul.append(li);
     }
     const judul = {kota: "Tempat di CodeIn City", markas: "Tempat di Markas CodeIn", galeri: "Tempat di Galeri Showcase"}[Kota.ruang()] || "Tempat";
     buka(judul, [el("p", null, "Pilih tempat untuk langsung berpindah ke depannya."), ul], [{teks: "Tutup"}]);

@@ -19,6 +19,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 - Sebelas warga yang bisa disapa, sepuluh di antaranya punya rumah di kampung. Warga kota punya jadwal pagi, siang, sore, dan malam (WIB): berjalan ke tempatnya lewat trotoar dan zebra cross, jalan-jalan kecil di sekitarnya, dan malam hari sebagian besar pulang ke rumah.
 - Markas CodeIn: Patung Pendiri dengan plakat, dan Kak Rani di meja resepsionis yang membacakan pengumuman terbaru.
 - Warkop CodeIn sengaja dikunci sebagai tantangan untuk anggota yang mau ikut membangun kota.
+- Rumah proyek: empat bangunan (dua gedung dan dua rumah kampung) untuk situs proyek anggota. Pengunjung mengajukan dari kota, admin menyetujui di CodeIn News, anggota mengunggah zip situsnya di `rumah.codeinhub.my.id`, lalu situsnya tayang di `<nama>.codeinhub.my.id` dan namanya muncul di atas pintu rumahnya.
 - Kendaraan masuk dan keluar lewat gerbang, dan berhenti kalau ada orang di depannya.
 - Tombol **Tempat** untuk berpindah langsung ke depan gedung tanpa berjalan. Papan bisa diketuk atau diklik dari jauh.
 - Siang dan malam mengikuti jam WIB, dengan lampu jalan yang menyala saat malam.
@@ -36,6 +37,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/papan.js` | Papan HTML: baliho, videotron, Papan Pengumuman, papan Markas, dialog Galeri, dan formulir pengajuan baliho |
 | `js/kendali.js` | Kendali sentuh |
 | `js/kota.js` | Adegan (Phaser) untuk semua peta: pemain, pintu, masuk dan keluar gedung, patung, siang dan malam |
+| `js/rumah.js` | Rumah proyek anggota: nama di papan pintu, dialog, dan formulir pengajuan (data dari CodeIn News) |
 | `js/warga.js` | Warga dan jadwal hariannya: pencarian jalur, jalan-jalan kecil, pulang ke rumah, ucapan per waktu |
 | `js/lalulintas.js` | Kendaraan yang mengikuti jalur di peta dan berhenti untuk pejalan kaki |
 | `js/ramai.js` | Pengunjung lain dan obrolan (WebSocket ke layanan ramai) |
@@ -120,7 +122,8 @@ Situs diterbitkan lewat Cloudflare (Workers dengan aset statis) yang terhubung k
 | 4 | Kota diperluas, kampung warga, kendaraan, Markas dan Galeri bisa dimasuki | Selesai |
 | 5 | Pengunjung lain terlihat dan obrolan | Selesai |
 | 6 | Tahap 1: perbaikan dialog Tempat, obrolan, dan perpindahan; Patung Pendiri dan resepsionis; jadwal harian warga | Selesai |
-| 7 | Tahap 2: rumah untuk proyek anggota (subdomain), lahan kosong | Rencana |
+| 7 | Tahap 2: rumah proyek anggota dengan hosting situs statis (unggah zip) | Selesai |
+| - | Lahan kosong untuk rumah proyek berikutnya, akun anggota, poin | Rencana |
 | 8 | Kantor Redaksi CodeIn News jadi ruangan piksel di dalam kota | Rencana |
 | - | Warkop CodeIn: dibuka bersama anggota yang mau ikut membangun | Menunggu kontributor |
 

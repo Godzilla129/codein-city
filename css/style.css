@@ -142,6 +142,7 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 #panel-tombol{padding-top:12px;border-top:2px dashed #D2BFA3;margin-top:4px}
 #kabar-kota{position:fixed;left:50%;top:calc(76px + env(safe-area-inset-top));transform:translateX(-50%);z-index:6;width:max-content;max-width:calc(100vw - 32px);
   margin:0;padding:8px 14px;background:var(--kertas);border:3px solid var(--tinta);border-radius:10px;box-shadow:0 3px 0 var(--tinta);font-size:15px;text-align:center}
+.papan.proyek.kosong{opacity:.85;font-style:italic}
 .tempat{list-style:none;padding:0!important}
 .tempat li{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:2px dashed #D2BFA3;padding:6px 0;margin:0}
 .tempat .tbl{min-height:40px}

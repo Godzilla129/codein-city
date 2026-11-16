@@ -226,19 +226,20 @@ def kota():
     p.building(35, 5, 9, BATU, ABU_KREM, 39, 285, [(36, *ARCH_L), (37, *ARCH_L), (41, *ARCH_L), (42, *ARCH_L)])  # Galeri Showcase
     for (x, y, idx) in ((38, 6, 11), (39, 6, 12), (38, 7, 38), (39, 7, 39)):   # jendela atap galeri
         p.put("bangunan", x, y, idx)
-    p.building(60, 5, 7, KREM, ABU_KREM, 63, 339, [(61, 416, None), (65, 416, None)])                            # gedung terkunci
+    p.building(60, 5, 7, KREM, ABU_KREM, 63, 339, [(61, 416, None), (65, 416, None)])                            # rumah proyek 1
     # ---------- bangunan selatan alun-alun ----------
     p.building(9, 27, 9, "merah", KREM, 13, 283, [(10, *ARCH), (11, None, 362), (15, None, 362), (16, *ARCH)])   # Markas CodeIn
     p.building(20, 27, 7, KREM, ABU_KREM, 23, 339, [(21, 416, None), (25, 416, None)])                           # Warkop CodeIn (belum buka)
-    p.building(29, 27, 7, "merah", KREM, 32, 339, [(30, 335, None), (34, 335, None)])                            # gedung terkunci
+    p.building(29, 27, 7, "merah", KREM, 32, 339, [(30, 335, None), (34, 335, None)])                            # rumah proyek 2
     p.building(43, 27, 7, "oranye", ABU_KREM, 46, 285, [(44, *ARCH_L), (48, *ARCH_L)])                           # Toko Mbak Tika
 
     p.door("news", "CodeIn News", 21, 10, "pindah", "https://news.codeinhub.my.id/")
     p.door("galeri", "Galeri Showcase", 39, 10, "masuk", "galeri")
     p.door("markas", "Markas CodeIn", 13, 32, "masuk", "markas")
     p.door("warkop", "Warkop CodeIn", 23, 32, "panel", "kunci")
-    p.door("kunci-a", "Segera dibuka", 63, 10, "panel", "kunci")
-    p.door("kunci-b", "Segera dibuka", 32, 32, "panel", "kunci")
+    # rumah proyek anggota (CodeIn Rumah): nama dan isinya diambil dari CodeIn News saat kota dibuka (js/rumah.js)
+    p.door("proyek-1", "Gedung kosong", 63, 10, "panel", "proyek")
+    p.door("proyek-2", "Gedung kosong", 32, 32, "panel", "proyek")
     p.door("toko", "Toko Mbak Tika", 46, 32, "panel")
 
     # ---------- papan dunia ----------
@@ -264,6 +265,8 @@ def kota():
             siapa = penghuni.get((y0, x0))
             if siapa:
                 p.door(f"rumah-{n}", f"Rumah {siapa}", x0 + 2, y0 + 5, "panel", "rumah", penghuni=siapa)
+            else:                                                                           # rumah tanpa warga = rumah proyek
+                p.door("proyek-3" if x0 < 38 else "proyek-4", "Rumah kosong", x0 + 2, y0 + 5, "panel", "proyek")
             p.thing(x0 + 5, y0 + 6 if y0 == 53 else y0 + 10, 305 if n % 2 else 306)       # kotak surat di seberang trotoar
     for x in (8, 15, 16, 23, 24, 31, 43, 50, 51, 58, 59, 66):                              # pagar kayu di sela rumah
         for y in (46, 58):
