@@ -78,10 +78,13 @@ kbd{display:inline-block;min-width:22px;padding:0 5px;border:2px solid var(--tin
 .merek b{font:600 18px var(--judul)}
 .merek span{font-size:12px;color:var(--redup)}
 .tombol-hud{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+#btn-musik::before{content:"";width:16px;height:16px;flex:none;background:url(../assets/sprites/ikon-musik.png) 0 0/16px 16px no-repeat;image-rendering:pixelated}
+#btn-musik[aria-pressed="false"]{color:var(--redup)}
+#btn-musik[aria-pressed="false"]::before{opacity:.45}
 #btn-profil{max-width:46vw}
 #hud-nama{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.muka{--s:2;flex:none;display:inline-block;width:calc(16px * var(--s));height:calc(16px * var(--s));background:url(../assets/tiles/urban.png) no-repeat;
-  background-size:calc(486px * var(--s)) calc(324px * var(--s));image-rendering:pixelated}
+.muka{--s:2;flex:none;display:inline-block;width:calc(16px * var(--s));height:calc(16px * var(--s));background:url(../assets/sprites/orang.png) no-repeat;
+  background-size:calc(64px * var(--s)) calc(672px * var(--s));image-rendering:pixelated}
 
 /* tombol aksi dan petunjuk */
 .aksi{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translateX(-50%);min-height:52px;padding:0 20px;font-size:18px;background:var(--emas)}
@@ -178,6 +181,7 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
   .merek{padding:3px 10px;white-space:nowrap} .merek b{font-size:15px} .merek span{font-size:11px}
   .tombol-hud{flex-wrap:nowrap} .tombol-hud .tbl{padding:0 10px}
   #hud-nama{display:none}
+  #btn-musik{min-width:44px} #btn-musik span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 }
 @media (prefers-reduced-motion:reduce){ .tbl:active{transform:none} .layar.ganti .pw-judul,.layar.ganti .pw-kaki{animation:none} #obrol-log li{transition:none} }
 #panel-isi a{color:#1F5E57;font-weight:600;text-underline-offset:3px}

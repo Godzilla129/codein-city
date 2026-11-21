@@ -17,8 +17,8 @@ const Redaksi = (() => {
   const PENTING = ["Kolektor RSS", "Jadwal kolektor", "9router", "Kategorisasi AI", "Clustering AI", "Verifikasi", "Jadwal AI dan verifikasi"];
   const AGEN = [
     {nama: "Eko", gal: "Ekonomi", jabatan: "Redaktur Ekonomi", karakter: 0, istirahat: [3, 9], rapat: [19, 8]},
-    {nama: "Tekno", gal: "Teknologi", jabatan: "Redaktur Teknologi", karakter: 4, istirahat: [3, 10], rapat: [20, 8]},
-    {nama: "Rina", gal: "Umum", jabatan: "Redaktur Berita Umum", karakter: 5, istirahat: [2, 10], rapat: [21, 8]},
+    {nama: "Tekno", gal: "Teknologi", jabatan: "Redaktur Teknologi", karakter: 2, istirahat: [3, 10], rapat: [20, 8]},
+    {nama: "Rina", gal: "Umum", jabatan: "Redaktur Berita Umum", karakter: 1, istirahat: [2, 10], rapat: [21, 8]},
   ];
   const KEADAAN = {
     typing: {ikon: "⌨️", label: "Mengetik", ucap: d => `Lagi sibuk, kabar ${d.toLowerCase()} baru terus masuk.`},
@@ -178,13 +178,13 @@ const Redaksi = (() => {
     const titik = (peta.getObjectLayer("titik") || {objects: []}).objects;
     const prop = o => Object.fromEntries((o.properties || []).map(p => [p.name, p.value]));
     gambarKopi(sc, titik.find(o => o.name === "kopi"));
-    layar = sc.add.graphics().setDepth(10 + 6 * T + 15);          // di depan agen yang duduk, di atas meja
+    layar = sc.add.graphics().setDepth(10 + 7 * T);              // di atas meja (gambar meja sedikit di belakang), di depan agen yang duduk
     agen = AGEN.map(def => {
       const m = titik.find(o => o.name === "meja" && prop(o).agen === def.nama) || {x: 0, y: 0};
       const meja = [Math.floor(m.x / T), Math.floor(m.y / T)];
       const s = sc.add.sprite(m.x, m.y, "orang", Kota.frame(def.karakter, "bawah", 0)).setOrigin(.5, .8);
       const label = Kota.tempelkan(el("div", "nama", def.nama), () => [s.x, s.y - 14]);
-      return {def, s, label, meja, monitor: [m.x + 3, 6 * T + 1], jalur: [], hadap: "bawah", arah: "bawah", keadaan: null, siap: false};
+      return {def, s, label, meja, monitor: [m.x + 3, m.y + 7], jalur: [], hadap: "bawah", arah: "bawah", keadaan: null, siap: false};
     });
     jedaMuat = 0;
     if (data.dimuat) agen.forEach(perbaruiKeadaan);

@@ -23,7 +23,9 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 - **Hosting proyek lewat Kak Rani**: semua pendaftaran (hosting proyek dan baliho) dilakukan di meja resepsionis Markas. Anggota mendaftar, admin menyetujui di CodeIn News, anggota mengunggah zip situsnya di `rumah.codeinhub.my.id` (wajib menyetujui [Aturan Rumah Proyek](https://rumah.codeinhub.my.id/aturan)), lalu situsnya tayang di `<nama>.codeinhub.my.id` dan tercantum di **Direktori Proyek**. Empat rumah di kota (dua gedung dan dua rumah kampung) adalah hadiah untuk proyek unggulan pilihan admin.
 - Kendaraan masuk dan keluar lewat gerbang, dan berhenti kalau ada orang di depannya.
 - Tombol **Tempat** untuk berpindah langsung ke depan gedung tanpa berjalan. Papan bisa diketuk atau diklik dari jauh.
-- Siang dan malam mengikuti jam WIB, dengan lampu jalan yang menyala saat malam.
+- Siang dan malam mengikuti jam WIB, dengan lampu jalan yang menyala dan kunang-kunang di sela pepohonan saat malam.
+- **Musik latar** 16-bit: lagu kota siang, kota malam, di dalam gedung, dan Galeri. Tombol ♪ di bilah atas mematikannya, dan pilihannya diingat di browser pengunjung. Musik baru diputar setelah pengunjung menekan sesuatu (aturan browser).
+- Gaya piksel retro 16 x 16 yang seragam di luar dan di dalam gedung: gedung ikonik (Markas berbendera, Galeri berkubah kaca, CodeIn News dengan menara radio, menara Aetheria), rumah warga, kendaraan empat arah (sedan, SUV, angkot, motor, ojol), dan perabot ruangan.
 - Posisi terakhir diingat, sehingga pengunjung yang kembali dari CodeIn News muncul di depan gedungnya.
 
 ## Struktur berkas
@@ -43,13 +45,18 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/warga.js` | Warga dan jadwal hariannya: pencarian jalur, jalan-jalan kecil, pulang ke rumah, ucapan per waktu |
 | `js/lalulintas.js` | Kendaraan yang mengikuti jalur di peta dan berhenti untuk pejalan kaki |
 | `js/ramai.js` | Pengunjung lain dan obrolan (WebSocket ke layanan ramai) |
+| `js/musik.js` | Musik latar: pilih lagu menurut tempat dan waktu, tombol musik |
 | `js/judul.js` | Layar judul |
 | `js/main.js` | Titik mulai |
-| `assets/maps/kota.tmj` | Peta kota, dibuka dan diubah dengan Tiled |
+| `assets/maps/kota.tmj` | Peta kota (format Tiled) |
 | `assets/maps/markas.tmj`, `galeri.tmj`, `redaksi.tmj` | Peta ruangan Markas CodeIn, Galeri Showcase, dan Kantor Redaksi |
-| `assets/tiles/urban.png` | Tileset dan karakter (Kenney, CC0) |
+| `assets/tiles/retro.png` | Ubin tanah, jalan, trotoar, lantai, dan dinding (disusun `tools/buat_peta.py`) |
+| `assets/sprites/benda.png`, `benda.json` | Atlas gambar benda: gedung, pohon, lampu, perabot, kendaraan, efek malam (disusun `tools/buat_aset.py`) |
+| `assets/sprites/orang.png` | Lembar karakter: tujuh karakter, masing-masing 4 x 6 bingkai 16 x 16 |
+| `assets/musik/*.mp3` | Musik latar (96 kbps) |
 | `vendor/phaser.min.js` | Phaser 3.90.0 (lisensi MIT) |
-| `tools/buat_peta.py` | Pembuat ketiga peta. Sampai versi ini peta masih sama persis dengan hasil skrip. Jangan dijalankan lagi setelah peta diubah di Tiled |
+| `tools/buat_aset.py` | Penyusun atlas benda, lembar karakter, dan musik dari folder paket aset (paket aslinya tidak disimpan di sini) |
+| `tools/buat_peta.py` | Pembuat keempat peta dan `retro.png`. Sampai versi ini peta masih sama persis dengan hasil skrip. Jangan dijalankan lagi setelah peta diubah di Tiled |
 
 Berkas JavaScript dimuat berurutan dari `index.html`, dan setiap berkas memakai isi berkas sebelumnya.
 
@@ -93,11 +100,13 @@ Isi baliho tidak diubah di sini. Baliho diisi dari halaman admin CodeIn News (`/
 
 1. Pasang [Tiled](https://www.mapeditor.org/) (gratis), lalu buka `assets/maps/kota.tmj`.
 2. Layer ubin, dari bawah ke atas:
-   - `tanah`, `jalan`, `bangunan`, `hiasan`: digambar di bawah karakter.
-   - `atas`: digambar di atas karakter (pucuk pohon, kepala lampu).
+   - `tanah`, `bangunan`, `hiasan`: digambar di bawah karakter.
+   - `atas`: digambar di atas karakter.
+   Gedung, pohon, lampu, dan perabot bukan ubin, tetapi objek di layer `benda` (lihat di bawah).
    - `tabrakan`: tidak digambar di permainan. Setiap ubin di layer ini tidak bisa dilewati, apa pun gambarnya.
 3. Layer objek:
    - `pintu`: kotak interaksi. Nama objek menjadi nama gedung. Properti: `id`, `aksi` (`pindah` untuk pindah ke alamat lain, `masuk` dan `keluar` untuk berganti peta, `panel` untuk membuka dialog), `tujuan` (alamat web untuk `pindah`, nama peta untuk `masuk` dan `keluar`, atau kunci dialog di `config.js`), `ke` (`id` pintu tempat muncul setelah `keluar`), `penghuni` (nama warga untuk rumah), serta `label_x` dan `label_y` (letak papan nama, dalam piksel).
+   - `benda`: titik dengan nama gambar dari atlas `benda.json` (misalnya `gedung-markas`, `pohon-cemara`, `perabot-sofa`). Letak titik = pojok kiri bawah gambar. Benda digambar berurutan menurut tepi bawahnya, jadi pengunjung bisa lewat di belakang pohon dan atap. Properti `datar` = 1 untuk benda di lantai (karpet, kolam), `geser` untuk menggeser urutannya beberapa piksel. Tapak benda tetap harus ditutup di layer `tabrakan`.
    - `titik`: `mulai` (tempat pengunjung baru muncul), `lampu` (cahaya saat malam), `patung`, dan `pancuran`.
    - `rute`: garis patah (polyline) jalur kendaraan, dari luar peta ke luar peta.
    - `papan`: kotak papan HTML. Nama objek `baliho`, `videotron`, `pengumuman`, atau `info`. Properti: `id`, `urutan` (nomor slot billboard untuk baliho, 1 sampai 6), dan `tiang` (panjang tiang di bawah papan, dalam piksel). Papan yang bisa dibaca dari dekat butuh pasangan kotak di layer `pintu` (zona baca di depannya) dengan `tanpa_label` = 1. Tapak papan dan tiangnya ditutup di layer `tabrakan`.
@@ -105,7 +114,7 @@ Isi baliho tidak diubah di sini. Baliho diisi dari halaman admin CodeIn News (`/
 
 ### Menambah gedung baru
 
-1. Gambar gedung di layer `bangunan`, lalu tutup tapaknya di layer `tabrakan`.
+1. Taruh gambarnya sebagai titik di layer `benda` (gambar baru ditambahkan dulu ke `tools/buat_aset.py`), lalu tutup tapaknya di layer `tabrakan`.
 2. Buat kotak di layer `pintu` tepat di depan pintunya, lalu isi properti `id`, `aksi`, dan `tujuan`.
 3. Untuk gedung berisi dialog, tambahkan isinya di `panel` pada `js/config.js` dengan kunci yang sama dengan `id`.
 4. Untuk gedung yang bisa dimasuki, buat peta ruangannya (contoh: `markas.tmj`), daftarkan namanya di `PETA` pada `js/kota.js`, lalu pakai `aksi` = `masuk`.
@@ -131,5 +140,7 @@ Situs diterbitkan lewat Cloudflare (Workers dengan aset statis) yang terhubung k
 
 ## Lisensi aset
 
-- Tileset dan karakter: RPG Urban Pack karya [Kenney](https://kenney.nl), CC0 1.0. Lihat `assets/tiles/LISENSI-KENNEY.txt`.
+- Gedung, rumah, jalan, kendaraan, karakter, pohon, properti jalan, ikon, dan efek malam: paket "CodeIn City Retro 16x16" milik CodeIn.
+- Lantai, dinding, dan perabot ruangan: [Top-Down Retro Interior](https://penzilla.itch.io/top-down-retro-interior) karya Penzilla. Dipakai dengan mencantumkan nama pembuatnya; perabotnya dipotong dari lembar aslinya dan lantai serta dinding disusun ulang menjadi `assets/tiles/retro.png`. Untuk pemakaian komersial, pembuatnya meminta aset dibeli minimal seharga yang disarankan.
+- Musik: [High Quality 16-bit RPG Music](https://hydrogene.itch.io/high-quality-16-bit-music) karya Hydrogene, CC0 1.0 (Lively City, Peaceful Village, East Town, Ancient Library), diubah ke MP3 96 kbps.
 - Phaser: lisensi MIT. Lihat `vendor/PHASER-LICENSE.md`.

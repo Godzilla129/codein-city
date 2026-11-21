@@ -6,7 +6,7 @@
 
 const Warga = (() => {
   const T = KOTA.ubin, JARAK_SAPA = 22;
-  const ASPAL = new Set([441, 468, 406, 460, 433, 461, 463, 462]), ZEBRA = new Set([405, 432, 459]), RUMPUT = 28;
+  let ASPAL = new Set(), ZEBRA = new Set(), RUMPUT = new Set();      // nomor ubin per jenis, dari properti peta (tools/buat_peta.py)
   const ARAH4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
   let daftar = [], adegan = null, ruang = "kota", grid = null, W = 0, H = 0, waktuKini = null, cekWaktu = 0;
@@ -20,11 +20,13 @@ const Warga = (() => {
   /* ---------- peta biaya untuk pencarian jalur: trotoar murah, rumput agak mahal, aspal mahal (kecuali zebra cross) ---------- */
   function bangunGrid(peta) {
     W = peta.width; H = peta.height; grid = new Float32Array(W * H);
+    const jenis = n => new Set(String((peta.properties || []).find(p => p.name === n)?.value || "").split(",").filter(Boolean).map(v => +v - 1));
+    ASPAL = jenis("aspal"); ZEBRA = jenis("zebra"); RUMPUT = jenis("rumput");
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const keras = peta.getTileAt(x, y, true, "tabrakan"), dasar = peta.getTileAt(x, y, true, "tanah");
       if (keras && keras.index > 0) { grid[y * W + x] = 0; continue; }
       const t = dasar ? dasar.index - 1 : -1;
-      grid[y * W + x] = ASPAL.has(t) ? 6 : ZEBRA.has(t) ? 1 : t === RUMPUT ? 2 : 1;
+      grid[y * W + x] = ASPAL.has(t) ? 6 : ZEBRA.has(t) ? 1 : RUMPUT.has(t) ? 2 : 1;
     }
   }
   const biaya = (x, y) => x < 0 || y < 0 || x >= W || y >= H ? 0 : grid[y * W + x];

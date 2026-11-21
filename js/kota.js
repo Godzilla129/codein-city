@@ -1,8 +1,10 @@
 /* CodeIn City · adegan (Phaser 3). Satu adegan dipakai untuk semua peta: kota, dan interior Markas, Galeri, serta Kantor Redaksi.
-   Peta dibaca dari assets/maps/<nama>.tmj (dibuat dan diubah dengan Tiled):
-     layer ubin  : tanah, jalan, bangunan, hiasan (di bawah karakter), atas (di atas karakter),
+   Peta dibaca dari assets/maps/<nama>.tmj (dibuat tools/buat_peta.py, bisa dibuka dengan Tiled):
+     layer ubin  : tanah, bangunan, hiasan (di bawah karakter), atas (di atas karakter),
                    tabrakan (tidak digambar; setiap ubin di layer ini tidak bisa dilewati)
-     layer objek : pintu (kotak interaksi; properti id, aksi, tujuan, ke, penghuni, label_x, label_y, tanpa_label),
+     layer objek : benda (gambar dari atlas assets/sprites/benda.png: gedung, pohon, lampu, perabot; titik = pojok kiri bawah,
+                   diurutkan menurut tepi bawahnya supaya orang bisa lewat di belakangnya; properti datar = selalu di lantai),
+                   pintu (kotak interaksi; properti id, aksi, tujuan, ke, penghuni, label_x, label_y, tanpa_label),
                    titik (mulai, lampu, patung, pancuran), papan (kotak papan HTML; properti id, urutan, tiang),
                    rute (garis jalur kendaraan, dipakai lalulintas.js)
    aksi pintu: pindah = buka alamat web, masuk/keluar = ganti peta, panel = buka dialog (tujuan "sapa" = menyapa warga "penghuni").
@@ -11,14 +13,15 @@
 
 const Kota = (() => {
   const T = KOTA.ubin;
-  const KOLOM = {kiri: 23, bawah: 24, atas: 25, kanan: 26};      // kolom arah di urban.png
+  // orang.png: tiap karakter 4 kolom x 6 baris (diam, bawah, atas, kiri, kanan, aktivitas); k = urutan karakter di lembar itu
+  const BARIS = {bawah: 1, atas: 2, kiri: 3, kanan: 4};
   const ARAH = ["bawah", "kiri", "kanan", "atas"];               // nomor arah yang dikirim lewat jaringan
   const PETA = ["kota", "markas", "galeri", "redaksi"];
-  const frame = (k, arah, langkah) => (KOTA.karakter[k].baris + langkah) * 27 + KOLOM[arah];
+  const frame = (k, arah, langkah) => ((k * 6) + BARIS[arah]) * 4 + langkah;
   const tenang = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let adegan = null, pemain = null, profil = null, arah = "bawah", jalan = false, pernahJalan = false, pindah = false, ruang = "kota";
-  let pintu = [], papan = [], dekat = null, tempel = [], lapisanMalam = null, cahaya = [], faseKini = null, balonSaya = null;
+  let pintu = [], papan = [], dekat = null, tempel = [], lapisanMalam = null, cahaya = [], kunang = [], faseKini = null, balonSaya = null;
   const tekan = new Set();          // tombol keyboard yang sedang ditekan
   const saatSiapList = [], tiapBingkaiList = [];      // dipanggil berkas lain (lalulintas.js, ramai.js)
 
@@ -52,6 +55,7 @@ const Kota = (() => {
     faseKini = f;
     lapisanMalam.setFillStyle(f.warna, f.alfa);
     cahaya.forEach(c => c.setVisible(f.lampu));
+    kunang.forEach(k => k.setVisible(f.nama === "Malam"));
   }
 
   /* ---------- teks HTML yang menempel pada titik di dunia ---------- */
@@ -75,11 +79,11 @@ const Kota = (() => {
   const BAHAN = {perunggu: [[58, 40, 24], [112, 80, 42], [166, 124, 66], [214, 176, 108]],
                  batu: [[64, 62, 70], [112, 110, 118], [162, 160, 166], [214, 212, 216]]};
   function teksturPatung(sc, jenis) {
-    const kunci = "patung-" + jenis, cfg = KOTA.patung[jenis] || KOTA.patung.pemula;
+    const kunci = "patung-" + jenis, cfg = KOTA.patung[jenis] || KOTA.patung.pendiri;
     if (sc.textures.exists(kunci)) return kunci;
-    const f = frame(cfg.karakter, "bawah", 0), kol = f % 27, bar = Math.floor(f / 27);
+    const f = frame(cfg.karakter, "bawah", 0);
     const kanvas = sc.textures.createCanvas(kunci, T, T), c = kanvas.getContext();
-    c.drawImage(sc.textures.get("ubin").getSourceImage(), 1 + kol * 18, 1 + bar * 18, T, T, 0, 0, T, T);
+    c.drawImage(sc.textures.get("orang").getSourceImage(), (f % 4) * T, Math.floor(f / 4) * T, T, T, 0, 0, T, T);
     const d = c.getImageData(0, 0, T, T), tangga = BAHAN[cfg.bahan] || BAHAN.perunggu;
     for (let i = 0; i < d.data.length; i += 4) {
       if (!d.data[i + 3]) continue;
@@ -97,22 +101,23 @@ const Kota = (() => {
     preload() {
       for (const n of PETA) if (!this.cache.tilemap.exists(n)) this.load.tilemapTiledJSON(n, `assets/maps/${n}.tmj`);
       if (!this.textures.exists("ubin")) {
-        this.load.image("ubin", "assets/tiles/urban.png");
-        this.load.spritesheet("orang", "assets/tiles/urban.png", {frameWidth: T, frameHeight: T, margin: 1, spacing: 2});
+        this.load.image("ubin", "assets/tiles/retro.png");
+        this.load.spritesheet("orang", "assets/sprites/orang.png", {frameWidth: T, frameHeight: T});
+        this.load.atlas("benda", "assets/sprites/benda.png", "assets/sprites/benda.json");
       }
     }
 
     create() {
       // sisa peta sebelumnya (label HTML, papan, tombol aksi) dibuang dulu
       tempel.forEach(t => t.elemen.remove()); tempel = []; Papan.bersih();
-      dekat = null; $("aksi").hidden = true; lapisanMalam = null; cahaya = []; faseKini = null; balonSaya = null;
+      dekat = null; $("aksi").hidden = true; lapisanMalam = null; cahaya = []; kunang = []; faseKini = null; balonSaya = null;
       adegan = this; ruang = this.kunciPeta; pindah = false;
       const dalam = ruang !== "kota";
       document.body.dataset.ruang = ruang;
 
       const peta = this.make.tilemap({key: ruang});
-      const ubin = peta.addTilesetImage("urban", "ubin", T, T, 1, 2);
-      ["tanah", "jalan", "bangunan", "hiasan"].forEach((n, i) => peta.createLayer(n, ubin).setDepth(i));
+      const ubin = peta.addTilesetImage("retro", "ubin", T, T, 1, 2);
+      ["tanah", "bangunan", "hiasan"].forEach((n, i) => peta.createLayer(n, ubin).setDepth(i));
       peta.createLayer("atas", ubin).setDepth(5000);
       const tabrakan = peta.createLayer("tabrakan", ubin).setVisible(false);
       tabrakan.setCollisionByExclusion([-1]);
@@ -133,13 +138,18 @@ const Kota = (() => {
         return {jenis: o.name, id: p.id || "", urutan: p.urutan || 0, x: o.x, y: o.y, w: o.width, h: o.height, tiang: p.tiang || 0};
       });
       const titik = lapis("titik");
+      // benda: gedung, pohon, lampu, perabot. Kedalaman = tepi bawahnya (sama dengan orang), kecuali yang datar di lantai.
+      for (const o of lapis("benda")) {
+        const p = prop(o);
+        this.add.image(o.x, o.y, "benda", o.name).setOrigin(0, 1).setDepth(p.datar ? 4 : 10 + o.y + (p.geser || 0));
+      }
       const mulai = titik.find(o => o.name === "mulai") || {x: lebar / 2, y: tinggi / 2};
 
       // animasi jalan semua karakter (dipakai pemain, warga, dan pengunjung lain)
-      KOTA.karakter.forEach((_, k) => Object.keys(KOLOM).forEach(a => {
+      for (let k = 0; k < KOTA.lembarOrang; k++) Object.keys(BARIS).forEach(a => {
         if (!this.anims.exists(`jalan-${k}-${a}`)) this.anims.create({key: `jalan-${k}-${a}`, frameRate: 8, repeat: -1,
-          frames: [1, 0, 2, 0].map(l => ({key: "orang", frame: frame(k, a, l)}))});
-      }));
+          frames: [0, 1, 2, 3].map(l => ({key: "orang", frame: frame(k, a, l)}))});
+      });
 
       // pemain: muncul di depan pintu yang baru dilewati, di posisi terakhir (sepulang dari CodeIn News), atau di titik mulai
       const asal = this.dariPintu && pintu.find(p => p.id === this.dariPintu);
@@ -179,7 +189,7 @@ const Kota = (() => {
 
       // patung (Si Pemula di alun-alun, Patung Pendiri di Markas) dan pancuran air
       for (const tp of titik.filter(o => o.name === "patung")) {
-        const kunci = teksturPatung(this, prop(tp).jenis || "pemula");
+        const kunci = teksturPatung(this, prop(tp).jenis || "pendiri");
         this.add.image(tp.x, tp.y, kunci).setOrigin(.5, 1).setScale(2).setDepth(10 + tp.y);
       }
       titik.filter(o => o.name === "pancuran").forEach((o, i) => {
@@ -199,8 +209,23 @@ const Kota = (() => {
           g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(.45, "rgba(255,255,255,.35)"); g.addColorStop(1, "rgba(255,255,255,0)");
           c.fillStyle = g; c.fillRect(0, 0, 64, 64); kanvas.refresh();
         }
-        cahaya = titik.filter(o => o.name === "lampu").map(o =>
-          this.add.image(o.x, o.y + 6, "cahaya").setBlendMode(Phaser.BlendModes.ADD).setTint(0xffd27a).setAlpha(.55).setDepth(7001).setVisible(false));
+        // titik "lampu" = kepala lampu jalan: cahaya lembut di tanah + pendaran piksel di kepalanya
+        cahaya = titik.filter(o => o.name === "lampu").flatMap(o => [
+          this.add.image(o.x, o.y + 12, "cahaya").setBlendMode(Phaser.BlendModes.ADD).setTint(0xffd27a).setAlpha(.55).setDepth(7001).setVisible(false),
+          this.add.image(o.x, o.y, "benda", "cahaya").setBlendMode(Phaser.BlendModes.ADD).setTint(0xffe2a0).setAlpha(.9).setDepth(7002).setVisible(false)]);
+        // kunang-kunang malam di sekitar pepohonan dalam kota (bukan hutan di tepi peta)
+        if (!this.anims.exists("kunang")) this.anims.create({key: "kunang", frameRate: 4, repeat: -1, frames: [0, 1, 2, 3].map(i => ({key: "benda", frame: "kunang-" + i}))});
+        const pohon = lapis("benda").filter(o => o.name.startsWith("pohon-") && o.x > 3 * T && o.x < lebar - 5 * T && o.y > 5 * T && o.y < tinggi - 3 * T);
+        for (let i = 0; i < 18 && pohon.length; i++) {
+          const o = pohon.splice(Math.floor(Math.random() * pohon.length), 1)[0];
+          const k = this.add.sprite(o.x + 8 + Math.random() * 16, o.y - 18 - Math.random() * 12, "benda", "kunang-0")
+            .setBlendMode(Phaser.BlendModes.ADD).setDepth(7003).setVisible(false);
+          if (!tenang) {
+            k.anims.play({key: "kunang", startFrame: i % 4});
+            this.tweens.add({targets: k, x: k.x + 10 - Math.random() * 20, y: k.y - 6 - Math.random() * 8, duration: 2600 + Math.random() * 2400, yoyo: true, repeat: -1, ease: "Sine.easeInOut"});
+          }
+          kunang.push(k);
+        }
       }
       terapkanWaktu();
       this.time.addEvent({delay: 20000, loop: true, callback: terapkanWaktu});
