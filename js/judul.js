@@ -4,10 +4,10 @@ const Judul = (() => {
   let pilih = 0;
   const kotak = $("pilih-karakter");
 
-  // gambar wajah karakter diambil dari assets/sprites/orang.png (baris kedua tiap karakter = menghadap depan)
+  // gambar wajah karakter diambil dari urban.png (kolom 24 = menghadap depan)
   function aturMuka(span, k) {
-    const y = (KOTA.karakter[k].lembar * 6 + 1) * 16;
-    span.style.backgroundPosition = `0 calc(var(--s) * -${y}px)`;
+    const x = 1 + 24 * 18, y = 1 + KOTA.karakter[k].baris * 18;
+    span.style.backgroundPosition = `calc(var(--s) * -${x}px) calc(var(--s) * -${y}px)`;
   }
   function tandai() {
     [...kotak.children].forEach((b, i) => { b.setAttribute("aria-checked", String(i === pilih)); b.tabIndex = i === pilih ? 0 : -1; });

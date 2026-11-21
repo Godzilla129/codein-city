@@ -83,8 +83,8 @@ kbd{display:inline-block;min-width:22px;padding:0 5px;border:2px solid var(--tin
 #btn-musik[aria-pressed="false"]::before{opacity:.45}
 #btn-profil{max-width:46vw}
 #hud-nama{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.muka{--s:2;flex:none;display:inline-block;width:calc(16px * var(--s));height:calc(16px * var(--s));background:url(../assets/sprites/orang.png) no-repeat;
-  background-size:calc(64px * var(--s)) calc(672px * var(--s));image-rendering:pixelated}
+.muka{--s:2;flex:none;display:inline-block;width:calc(16px * var(--s));height:calc(16px * var(--s));background:url(../assets/tiles/urban.png) no-repeat;
+  background-size:calc(486px * var(--s)) calc(324px * var(--s));image-rendering:pixelated}
 
 /* tombol aksi dan petunjuk */
 .aksi{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translateX(-50%);min-height:52px;padding:0 20px;font-size:18px;background:var(--emas)}

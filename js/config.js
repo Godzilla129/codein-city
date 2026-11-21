@@ -16,17 +16,15 @@ const KOTA = {
   // Pilihan warna pita baliho. Harus sama dengan SWATCHES di server CodeIn News (dashboard/services/billboards.py).
   warna: ["#E9A23B", "#2A9D8F", "#E06D53", "#5466D1", "#3E9E5A", "#C94F7C"],
 
-  // Enam karakter yang bisa dipilih pengunjung. "lembar" = urutan karakter di assets/sprites/orang.png (dibuat tools/buat_aset.py).
-  // Lembar 6 (Jull pemula) tidak bisa dipilih: dipakai untuk Patung Pendiri.
+  // Enam karakter. "baris" = baris pertama karakter itu di assets/tiles/urban.png (kolom 23-26).
   karakter: [
-    {lembar: 0, nama: "Hoodie biru"},
-    {lembar: 1, nama: "Kaos kuning"},
-    {lembar: 2, nama: "Topi merah"},
-    {lembar: 3, nama: "Rambut merah"},
-    {lembar: 4, nama: "Kakek"},
-    {lembar: 5, nama: "Nenek"},
+    {baris: 0,  nama: "Kaos hijau"},
+    {baris: 3,  nama: "Kaos merah"},
+    {baris: 6,  nama: "Rambut perak"},
+    {baris: 9,  nama: "Helm kuning"},
+    {baris: 12, nama: "Kepala plontos"},
+    {baris: 15, nama: "Bando oranye"},
   ],
-  lembarOrang: 7,            // jumlah karakter di orang.png (termasuk yang tidak bisa dipilih)
 
   // Pembagian waktu WIB untuk jadwal warga dan tulisan di bilah atas. mulai = jam mulai (sampai jam mulai waktu berikutnya).
   waktu: [
@@ -38,7 +36,8 @@ const KOTA = {
 
   // Patung. Kuncinya = properti "jenis" titik "patung" di peta. karakter = gambar karakter yang dijadikan patung.
   patung: {
-    pendiri: {karakter: 6, bahan: "batu"},         // dinding utara Markas CodeIn (Patung Si Pemula di alun-alun sudah ada di gambar air mancurnya)
+    pemula:  {karakter: 0, bahan: "perunggu"},     // tengah air mancur alun-alun
+    pendiri: {karakter: 1, bahan: "batu"},         // dinding utara Markas CodeIn
   },
 
   // Isi dialog. Kuncinya = properti "id" pintu di peta (atau properti "tujuan" bila id-nya tidak ada di sini).
@@ -108,7 +107,7 @@ const KOTA = {
       isi: ["CodeIn adalah komunitas teknologi tempat belajar bareng dan saling memamerkan karya.",
             "Motto kami: Get in, Learn and Grow with CodeIn.",
             "Mau bergabung atau punya ide kegiatan? Hubungi admin CodeIn lewat grup komunitas.",
-            "Kredit kota: perabot, lantai, dan dinding ruangan dari Top-Down Retro Interior karya Penzilla. Musik dari High Quality 16-bit RPG Music karya Hydrogene (CC0)."],
+            "Kredit kota: ubin dan karakter dari RPG Urban Pack karya Kenney (CC0). Musik dari High Quality 16-bit RPG Music karya Hydrogene (CC0)."],
     },
     rencana: {
       judul: "Rencana kota",
@@ -130,7 +129,7 @@ const KOTA = {
   //   ruang = peta selain kota (Markas, Galeri): warga di sana berjaga di satu titik dan tidak punya jadwal.
   //   Redaktur di Kantor Redaksi bukan warga: mereka diatur js/redaksi.js dari data CodeIn News.
   warga: [
-    {nama: "Bu Sari", karakter: 3, jadwal: {
+    {nama: "Bu Sari", karakter: 2, jadwal: {
       pagi:  {di: [15, 22], r: 2, ket: "di depan Papan Pengumuman",
               ucapan: ["Pagi! Aku selalu baca Papan Pengumuman dulu sebelum ke mana-mana.", "Pengumuman terbaru: {pengumuman}"]},
       siang: {di: [31, 11], r: 2, ket: "di depan videotron",
@@ -138,7 +137,7 @@ const KOTA = {
       sore:  {di: [36, 24], r: 2, ket: "di alun-alun, dekat patung",
               ucapan: ["Sore yang adem. Patung di tengah itu namanya Si Pemula.", "Buku Harian sore terbit jam 16.30 di CodeIn News."]},
       malam: {pulang: true}}},
-    {nama: "Bang Jo", karakter: 0, jadwal: {
+    {nama: "Bang Jo", karakter: 3, jadwal: {
       pagi:  {di: [13, 33], r: 2, ket: "di depan Markas CodeIn",
               ucapan: ["Pagi! Markas sudah buka. Mau daftar hosting atau baliho? Kak Rani jaga di meja resepsionis.", "Di dalam Markas ada patung pendiri CodeIn. Mampir lihat."]},
       siang: {di: [39, 11], r: 2, ket: "di depan Galeri Showcase",
@@ -146,7 +145,7 @@ const KOTA = {
       sore:  {di: [23, 33], r: 1, ket: "di depan Warkop CodeIn",
               ucapan: ["Warkop ini masih dikunci. Katanya buat anggota yang mau ikut membangun kota.", "Sore-sore begini enaknya ngopi. Sayang belum buka."]},
       malam: {pulang: true}}},
-    {nama: "Dika", karakter: 2, jadwal: {
+    {nama: "Dika", karakter: 0, jadwal: {
       pagi:  {di: [60, 30], r: 1, ket: "di taman baliho selatan",
               ucapan: ["Pagi. Peregangan dulu di taman sambil baca baliho."]},
       siang: {di: [47, 33], r: 2, ket: "di depan Toko Mbak Tika",
@@ -163,7 +162,7 @@ const KOTA = {
               ucapan: ["Sebentar lagi giliran jaga malam. Eh, yang jaga aku juga."]},
       malam: {di: [75, 11], r: 1, ket: "berjaga malam di Gerbang Timur",
               ucapan: ["Malam begini aku jaga gerbang. Warga lain sudah pulang.", "Kalau lewat alun-alun, lampunya sudah nyala semua."]}}},
-    {nama: "Mbak Tika", karakter: 1, jadwal: {
+    {nama: "Mbak Tika", karakter: 5, jadwal: {
       pagi:  {di: [46, 33], r: 1, ket: "membuka tokonya di selatan alun-alun",
               ucapan: ["Pagi! Lagi buka toko. Isinya belum ada, sabar, ya.", "Baliho di kota ini boleh dipakai anggota, gratis."]},
       siang: {di: [46, 33], r: 1, ket: "di depan tokonya",
@@ -171,7 +170,7 @@ const KOTA = {
       sore:  {di: [62, 20], r: 1, ket: "di lapak pojok pasar",
               ucapan: ["Sore aku pindah jaga lapak di pojok pasar.", "Punya proyek? Daftar baliho lewat Kak Rani di Markas."]},
       malam: {pulang: true}}},
-    {nama: "Nek Ijah", karakter: 5, jadwal: {
+    {nama: "Nek Ijah", karakter: 2, jadwal: {
       pagi:  {rute: [[10, 47], [30, 47]], laju: 16, ket: "jalan pagi di gang kampung",
               ucapan: ["Pagi, Nak. Nenek jalan pagi dulu.", "Pelan-pelan saja jalannya."]},
       siang: {di: [18, 22], r: 2, ket: "istirahat di taman Papan Pengumuman",
@@ -179,7 +178,7 @@ const KOTA = {
       sore:  {di: [35, 24], r: 1, ket: "di alun-alun",
               ucapan: ["Sore begini Nenek suka lihat anak-anak lari keliling air mancur."]},
       malam: {pulang: true}}},
-    {nama: "Rafi", karakter: 2, jadwal: {
+    {nama: "Rafi", karakter: 1, jadwal: {
       pagi:  {di: [22, 11], r: 2, ket: "di depan CodeIn News",
               ucapan: ["Pagi! Buku Harian pagi sudah terbit jam 06.45. Aku mau baca dulu.", "Masuk saja ke CodeIn News, gratis kok."]},
       siang: {rute: [[36, 18], [43, 18], [43, 23], [36, 23]], laju: 42, ket: "di alun-alun, lari keliling air mancur",
@@ -187,7 +186,7 @@ const KOTA = {
       sore:  {di: [31, 11], r: 2, ket: "di depan videotron",
               ucapan: ["Aku nunggu kabar sore di videotron. Yang ramai sekarang: {kabar}"]},
       malam: {pulang: true}}},
-    {nama: "Lia", karakter: 1, jadwal: {
+    {nama: "Lia", karakter: 5, jadwal: {
       pagi:  {di: [20, 12], r: 1, ket: "dekat zebra cross depan CodeIn News",
               ucapan: ["Kalau mau nyeberang, lewat zebra cross. Mobilnya pasti berhenti."]},
       siang: {di: [40, 11], r: 2, ket: "di depan Galeri Showcase",
@@ -205,9 +204,9 @@ const KOTA = {
       malam: {rute: [[26, 18], [53, 18], [53, 23], [26, 23]], laju: 18, ket: "jalan santai di alun-alun",
               ucapan: ["Malam-malam jalan santai di bawah lampu alun-alun. Tenang rasanya.", "Warga lain sudah pulang. Tinggal aku dan Pak Harun yang masih di luar."]}}},
     // Resepsionis Markas: semua pendaftaran (hosting proyek, baliho) lewat dia; dialognya dibuat di js/warga.js
-    {nama: "Kak Rani", karakter: 1, ruang: "markas", di: [16, 7], hadap: "bawah", peran: "resepsionis", ket: "di meja resepsionis Markas CodeIn",
+    {nama: "Kak Rani", karakter: 1, ruang: "markas", di: [16, 8], hadap: "bawah", peran: "resepsionis", ket: "di meja resepsionis Markas CodeIn",
      salam: {pagi: "Selamat pagi, selamat datang di Markas CodeIn!", siang: "Selamat siang, selamat datang di Markas CodeIn!",
              sore: "Selamat sore, selamat datang di Markas CodeIn!", malam: "Malam-malam mampir? Markas tetap buka, aku piket malam."}},
-    {nama: "Kak Mita", karakter: 3, ruang: "galeri", di: [3, 9], hadap: "kanan", buka: "galeri", ket: "di Galeri Showcase"},
+    {nama: "Kak Mita", karakter: 5, ruang: "galeri", di: [3, 9], hadap: "kanan", buka: "galeri", ket: "di Galeri Showcase"},
   ],
 };
