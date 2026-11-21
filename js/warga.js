@@ -11,6 +11,7 @@ const Warga = (() => {
 
   let daftar = [], adegan = null, ruang = "kota", grid = null, W = 0, H = 0, waktuKini = null, cekWaktu = 0;
   let rumah = {};          // nama penghuni -> tile di depan pintu rumahnya
+  let tamu = [];           // warga tambahan dari berkas lain (redaktur CodeIn News yang sedang keliling kota), lihat aturTamu
 
   const tengah = (x, y) => [x * T + 8, y * T + 12];                       // titik kaki di tengah tile
   const tileDari = s => [Math.floor(s.x / T), Math.floor(s.y / T)];
@@ -178,14 +179,31 @@ const Warga = (() => {
         for (const w of KOTA.warga) if (p.penghuni.includes(w.nama)) rumah[w.nama] = t;
       }
     }
-    daftar = KOTA.warga.filter(d => (d.ruang || "kota") === r).map(def => {
-      const s = sc.add.sprite(0, 0, "orang", Kota.frame(def.karakter, def.hadap || "bawah", 0)).setOrigin(.5, .8);
-      const label = Kota.tempelkan(el("div", "nama", def.nama), () => [s.x, s.y - 14]);
-      const w = {def, s, label, arah: def.hadap || "bawah", jalur: [], tunggu: 0, tungguAwal: 0, giliran: 0, titikRute: 0, diRumah: false, hapusBalon: null};
-      tempatkan(w);
-      return w;
-    });
+    daftar = KOTA.warga.filter(d => (d.ruang || "kota") === r).map(def => buatWarga(def));
+    if (r === "kota") tamu.forEach(def => daftar.push(buatWarga(def, true)));
   });
+  function buatWarga(def, keluarDariPintu) {
+    const s = adegan.add.sprite(0, 0, "orang", Kota.frame(def.karakter, def.hadap || "bawah", 0)).setOrigin(.5, .8);
+    const label = Kota.tempelkan(el("div", "nama" + (def.redaksi ? " redaktur" : ""), def.label || def.nama), () => [s.x, s.y - 14]);
+    const w = {def, s, label, arah: def.hadap || "bawah", jalur: [], tunggu: 0, tungguAwal: 0, giliran: 0, titikRute: 0, diRumah: false, hapusBalon: null};
+    tempatkan(w);
+    if (keluarDariPintu && def.dari) {         // baru keluar kantor: muncul di depan pintunya lalu berjalan ke rutenya
+      const [x, y] = tengah(...def.dari); s.setPosition(x, y); w.jalur = null; w.tunggu = 0;
+    }
+    return w;
+  }
+  // Warga tambahan yang berganti-ganti (redaktur yang keluar kantor untuk keliling kota). defs = daftar def lengkap
+  // seperti KOTA.warga, ditambah: redaksi (nama redaktur, disapa = dialog redaksi), dari (tile tempat muncul).
+  function aturTamu(defs) {
+    const lama = new Set(tamu.map(d => d.nama)), baru = new Set(defs.map(d => d.nama));
+    tamu = defs;
+    if (ruang !== "kota" || !adegan) return;
+    for (const w of daftar.filter(w => w.def.redaksi && !baru.has(w.def.nama))) {     // kembali ke kantor
+      Kota.lepaskan(w.label); w.s.destroy(); if (w.hapusBalon) w.hapusBalon();
+    }
+    daftar = daftar.filter(w => !w.def.redaksi || baru.has(w.def.nama));
+    for (const def of defs) if (!lama.has(def.nama) || !daftar.some(w => w.def.nama === def.nama)) daftar.push(buatWarga(def, true));
+  }
   Kota.tiapBingkai(gerak);
 
   /* ---------- disapa pemain ---------- */
@@ -211,6 +229,7 @@ const Warga = (() => {
   }
   function sapa(w) {
     if (w.def.peran === "resepsionis") { resepsionis(w); return; }
+    if (w.def.redaksi) { Redaksi.buka(w.def.redaksi); return; }
     if (w.def.buka) { Papan.tangani({id: w.def.buka, tujuan: ""}); return; }
     const j = jadwalKini(w), daftarUcapan = ((j && j.ucapan) || []).map(isiUcapan).filter(Boolean);
     if (!daftarUcapan.length) return;
@@ -221,7 +240,7 @@ const Warga = (() => {
   return {
     // warga terlihat terdekat dari titik (x, y), dalam jarak sapa
     terdekat: (x, y) => daftar.find(w => !w.diRumah && Phaser.Math.Distance.Between(w.s.x, w.s.y, x, y) < JARAK_SAPA) || null,
-    sapa,
+    sapa, aturTamu,
     sapaNama: nama => { const w = daftar.find(w => w.def.nama === nama); if (w) sapa(w); },
     sprites: () => daftar.filter(w => !w.diRumah).map(w => w.s),
     // di mana seorang warga sekarang: {diRumah, ket}. Dipakai saat rumah diketuk dan di depan toko.

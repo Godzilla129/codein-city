@@ -17,7 +17,7 @@ const Redaksi = (() => {
   const PENTING = ["Kolektor RSS", "Jadwal kolektor", "9router", "Kategorisasi AI", "Clustering AI", "Verifikasi", "Jadwal AI dan verifikasi"];
   const AGEN = [
     {nama: "Eko", gal: "Ekonomi", jabatan: "Redaktur Ekonomi", karakter: 0, istirahat: [3, 9], rapat: [19, 8]},
-    {nama: "Tekno", gal: "Teknologi", jabatan: "Redaktur Teknologi", karakter: 4, istirahat: [3, 10], rapat: [20, 8]},
+    {nama: "Tekno", gal: "Teknologi", jabatan: "Redaktur Teknologi", karakter: 6, istirahat: [3, 10], rapat: [20, 8]},
     {nama: "Rina", gal: "Umum", jabatan: "Redaktur Berita Umum", karakter: 5, istirahat: [2, 10], rapat: [21, 8]},
   ];
   const KEADAAN = {
@@ -26,6 +26,15 @@ const Redaksi = (() => {
     sleep: {ikon: "💤", label: "Tidur", ucap: () => "Zzz… Lagi sepi, biasanya malam atau akhir pekan."},
     alarm: {ikon: "❗", label: "Rapat darurat", ucap: () => "Lagi rapat darurat. Ada bagian sistem yang bermasalah, admin sudah dikabari."},
     offline: {ikon: "❓", label: "Tidak terhubung", ucap: () => "Aku tidak bisa menghubungi server CodeIn News. Coba lagi sebentar."},
+    keliling: {ikon: "🚶", label: "Keliling kota", ucap: d => `Kabar ${d.toLowerCase()} lagi sepi, jadi aku keliling kota dulu cari angin. Begitu ada kabar baru, aku balik ke meja.`},
+  };
+  // Redaktur yang lama tidak bekerja keluar kantor dan berjalan-jalan di kota (siang hari), lewat rute ini (tile kota).
+  // Malam hari (mulai 18.00 WIB, lihat KOTA.waktu) mereka tetap di kantor: ngopi atau tertidur di meja.
+  const KELILING = 60, PINTU_KANTOR = [21, 11];
+  const RUTE = {
+    Eko: {rute: [[31, 12], [40, 24], [47, 33], [64, 20], [31, 12]], ket: "keliling kota: videotron, alun-alun, Toko Mbak Tika, bakso di pojok pasar"},
+    Tekno: {rute: [[39, 12], [50, 12], [58, 12], [44, 24], [14, 33], [22, 12]], ket: "keliling kota: Galeri, baliho, halte, alun-alun, Markas"},
+    Rina: {rute: [[15, 22], [36, 24], [60, 32], [62, 20], [21, 12]], ket: "keliling kota: Papan Pengumuman, alun-alun, kolam, pojok pasar"},
   };
 
   const data = {kabar: [], galOf: {}, sehat: null, buku: [], online: true, dimuat: false};
@@ -58,6 +67,7 @@ const Redaksi = (() => {
     if (buku.status === "fulfilled") data.buku = buku.value;
     data.dimuat = true;
     if (adegan && Kota.ruang() === "redaksi") agen.forEach(perbaruiKeadaan);
+    perbaruiTamu();
   }
   function kerja(gal) {
     const kl = data.kabar.filter(c => (data.galOf[c.category] || "Ekonomi") === gal);
@@ -71,6 +81,7 @@ const Redaksi = (() => {
     if (rusak.length) return {kunci: "alarm", alasan: `${rusak.map(c => c.name).join(", ")} sedang bermasalah.`};
     const k = kerja(def.gal), umur = k.terbaru ? umurMenit(k.terbaru.last_seen) : Infinity;
     if (umur < SEGAR) return {kunci: "typing", alasan: `Kabar ${def.gal.toLowerCase()} terakhir masuk ${lalu(k.terbaru.last_seen)}.`};
+    if (umur >= KELILING && Kota.waktu().kunci !== "malam") return {kunci: "keliling", alasan: k.terbaru ? `Kabar ${def.gal.toLowerCase()} terakhir masuk ${lalu(k.terbaru.last_seen)}, jadi ${def.nama} keluar kantor sebentar.` : `Belum ada kabar ${def.gal.toLowerCase()} dalam 24 jam.`};
     if (umur < TIDUR) return {kunci: "coffee", alasan: `Belum ada kabar ${def.gal.toLowerCase()} baru sejak ${lalu(k.terbaru.last_seen)}.`};
     return {kunci: "sleep", alasan: k.terbaru ? `Kabar ${def.gal.toLowerCase()} terakhir ${lalu(k.terbaru.last_seen)}.` : "Belum ada kabar dalam 24 jam."};
   }
@@ -108,6 +119,10 @@ const Redaksi = (() => {
     a.keadaan = baru;
     a.label.elemen.textContent = `${a.def.nama} ${KEADAAN[baru.kunci].ikon}`;
     if (!ganti) return;
+    // keliling kota: kursinya kosong di kantor (dia sedang di peta kota)
+    const pergi = baru.kunci === "keliling";
+    a.s.setVisible(!pergi); a.label.elemen.hidden = pergi;
+    if (pergi) { a.jalur = []; a.siap = true; return; }
     const ke = tujuanDari(a);
     if (!a.siap || matchMedia("(prefers-reduced-motion: reduce)").matches) {
       const [x, y] = tengah(ke); a.s.setPosition(x, y); a.jalur = []; a.siap = true;
@@ -120,7 +135,7 @@ const Redaksi = (() => {
     if (!layar) return;
     layar.clear();
     agen.forEach((a, i) => {
-      const [mx, my] = a.monitor, k = a.keadaan ? a.keadaan.kunci : "sleep", diMeja = !a.jalur.length && tujuanDari(a) === a.meja;
+      const [mx, my] = a.monitor, k = a.keadaan ? a.keadaan.kunci : "sleep", diMeja = a.s.visible && !a.jalur.length && tujuanDari(a) === a.meja;
       layar.fillStyle(0x2e2017).fillRect(mx - 1, my - 1, 12, 9).fillRect(mx + 4, my + 8, 2, 2);
       const warna = k === "typing" && diMeja ? 0x183b33 : k === "alarm" ? 0x4a1e1a : 0x1e2433;
       layar.fillStyle(warna).fillRect(mx, my, 10, 7);
@@ -142,7 +157,18 @@ const Redaksi = (() => {
   }
 
   /* ---------- tiap bingkai ---------- */
+  // redaktur yang sedang keliling jadi warga tambahan di peta kota (js/warga.js)
+  function perbaruiTamu() {
+    const defs = AGEN.filter(def => keadaan(def).kunci === "keliling").map(def => {
+      const r = RUTE[def.nama], ucap = [KEADAAN.keliling.ucap(def.gal)];
+      const j = {rute: r.rute, laju: 24, ket: r.ket, ucapan: ucap};
+      return {nama: def.nama, label: `${def.nama} 🚶`, karakter: def.karakter, redaksi: def.nama, dari: PINTU_KANTOR,
+              jadwal: {pagi: j, siang: j, sore: j, malam: j}};
+    });
+    Warga.aturTamu(defs);
+  }
   function gerak(dt) {
+    if (adegan && Kota.ruang() === "kota" && (jedaMuat -= dt) <= 0) { jedaMuat = 120000; muat().catch(() => {}); }
     if (!adegan || Kota.ruang() !== "redaksi") return;
     if ((jedaMuat -= dt) <= 0) { jedaMuat = 60000; muat().catch(() => {}); }
     const pos = Kota.posisi();
@@ -173,18 +199,19 @@ const Redaksi = (() => {
   /* ---------- peta dimuat ---------- */
   Kota.saatSiap(({adegan: sc, ruang, peta}) => {
     adegan = sc; agen = []; layar = null; kopi = null;
+    if (ruang === "kota") { jedaMuat = data.dimuat ? 120000 : 300; if (data.dimuat) perbaruiTamu(); }
     if (ruang !== "redaksi") return;
     bangunGrid(peta);
     const titik = (peta.getObjectLayer("titik") || {objects: []}).objects;
     const prop = o => Object.fromEntries((o.properties || []).map(p => [p.name, p.value]));
     gambarKopi(sc, titik.find(o => o.name === "kopi"));
-    layar = sc.add.graphics().setDepth(10 + 6 * T + 15);          // di depan agen yang duduk, di atas meja
+    layar = sc.add.graphics().setDepth(10 + 7 * T);              // di atas daun meja (gambar meja sedikit di belakang), di depan agen yang duduk
     agen = AGEN.map(def => {
       const m = titik.find(o => o.name === "meja" && prop(o).agen === def.nama) || {x: 0, y: 0};
       const meja = [Math.floor(m.x / T), Math.floor(m.y / T)];
       const s = sc.add.sprite(m.x, m.y, "orang", Kota.frame(def.karakter, "bawah", 0)).setOrigin(.5, .8);
       const label = Kota.tempelkan(el("div", "nama", def.nama), () => [s.x, s.y - 14]);
-      return {def, s, label, meja, monitor: [m.x + 3, 6 * T + 1], jalur: [], hadap: "bawah", arah: "bawah", keadaan: null, siap: false};
+      return {def, s, label, meja, monitor: [m.x + 3, m.y + 7], jalur: [], hadap: "bawah", arah: "bawah", keadaan: null, siap: false};
     });
     jedaMuat = 0;
     if (data.dimuat) agen.forEach(perbaruiKeadaan);
@@ -220,7 +247,7 @@ const Redaksi = (() => {
 
   return {
     buka,
-    terdekat: (x, y) => agen.find(a => !a.jalur.length && Phaser.Math.Distance.Between(a.s.x, a.s.y, x, y) < JARAK_SAPA) || null,
+    terdekat: (x, y) => agen.find(a => a.s.visible && !a.jalur.length && Phaser.Math.Distance.Between(a.s.x, a.s.y, x, y) < JARAK_SAPA) || null,
     sprites: () => agen.map(a => a.s),
   };
 })();

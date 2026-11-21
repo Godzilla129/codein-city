@@ -13,10 +13,11 @@
 
 const Kota = (() => {
   const T = KOTA.ubin;
-  const KOLOM = {kiri: 23, bawah: 24, atas: 25, kanan: 26};      // kolom arah di urban.png
+  const KOLOM = {kiri: 0, bawah: 1, atas: 2, kanan: 3};          // kolom arah di orang.png (susunan karakter Kenney)
   const ARAH = ["bawah", "kiri", "kanan", "atas"];               // nomor arah yang dikirim lewat jaringan
   const PETA = ["kota", "markas", "galeri", "redaksi"];
-  const frame = (k, arah, langkah) => (KOTA.karakter[k].baris + langkah) * 27 + KOLOM[arah];
+  // assets/sprites/orang.png (tools/gambar_orang.py): tiap karakter 4 kolom arah x 3 baris langkah, k = urutan karakter
+  const frame = (k, arah, langkah) => (k * 3 + langkah) * 4 + KOLOM[arah];
   const tenang = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let adegan = null, pemain = null, profil = null, arah = "bawah", jalan = false, pernahJalan = false, pindah = false, ruang = "kota";
@@ -80,9 +81,9 @@ const Kota = (() => {
   function teksturPatung(sc, jenis) {
     const kunci = "patung-" + jenis, cfg = KOTA.patung[jenis] || KOTA.patung.pemula;
     if (sc.textures.exists(kunci)) return kunci;
-    const f = frame(cfg.karakter, "bawah", 0), kol = f % 27, bar = Math.floor(f / 27);
+    const f = frame(cfg.karakter, "bawah", 0);
     const kanvas = sc.textures.createCanvas(kunci, T, T), c = kanvas.getContext();
-    c.drawImage(sc.textures.get("ubin").getSourceImage(), 1 + kol * 18, 1 + bar * 18, T, T, 0, 0, T, T);
+    c.drawImage(sc.textures.get("orang").getSourceImage(), (f % 4) * T, Math.floor(f / 4) * T, T, T, 0, 0, T, T);
     const d = c.getImageData(0, 0, T, T), tangga = BAHAN[cfg.bahan] || BAHAN.perunggu;
     for (let i = 0; i < d.data.length; i += 4) {
       if (!d.data[i + 3]) continue;
@@ -101,7 +102,8 @@ const Kota = (() => {
       for (const n of PETA) if (!this.cache.tilemap.exists(n)) this.load.tilemapTiledJSON(n, `assets/maps/${n}.tmj`);
       if (!this.textures.exists("ubin")) {
         this.load.image("ubin", "assets/tiles/urban.png");
-        this.load.spritesheet("orang", "assets/tiles/urban.png", {frameWidth: T, frameHeight: T, margin: 1, spacing: 2});
+        this.load.spritesheet("orang", "assets/sprites/orang.png", {frameWidth: T, frameHeight: T});
+        this.load.image("ruang", "assets/tiles/ruang.png");
         this.load.atlas("benda", "assets/sprites/gedung.png", "assets/sprites/gedung.json");
       }
     }
@@ -115,7 +117,7 @@ const Kota = (() => {
       document.body.dataset.ruang = ruang;
 
       const peta = this.make.tilemap({key: ruang});
-      const ubin = peta.addTilesetImage("urban", "ubin", T, T, 1, 2);
+      const ubin = [peta.addTilesetImage("urban", "ubin", T, T, 1, 2), peta.addTilesetImage("ruang", "ruang", T, T, 1, 2)];
       ["tanah", "jalan", "bangunan", "hiasan"].forEach((n, i) => peta.createLayer(n, ubin).setDepth(i));
       peta.createLayer("atas", ubin).setDepth(5000);
       const tabrakan = peta.createLayer("tabrakan", ubin).setVisible(false);
@@ -139,7 +141,7 @@ const Kota = (() => {
       const titik = lapis("titik");
       // benda: gedung ikonik dan pohon. Kedalaman = tepi bawahnya, sama dengan orang, jadi orang bisa lewat di belakangnya.
       for (const o of lapis("benda")) {
-        const p = prop(o), g = this.add.image(o.x, o.y, "benda", o.name).setOrigin(0, 1).setDepth(10 + o.y);
+        const p = prop(o), g = this.add.image(o.x, o.y, "benda", o.name).setOrigin(0, 1).setDepth(p.datar ? 4 : 10 + o.y + (p.geser || 0));
         if (p.bingkai > 1 && !tenang) {             // gambar bergantian: nama-0, nama-1, ...
           const dasar = o.name.replace(/-\d+$/, "");
           let i = 0;
@@ -163,10 +165,10 @@ const Kota = (() => {
       const mulai = titik.find(o => o.name === "mulai") || {x: lebar / 2, y: tinggi / 2};
 
       // animasi jalan semua karakter (dipakai pemain, warga, dan pengunjung lain)
-      KOTA.karakter.forEach((_, k) => Object.keys(KOLOM).forEach(a => {
+      for (let k = 0; k < KOTA.lembarOrang; k++) Object.keys(KOLOM).forEach(a => {
         if (!this.anims.exists(`jalan-${k}-${a}`)) this.anims.create({key: `jalan-${k}-${a}`, frameRate: 8, repeat: -1,
           frames: [1, 0, 2, 0].map(l => ({key: "orang", frame: frame(k, a, l)}))});
-      }));
+      });
 
       // pemain: muncul di depan pintu yang baru dilewati, di posisi terakhir (sepulang dari CodeIn News), atau di titik mulai
       const asal = this.dariPintu && pintu.find(p => p.id === this.dariPintu);

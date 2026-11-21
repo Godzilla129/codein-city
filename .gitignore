@@ -2,3 +2,4 @@
 Thumbs.db
 *.tiled-session
 node_modules/
+__pycache__/

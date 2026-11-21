@@ -6,7 +6,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 
 ## Fitur
 
-- Layar judul: enam pilihan karakter dan nama panggilan dengan penyaring kata kasar.
+- Layar judul: dua belas pilihan karakter (enam karakter Kenney dan enam dari paket CodeIn City Retro: pemuda berhoodie, mahasiswi, bocil bertopi, ibu warung, kakek bertongkat, nenek) dan nama panggilan dengan penyaring kata kasar.
 - Jalan dengan WASD atau tombol panah. Di ponsel, sentuh layar lalu geser.
 - Kota 80 x 64 petak: jalan utama dengan tiga gerbang, alun-alun dengan air mancur dan Patung Si Pemula, pojok pasar, dan kampung warga di selatan.
 - Gedung: Kantor Redaksi CodeIn News, Galeri Showcase, dan Markas CodeIn (bisa dimasuki), Warkop CodeIn dan dua gedung lain (belum buka), Toko Mbak Tika.
@@ -16,9 +16,9 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 - **Enam baliho** (empat di jalan utama, dua di taman selatan) berisi proyek anggota. Nomor baliho sama dengan nomor slot billboard di CodeIn News. Di dalam Galeri, keenamnya dipajang sebagai karya di dinding.
 - Pengajuan baliho lewat Kak Rani di Markas. Admin memutuskan di halaman admin CodeIn News.
 - **Papan Pengumuman** berupa papan gabus: tiga pengumuman teratas terbaca langsung dari jauh.
-- Sebelas warga yang bisa disapa, sepuluh di antaranya punya rumah di kampung. Warga kota punya jadwal pagi, siang, sore, dan malam (WIB): berjalan ke tempatnya lewat trotoar dan zebra cross, jalan-jalan kecil di sekitarnya, dan malam hari sebagian besar pulang ke rumah.
+- Tiga belas warga yang bisa disapa, sepuluh di antaranya punya rumah di kampung, ditambah Mas Bakso di gerobak pojok pasar dan Bang Ojol di halte. Sore hari Rafi dan Lia main badminton di lapangan kampung. Warga kota punya jadwal pagi, siang, sore, dan malam (WIB): berjalan ke tempatnya lewat trotoar dan zebra cross, jalan-jalan kecil di sekitarnya, dan malam hari sebagian besar pulang ke rumah.
 - Markas CodeIn: Patung Pendiri dengan plakat, dan Kak Rani di meja resepsionis yang membacakan pengumuman terbaru.
-- **Kantor Redaksi CodeIn News**: Eko (ekonomi), Tekno (teknologi), dan Rina (berita umum) bekerja sesuai kabar yang benar-benar masuk: mengetik di meja dengan layar menyala, ngopi di dapur saat sepi, tertidur saat malam, dan rapat bersama saat bagian penting sistem bermasalah. Sapa mereka untuk melihat kabar yang mereka olah dan membuka Buku Harian; terminal di dekat pintu membuka `news.codeinhub.my.id`.
+- **Kantor Redaksi CodeIn News**: Eko (ekonomi), Tekno (teknologi), dan Rina (berita umum) bekerja sesuai kabar yang benar-benar masuk: mengetik di meja dengan layar menyala, ngopi di dapur saat sepi, tertidur saat malam, dan rapat bersama saat bagian penting sistem bermasalah. **Kalau bidangnya sepi lebih dari satu jam (siang hari), redakturnya keluar kantor dan keliling kota** lewat rutenya sendiri (videotron, alun-alun, pojok pasar, Galeri, Markas); kursinya di kantor kosong, dan dia bisa disapa di jalan. Sapa mereka untuk melihat kabar yang mereka olah dan membuka Buku Harian; terminal di dekat pintu membuka `news.codeinhub.my.id`.
 - Warkop CodeIn sengaja dikunci sebagai tantangan untuk anggota yang mau ikut membangun kota.
 - **Hosting proyek lewat Kak Rani**: semua pendaftaran (hosting proyek dan baliho) dilakukan di meja resepsionis Markas. Anggota mendaftar, admin menyetujui di CodeIn News, anggota mengunggah zip situsnya di `rumah.codeinhub.my.id` (wajib menyetujui [Aturan Rumah Proyek](https://rumah.codeinhub.my.id/aturan)), lalu situsnya tayang di `<nama>.codeinhub.my.id` dan tercantum di **Direktori Proyek**. Empat rumah di kota (dua gedung dan dua rumah kampung) adalah hadiah untuk proyek unggulan pilihan admin.
 - Kendaraan masuk dan keluar lewat gerbang, dan berhenti kalau ada orang di depannya.
@@ -51,12 +51,14 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `assets/maps/kota.tmj` | Peta kota, dibuka dan diubah dengan Tiled |
 | `assets/maps/markas.tmj`, `galeri.tmj`, `redaksi.tmj` | Peta ruangan Markas CodeIn, Galeri Showcase, dan Kantor Redaksi |
 | `assets/tiles/urban.png` | Tileset dan karakter (Kenney, CC0) |
-| `assets/sprites/gedung.png`, `gedung.json` | Atlas gedung ikonik, rumah warga, bendera, dan pohon hutan (dibuat `tools/buat_gedung.py`) |
+| `assets/sprites/gedung.png`, `gedung.json` | Atlas gambar bergaya Kenney: gedung ikonik, rumah warga, bendera, pohon hutan, perabot ruangan, properti kota (halte, gerobak bakso, pos ronda, kolam, beringin, palem), angkot dan motor |
+| `assets/sprites/orang.png` | Lembar karakter: 13 karakter, masing-masing 4 arah x 3 langkah |
+| `assets/tiles/ruang.png` | Ubin lantai, dinding, dan tepi tembok di dalam gedung |
 | `assets/sprites/ikon-musik.png` | Ikon tombol musik |
 | `assets/musik/*.mp3` | Musik latar (96 kbps) |
-| `tools/buat_gedung.py` | Penggambar gedung ikonik piksel demi piksel dengan palet Kenney. Bentuknya mengacu ke paket aset CodeIn City Retro |
+| `tools/buat_gambar.py` | Menyusun semua gambar di atas (jalankan sebelum `buat_peta.py`). Bagian-bagiannya: `kanvas.py` (palet dan alat gambar Kenney), `gambar_benda.py` (perabot, properti kota, kendaraan, ubin ruangan), `gambar_orang.py` (karakter). Semuanya digambar piksel demi piksel dengan palet Kenney, bentuknya mengacu ke paket CodeIn City Retro dan Top-Down Retro Interior |
 | `vendor/phaser.min.js` | Phaser 3.90.0 (lisensi MIT) |
-| `tools/buat_peta.py` | Pembuat keempat peta (jalankan sesudah `buat_gedung.py`). Sampai versi ini peta masih sama persis dengan hasil skrip. Jangan dijalankan lagi setelah peta diubah di Tiled |
+| `tools/buat_peta.py` | Pembuat keempat peta (jalankan sesudah `buat_gambar.py`). Sampai versi ini peta masih sama persis dengan hasil skrip. Jangan dijalankan lagi setelah peta diubah di Tiled |
 
 Berkas JavaScript dimuat berurutan dari `index.html`, dan setiap berkas memakai isi berkas sebelumnya.
 

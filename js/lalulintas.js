@@ -12,7 +12,10 @@ const LaluLintas = (() => {
     {rona: 4, depan: [449, 476], belakang: [452, 479]},                         // merah
     {rona: 40, depan: [395, 422], belakang: [398, 425]},                        // kuning
     {rona: 212, depan: [399, 426], belakang: [400, 427], warnaiDepan: true},    // biru
+    // digambar tools/gambar_benda.py (atlas gedung.png, frame mobil-<nama>-<arah>), mengacu ke paket CodeIn City Retro
+    {atlas: "angkot"}, {atlas: "angkot"}, {atlas: "motor"}, {atlas: "ojol"},
   ];
+  const gambar = (j, arah) => JENIS[j].atlas ? ["benda", `mobil-${JENIS[j].atlas}-${arah}`] : [`mobil-${j}-${arah}`, undefined];
   const LAJU = 46, MAKS = 5, T = KOTA.ubin;
   let adegan = null, rute = [], mobil = [], tunggu = 0;
 
@@ -34,7 +37,7 @@ const LaluLintas = (() => {
   // gambar kendaraan disusun dari beberapa tile menjadi satu tekstur per jenis dan arah
   function tekstur(sc) {
     const sumber = sc.textures.get("ubin").getSourceImage();
-    JENIS.forEach((j, i) => Object.entries({kiri: SISI.kiri, kanan: SISI.kanan, bawah: j.depan, atas: j.belakang}).forEach(([a, tile]) => {
+    JENIS.forEach((j, i) => !j.atlas && Object.entries({kiri: SISI.kiri, kanan: SISI.kanan, bawah: j.depan, atas: j.belakang}).forEach(([a, tile]) => {
       const kunci = `mobil-${i}-${a}`;
       if (sc.textures.exists(kunci)) return;
       const samping = a === "kiri" || a === "kanan", lebar = samping ? 2 : 1, tinggi = tile.length / lebar;
@@ -59,7 +62,7 @@ const LaluLintas = (() => {
     const bebas = rute.filter(r => !mobil.some(m => Math.hypot(m.s.x - r[0].x, m.s.y - r[0].y) < 90));
     if (!bebas.length) return;
     const r = bebas[Math.floor(Math.random() * bebas.length)], jenis = Math.floor(Math.random() * JENIS.length);
-    const s = adegan.add.image(r[0].x, r[0].y, `mobil-${jenis}-kanan`).setOrigin(.5, 1);
+    const s = adegan.add.image(r[0].x, r[0].y, ...gambar(jenis, "kanan")).setOrigin(.5, 1);
     mobil.push({s, r, ke: 1, jenis, arah: "", diam: 0, klakson: false});
   }
 
@@ -80,7 +83,7 @@ const LaluLintas = (() => {
     for (const m of mobil.slice()) {
       const t = m.r[m.ke], dx = t.x - m.s.x, dy = t.y - m.s.y, sisa = Math.hypot(dx, dy);
       const arah = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "kiri" : "kanan") : (dy < 0 ? "atas" : "bawah");
-      if (arah !== m.arah) { m.arah = arah; m.s.setTexture(`mobil-${m.jenis}-${arah}`); }
+      if (arah !== m.arah) { m.arah = arah; m.s.setTexture(...gambar(m.jenis, arah)); }
       m.s.setDepth(10 + m.s.y - 3);
       const ux = sisa ? dx / sisa : 0, uy = sisa ? dy / sisa : 0, halang = terhalang(m, ux, uy);
       // dua kendaraan yang saling menunggu di persimpangan: setelah 6 detik yang satu jalan terus

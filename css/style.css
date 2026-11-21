@@ -22,6 +22,7 @@ button,input{font:inherit;color:inherit}
 .papan.utama{background:var(--emas)}
 .papan.rumah{background:var(--kertas-2);font-size:12px;font-weight:500;padding:0 6px}
 .nama.lain{color:#C8ECFF}
+.nama.redaktur{color:#BFF0D8}
 .papan.kunci{background:#D9D2C6;color:var(--redup);font-weight:400}
 .nama{font-size:12px;color:#fff;text-shadow:0 1px 0 #000,1px 0 0 #000,-1px 0 0 #000,0 -1px 0 #000;font-weight:600}
 .nama.saya{color:#FFE7A8;font-size:13px}
@@ -83,8 +84,8 @@ kbd{display:inline-block;min-width:22px;padding:0 5px;border:2px solid var(--tin
 #btn-musik[aria-pressed="false"]::before{opacity:.45}
 #btn-profil{max-width:46vw}
 #hud-nama{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.muka{--s:2;flex:none;display:inline-block;width:calc(16px * var(--s));height:calc(16px * var(--s));background:url(../assets/tiles/urban.png) no-repeat;
-  background-size:calc(486px * var(--s)) calc(324px * var(--s));image-rendering:pixelated}
+.muka{--s:2;flex:none;display:inline-block;width:calc(16px * var(--s));height:calc(16px * var(--s));background:url(../assets/sprites/orang.png) no-repeat;
+  background-size:calc(64px * var(--s)) calc(624px * var(--s));image-rendering:pixelated}
 
 /* tombol aksi dan petunjuk */
 .aksi{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translateX(-50%);min-height:52px;padding:0 20px;font-size:18px;background:var(--emas)}

@@ -16,15 +16,14 @@ const KOTA = {
   // Pilihan warna pita baliho. Harus sama dengan SWATCHES di server CodeIn News (dashboard/services/billboards.py).
   warna: ["#E9A23B", "#2A9D8F", "#E06D53", "#5466D1", "#3E9E5A", "#C94F7C"],
 
-  // Enam karakter. "baris" = baris pertama karakter itu di assets/tiles/urban.png (kolom 23-26).
+  // Karakter yang bisa dipilih pengunjung. Urutannya = urutan di assets/sprites/orang.png (tools/gambar_orang.py):
+  // 0-5 karakter Kenney, 6-11 karakter dari paket CodeIn City Retro yang digambar ulang bergaya Kenney.
+  // Karakter 12 (Jull pemula) tidak bisa dipilih: dipakai untuk Patung Pendiri.
   karakter: [
-    {baris: 0,  nama: "Kaos hijau"},
-    {baris: 3,  nama: "Kaos merah"},
-    {baris: 6,  nama: "Rambut perak"},
-    {baris: 9,  nama: "Helm kuning"},
-    {baris: 12, nama: "Kepala plontos"},
-    {baris: 15, nama: "Bando oranye"},
+    {nama: "Kaos hijau"}, {nama: "Kaos merah"}, {nama: "Rambut perak"}, {nama: "Helm kuning"}, {nama: "Kepala plontos"}, {nama: "Bando oranye"},
+    {nama: "Hoodie biru"}, {nama: "Mahasiswi"}, {nama: "Bocil bertopi"}, {nama: "Ibu warung"}, {nama: "Kakek"}, {nama: "Nenek"},
   ],
+  lembarOrang: 13,           // jumlah karakter di orang.png, termasuk yang tidak bisa dipilih
 
   // Pembagian waktu WIB untuk jadwal warga dan tulisan di bilah atas. mulai = jam mulai (sampai jam mulai waktu berikutnya).
   waktu: [
@@ -37,7 +36,7 @@ const KOTA = {
   // Patung. Kuncinya = properti "jenis" titik "patung" di peta. karakter = gambar karakter yang dijadikan patung.
   patung: {
     pemula:  {karakter: 0, bahan: "perunggu"},     // tengah air mancur alun-alun
-    pendiri: {karakter: 1, bahan: "batu"},         // dinding utara Markas CodeIn
+    pendiri: {karakter: 12, bahan: "batu"},         // dinding utara Markas CodeIn
   },
 
   // Isi dialog. Kuncinya = properti "id" pintu di peta (atau properti "tujuan" bila id-nya tidak ada di sini).
@@ -145,15 +144,15 @@ const KOTA = {
       sore:  {di: [23, 33], r: 1, ket: "di depan Warkop CodeIn",
               ucapan: ["Warkop ini masih dikunci. Katanya buat anggota yang mau ikut membangun kota.", "Sore-sore begini enaknya ngopi. Sayang belum buka."]},
       malam: {pulang: true}}},
-    {nama: "Dika", karakter: 0, jadwal: {
-      pagi:  {di: [60, 30], r: 1, ket: "di taman baliho selatan",
+    {nama: "Dika", karakter: 6, jadwal: {
+      pagi:  {di: [60, 32], r: 1, ket: "di taman baliho selatan, dekat kolam",
               ucapan: ["Pagi. Peregangan dulu di taman sambil baca baliho."]},
       siang: {di: [47, 33], r: 2, ket: "di depan Toko Mbak Tika",
               ucapan: ["Nunggu Mbak Tika. Katanya tokonya sebentar lagi ada isinya.", "Kalau ada pengunjung lain, kamu bisa lihat mereka jalan-jalan di sini."]},
       sore:  {di: [44, 24], r: 2, ket: "di alun-alun",
               ucapan: ["Mau ngobrol sama pengunjung lain? Tekan Enter, ketik, lalu Enter lagi.", "Sore ini alun-alun ramai, ya."]},
       malam: {pulang: true}}},
-    {nama: "Pak Harun", karakter: 4, jadwal: {
+    {nama: "Pak Harun", karakter: 10, jadwal: {
       pagi:  {di: [75, 11], r: 1, ket: "di pos dekat Gerbang Timur",
               ucapan: ["Pagi. Mobil pertama sudah lewat gerbang dari subuh.", "Jalan ke luar kota belum dibuka untuk pejalan kaki."]},
       siang: {di: [75, 11], r: 1, ket: "di pos dekat Gerbang Timur",
@@ -162,7 +161,7 @@ const KOTA = {
               ucapan: ["Sebentar lagi giliran jaga malam. Eh, yang jaga aku juga."]},
       malam: {di: [75, 11], r: 1, ket: "berjaga malam di Gerbang Timur",
               ucapan: ["Malam begini aku jaga gerbang. Warga lain sudah pulang.", "Kalau lewat alun-alun, lampunya sudah nyala semua."]}}},
-    {nama: "Mbak Tika", karakter: 5, jadwal: {
+    {nama: "Mbak Tika", karakter: 9, jadwal: {
       pagi:  {di: [46, 33], r: 1, ket: "membuka tokonya di selatan alun-alun",
               ucapan: ["Pagi! Lagi buka toko. Isinya belum ada, sabar, ya.", "Baliho di kota ini boleh dipakai anggota, gratis."]},
       siang: {di: [46, 33], r: 1, ket: "di depan tokonya",
@@ -170,7 +169,7 @@ const KOTA = {
       sore:  {di: [62, 20], r: 1, ket: "di lapak pojok pasar",
               ucapan: ["Sore aku pindah jaga lapak di pojok pasar.", "Punya proyek? Daftar baliho lewat Kak Rani di Markas."]},
       malam: {pulang: true}}},
-    {nama: "Nek Ijah", karakter: 2, jadwal: {
+    {nama: "Nek Ijah", karakter: 11, jadwal: {
       pagi:  {rute: [[10, 47], [30, 47]], laju: 16, ket: "jalan pagi di gang kampung",
               ucapan: ["Pagi, Nak. Nenek jalan pagi dulu.", "Pelan-pelan saja jalannya."]},
       siang: {di: [18, 22], r: 2, ket: "istirahat di taman Papan Pengumuman",
@@ -178,21 +177,21 @@ const KOTA = {
       sore:  {di: [35, 24], r: 1, ket: "di alun-alun",
               ucapan: ["Sore begini Nenek suka lihat anak-anak lari keliling air mancur."]},
       malam: {pulang: true}}},
-    {nama: "Rafi", karakter: 1, jadwal: {
+    {nama: "Rafi", karakter: 8, jadwal: {
       pagi:  {di: [22, 11], r: 2, ket: "di depan CodeIn News",
               ucapan: ["Pagi! Buku Harian pagi sudah terbit jam 06.45. Aku mau baca dulu.", "Masuk saja ke CodeIn News, gratis kok."]},
       siang: {rute: [[36, 18], [43, 18], [43, 23], [36, 23]], laju: 42, ket: "di alun-alun, lari keliling air mancur",
               ucapan: ["Aku lagi lomba lari keliling air mancur sama Lia!"]},
-      sore:  {di: [31, 11], r: 2, ket: "di depan videotron",
-              ucapan: ["Aku nunggu kabar sore di videotron. Yang ramai sekarang: {kabar}"]},
+      sore:  {di: [68, 41], r: 0, ket: "main badminton dengan Lia di lapangan kampung",
+              ucapan: ["Lagi main badminton sama Lia! Skornya 15-13, aku unggul.", "Sore-sore paling enak main di lapangan kampung."]},
       malam: {pulang: true}}},
     {nama: "Lia", karakter: 5, jadwal: {
       pagi:  {di: [20, 12], r: 1, ket: "dekat zebra cross depan CodeIn News",
               ucapan: ["Kalau mau nyeberang, lewat zebra cross. Mobilnya pasti berhenti."]},
       siang: {di: [40, 11], r: 2, ket: "di depan Galeri Showcase",
               ucapan: ["Aku suka lihat baliho. Ada yang pasang proyek baru belum, ya?"]},
-      sore:  {di: [42, 24], r: 2, ket: "di alun-alun",
-              ucapan: ["Kak, tadi Rafi menang lomba lari. Besok gantian aku."]},
+      sore:  {di: [68, 44], r: 0, ket: "main badminton dengan Rafi di lapangan kampung",
+              ucapan: ["Rafi curang, smash terus! Tapi tadi siang aku menang lomba lari.", "Mau ikut main? Raketnya cuma dua, hehe."]},
       malam: {pulang: true}}},
     {nama: "Om Budi", karakter: 4, jadwal: {
       pagi:  {rute: [[41, 39], [41, 46]], ket: "jalan pagi di jalan kampung",
@@ -204,9 +203,28 @@ const KOTA = {
       malam: {rute: [[26, 18], [53, 18], [53, 23], [26, 23]], laju: 18, ket: "jalan santai di alun-alun",
               ucapan: ["Malam-malam jalan santai di bawah lampu alun-alun. Tenang rasanya.", "Warga lain sudah pulang. Tinggal aku dan Pak Harun yang masih di luar."]}}},
     // Resepsionis Markas: semua pendaftaran (hosting proyek, baliho) lewat dia; dialognya dibuat di js/warga.js
-    {nama: "Kak Rani", karakter: 1, ruang: "markas", di: [16, 8], hadap: "bawah", peran: "resepsionis", ket: "di meja resepsionis Markas CodeIn",
+    {nama: "Kak Rani", karakter: 7, ruang: "markas", di: [16, 7], hadap: "bawah", peran: "resepsionis", ket: "di meja resepsionis Markas CodeIn",
      salam: {pagi: "Selamat pagi, selamat datang di Markas CodeIn!", siang: "Selamat siang, selamat datang di Markas CodeIn!",
              sore: "Selamat sore, selamat datang di Markas CodeIn!", malam: "Malam-malam mampir? Markas tetap buka, aku piket malam."}},
-    {nama: "Kak Mita", karakter: 5, ruang: "galeri", di: [3, 9], hadap: "kanan", buka: "galeri", ket: "di Galeri Showcase"},
+    // Pedagang dan tukang ojek di kota. Tidak punya rumah di kampung: malam hari tetap di tempatnya.
+    {nama: "Mas Bakso", karakter: 3, jadwal: {
+      pagi:  {di: [64, 20], r: 0, ket: "menyiapkan gerobak bakso di pojok pasar",
+              ucapan: ["Pagi! Kuahnya baru dimasak, siang nanti baru siap.", "Gerobak ini kubeli dari hasil jualan tiga tahun, lho."]},
+      siang: {di: [64, 20], r: 1, ket: "jualan bakso di pojok pasar",
+              ucapan: ["Bakso, bakso! Satu mangkuk buat yang lagi ngoding?", "Pelanggan setiaku Eko dari CodeIn News. Kalau kabar sepi, dia mampir ke sini."]},
+      sore:  {di: [64, 20], r: 1, ket: "jualan bakso di pojok pasar",
+              ucapan: ["Sore ramai, banyak yang pulang dari Markas.", "Yang lagi ramai di videotron: {kabar}"]},
+      malam: {di: [64, 20], r: 0, ket: "masih jualan bakso di pojok pasar",
+              ucapan: ["Bakso malam paling enak. Tinggal sepuluh mangkuk lagi.", "Kunang-kunang keluar dari pohon dekat sini kalau malam."]}}},
+    {nama: "Bang Ojol", karakter: 6, jadwal: {
+      pagi:  {di: [58, 12], r: 1, ket: "menunggu penumpang di halte utara",
+              ucapan: ["Pagi! Lagi nunggu orderan di halte.", "Angkot hijau itu lewat tiap beberapa menit, motor ojek juga."]},
+      siang: {rute: [[44, 12], [70, 12]], laju: 30, ket: "mondar-mandir di trotoar utara",
+              ucapan: ["Siang panas, orderan sepi. Jalan-jalan dulu."]},
+      sore:  {di: [58, 12], r: 1, ket: "menunggu penumpang di halte utara",
+              ucapan: ["Sore ramai orderan. Mau diantar ke Gerbang Timur? Bercanda, gerbangnya belum dibuka."]},
+      malam: {di: [75, 12], r: 1, ket: "ngobrol dengan Pak Harun di pos ronda",
+              ucapan: ["Malam-malam nemenin Pak Harun ronda. Kopinya dari Warkop, eh, Warkop masih tutup ding."]}}},
+    {nama: "Kak Mita", karakter: 1, ruang: "galeri", di: [3, 9], hadap: "kanan", buka: "galeri", ket: "di Galeri Showcase"},
   ],
 };
