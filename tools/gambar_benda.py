@@ -785,7 +785,8 @@ def semua():
          "lapak-sayur": lapak((hx("2a9d8f"), PUTIH), "sayur"), "lapak-buah": lapak((MERAH, PUTIH), "buah"),
          "lapak-ikan": lapak((hx("5466d1"), PUTIH), "ikan"), "lapak-kain": lapak((hx("e9a23b"), PUTIH), "kain"),
          "lapak-jamu": lapak((hx("86c264"), PUTIH), "jamu"), "lapak-kue": lapak((hx("f7a8c4"), PUTIH), "kue"),
-         "lapak-mainan": lapak((hx("9f8fc4"), PUTIH), "mainan"), "lapak-kelapa": lapak((hx("c4704a"), KREM_T), "kelapa"), "gerobak": gerobak(), "pos-ronda": pos_ronda(), "kolam": kolam(), "beringin": beringin(),
+         "lapak-mainan": lapak((hx("9f8fc4"), PUTIH), "mainan"), "lapak-kelapa": lapak((hx("c4704a"), KREM_T), "kelapa"), "lapak-tahu": lapak((hx("e9a23b"), KREM_T), "kue"), "lapak-rempah": lapak((hx("c4704a"), PUTIH), "jamu"),
+         "lapak-bunga": lapak((hx("f7a8c4"), PUTIH), "sayur"), "gerobak": gerobak(), "pos-ronda": pos_ronda(), "kolam": kolam(), "beringin": beringin(),
          "palem": palem(), "meja-warkop": meja_warkop(), "net-badminton": net_badminton(), "lampu-merah": lampu_merah(),
          "kavling-kosong": kavling_kosong(), "papan-kavling": papan_kavling(), "gerbang-perumahan": gerbang_perumahan(), "kasur": kasur(),
          "gantungan-kunci": gantungan_kunci()}

@@ -253,208 +253,271 @@ def aspal(p, roads):
 
 
 # =====================================================================================================
-#  KOTA (80 x 64)
-#  utara  : baliho, CodeIn News, videotron, Galeri Showcase, gedung terkunci
-#  tengah : jalan utama (gerbang barat <-> timur), alun-alun dengan air mancur dan patung, Papan Pengumuman, pojok pasar
-#  selatan: Markas CodeIn, Warkop (belum buka), toko, taman baliho, lalu kampung warga sampai gerbang selatan
+#  KOTA (96 x 80), gaya campuran: pusat kota rapi, makin ke selatan makin seperti kampung
+#  utara  : jalan raya barat-timur; baliho, CodeIn News, videotron, Galeri, baliho, rumah proyek 1, halte, pos ronda
+#  tengah : Taman Kota (ruang terbuka hijau) dikelilingi jalan: plaza air mancur dan patung, jalan taman melingkar,
+#           kolam, gazebo, lapangan badminton, Papan Pengumuman, taman baliho; kebun kota di barat; Pasar CodeIn di timur
+#  selatan: Markas CodeIn, Warkop, menara Aetheria (rumah proyek 2), Toko Mbak Tika, baliho 5-6; di bawahnya kampung
+#           warga dengan jalan setapak tanah, lapangan, dan kolam, sampai Gerbang Selatan (ke Perumahan CodeIn)
+#  Titik "tempat" (id) dipakai jadwal warga di js/config.js dan rute redaktur di js/redaksi.js, jadi kalau letak
+#  bangunan berubah, cukup titiknya yang dipindah.
 # =====================================================================================================
 def kota():
-    p = Peta(80, 64)
-    W, H = p.W, p.H
+    W, H = 96, 80
+    p = Peta(W, H, seed=7)
+    p.urut_aspal = True
+    acak = random.Random(13)
     for y in range(H):
         for x in range(W):
             p.put("tanah", x, y, RUMPUT)
+    tempat = lambda ident, x, y: p.obj(p.points, "tempat", x * T + 8, y * T + 8, id=ident)
 
     # ---------- jalan aspal ----------
-    roads = [(0, 13, 79, 15, "h"),      # jalan utama: gerbang barat -> gerbang timur
-             (4, 34, 75, 36, "h"),      # jalan selatan
-             (4, 13, 6, 36, "v"), (73, 13, 75, 36, "v"),     # jalan lingkar barat dan timur
-             (38, 37, 40, 63, "v"),     # jalan kampung -> gerbang selatan
-             (8, 48, 71, 50, "h")]      # gang kampung
+    roads = [(0, 14, 95, 16, "h"),       # jalan raya: Gerbang Barat -> Gerbang Timur
+             (19, 17, 21, 52, "v"),      # jalan barat taman
+             (74, 17, 76, 52, "v"),      # jalan timur taman
+             (19, 50, 76, 52, "h"),      # jalan selatan (depan Markas)
+             (46, 53, 48, H - 1, "v")]   # jalan kampung -> Gerbang Selatan
     asphalt = aspal(p, roads)
-    for (cx, cy) in ((21, 13), (39, 13), (36, 34)):    # zebra cross: depan CodeIn News, depan Galeri, jalan selatan (ke kampung)
+    for (cx, cy) in ((30, 14), (47, 14), (65, 14), (33, 50), (60, 50)):       # zebra cross mendatar
         for i, idx in enumerate((405, 432, 459)):
             p.put("tanah", cx, cy + i, idx)
 
-    # ---------- trotoar, alun-alun, pelataran ----------
-    sidewalk = (cells(2, 11, 77, 12) | cells(7, 16, 72, 16) | cells(7, 16, 7, 33) | cells(72, 16, 72, 33) | cells(7, 33, 72, 33)
-                | cells(4, 37, 75, 37)
-                | cells(37, 38, 37, 61) | cells(41, 38, 41, 61)          # kiri-kanan jalan kampung
-                | cells(8, 47, 71, 47) | cells(8, 51, 71, 51)            # kiri-kanan gang
-                | cells(8, 59, 71, 59)                                    # setapak depan rumah baris selatan
-                | cells(39, 25, 40, 32)                                   # alun-alun -> jalan selatan
-                | cells(8, 20, 9, 21) | cells(21, 20, 23, 21)             # ke Papan Pengumuman
-                | cells(56, 20, 71, 21)) - asphalt                        # alun-alun -> pojok pasar -> trotoar timur
-    p.ubin(sidewalk, BATU)
-    p.ubin(cells(24, 17, 55, 24), KREM)        # alun-alun
-    p.ubin(cells(10, 17, 20, 23), ABU_KREM)    # pelataran Papan Pengumuman
-    p.ubin(cells(35, 18, 44, 23), BATU)        # pelataran batu di sekeliling air mancur
+    # ---------- trotoar ----------
+    trotoar = (cells(2, 13, 93, 13) | cells(2, 17, 93, 17)
+               | cells(18, 17, 18, 53) | cells(22, 17, 22, 49) | cells(73, 17, 73, 49) | cells(77, 17, 77, 53)
+               | cells(22, 49, 73, 49) | cells(18, 53, 77, 53)
+               | cells(45, 53, 45, H - 4) | cells(49, 53, 49, H - 4)
+               | cells(14, 12, 28, 12) | cells(34, 12, 44, 12) | cells(58, 12, 66, 12)) - asphalt
+    p.ubin(trotoar, BATU)
 
-    # ---------- air mancur dan alas patung ----------
-    pool, base = cells(37, 19, 42, 22), cells(39, 20, 40, 21)
-    p.autotile("jalan", pool, AIR)
-    p.autotile("bangunan", base, BATU)
-    for c in pool:
-        p.block(*c)
-    p.obj(p.points, "patung", 40 * T, 21 * T + 6, jenis="pemula")
-    for (x, y) in ((38, 19), (41, 19), (38, 22), (41, 22)):
-        p.obj(p.points, "pancuran", x * T + 8, y * T + 8)
-    p.door("patung", "Patung Si Pemula", 39, 17, "panel", zone=(37 * T, 23 * T, 6 * T, T), label_x=40 * T, label_y=19 * T + 2)
-
-    # ---------- bangunan utara ----------
-    # Gedung ikonik digambar tools/buat_gedung.py; tapaknya sama dengan gedung ubin sebelumnya, pintunya di kolom yang sama.
-    atas = p.landmark("gedung-news", 16, 5, 11)                 # CodeIn News: menara radio, parabola, papan ticker
+    # ---------- bangunan utara (menghadap jalan raya) ----------
+    atas = p.landmark("gedung-news", 16, 6, 11)
     tx, ty, tw, th = INFO["gedung-news"]["ticker"]
     p.obj(p.points, "ticker", 16 * T + tx, atas + ty, lebar=tw, tinggi=th)
-    p.landmark("gedung-galeri", 35, 5, 9)                       # Galeri Showcase: kubah kaca
-    p.landmark("rumah-proyek", 60, 5, 7)                        # rumah proyek 1
-    # ---------- bangunan selatan alun-alun ----------
-    atas = p.landmark("gedung-markas", 9, 27, 9)                # Markas CodeIn: menara berpelana, papan </>, bendera berkibar
-    p.sprite("bendera-0", 9 * T + 74, atas + 11, bingkai=2, laju=420)
-    p.landmark("warkop", 20, 27, 7)                             # Warkop CodeIn (belum buka)
-    p.landmark("gedung-aetheria", 29, 27, 7)                    # rumah proyek 2: menara observatorium
-    p.landmark("gedung-toko", 43, 27, 7)                        # Toko Mbak Tika: ruko bertenda
+    p.landmark("gedung-galeri", 35, 6, 9)
+    p.landmark("rumah-proyek", 59, 6, 7)
+    p.door("news", "CodeIn News", 21, 11, "masuk", "redaksi")
+    p.door("galeri", "Galeri Showcase", 39, 11, "masuk", "galeri")
+    p.door("proyek-1", "Gedung kosong", 62, 11, "panel", "proyek")
+    p.board("videotron", "videotron", 28, 7, 6, 4, 12, name="Videotron Sedang Ramai")
+    for (n, x0) in ((1, 3), (2, 9), (3, 46), (4, 52)):
+        p.board("baliho", f"baliho-{n}", x0, 7, 5, 4, 12, order=n, name="Baliho")
+    p.perabot("halte", 68, 12)
+    p.perabot("pos-ronda", 88, 11)
+    p.door("gerbang-barat", "Gerbang Barat", 1, 13, "panel", "gerbang", zone=(0, 14 * T, 2 * T, 3 * T), label_y=13 * T)
+    p.door("gerbang-timur", "Gerbang Timur", 94, 13, "panel", "gerbang", zone=(94 * T, 14 * T, 2 * T, 3 * T), label_y=13 * T)
+    for (x, y) in ((2, 13), (2, 17), (93, 13), (93, 17)):
+        p.thing(x, y, 221)
 
-    p.door("news", "CodeIn News", 21, 10, "masuk", "redaksi")
-    p.door("galeri", "Galeri Showcase", 39, 10, "masuk", "galeri")
-    p.door("markas", "Markas CodeIn", 13, 32, "masuk", "markas")
-    p.door("warkop", "Warkop CodeIn", 23, 32, "panel", "kunci")
-    # rumah proyek anggota (CodeIn Rumah): nama dan isinya diambil dari CodeIn News saat kota dibuka (js/rumah.js)
-    p.door("proyek-1", "Gedung kosong", 63, 10, "panel", "proyek")
-    p.door("proyek-2", "Gedung kosong", 32, 32, "panel", "proyek")
-    p.door("toko", "Toko Mbak Tika", 46, 32, "panel")
-
-    # ---------- papan dunia ----------
-    # Nomor baliho = nomor slot billboard di CodeIn News (1 sampai 6). Papan 5 x 4 tile di atas tiang setinggi 1 tile.
-    p.board("videotron", "videotron", 28, 6, 6, 4, 11, name="Videotron Sedang Ramai")       # di antara CodeIn News dan Galeri
-    for (n, x0, y0, ground) in ((1, 3, 6, 11), (2, 9, 6, 11), (3, 46, 6, 11), (4, 52, 6, 11),     # jalan utama
-                                (5, 54, 28, 33), (6, 62, 28, 33)):                              # taman baliho selatan
-        p.board("baliho", f"baliho-{n}", x0, y0, 5, 4, ground, order=n, name="Baliho")
-    p.board("pengumuman", "papan", 12, 18, 7, 3, 22, name="Papan Pengumuman", zone=False)
-    p.door("papan", "Papan Pengumuman", 15, 16, "panel", zone=(12 * T, 22 * T, 7 * T, T), label=False)
-
-    # ---------- rumah warga (kampung) ----------
-    penghuni = {(41, 9): "Bu Sari", (41, 17): "Bang Jo", (41, 25): "Dika", (41, 44): "Pak Harun", (41, 52): "Mbak Tika", (41, 60): "Kak Rani",
-                (53, 9): "Kak Mita", (53, 17): "Nek Ijah", (53, 44): "Om Budi", (53, 52): "Rafi dan Lia"}
-    n = 0
-    for y0 in (41, 53):
-        for x0 in (9, 17, 25, 44, 52, 60):
-            n += 1
-            p.landmark(f"rumah-{(n - 1) % 6}", x0, y0, 6)
-            siapa = penghuni.get((y0, x0))
-            if siapa:
-                p.door(f"rumah-{n}", f"Rumah {siapa}", x0 + 2, y0 + 5, "panel", "rumah", penghuni=siapa)
-            else:                                                                           # rumah tanpa warga = rumah proyek
-                p.door("proyek-3" if x0 < 38 else "proyek-4", "Rumah kosong", x0 + 2, y0 + 5, "panel", "proyek")
-            p.thing(x0 + 5, y0 + 6 if y0 == 53 else y0 + 10, 305 if n % 2 else 306)       # kotak surat di seberang trotoar
-    for x in (8, 15, 16, 23, 24, 31, 43, 50, 51, 58, 59, 66):                              # pagar kayu di sela rumah
-        for y in (46, 58):
-            p.thing(x, y, 383)
-
-    # ---------- pagar tanaman, lampu, bangku ----------
-    for x in range(8, 72):                     # pagar tanaman antara alun-alun dan gedung selatan
-        if x not in (39, 40):
-            p.thing(x, 26, 329 if x % 5 else 331)
-    for (x, y) in ((25, 17), (54, 17), (25, 24), (54, 24), (33, 24), (46, 24), (10, 17), (20, 17), (57, 23), (70, 23),
-                   (14, 12), (27, 12), (34, 12), (44, 12), (58, 12), (67, 12), (8, 33), (19, 33), (28, 33), (36, 33), (42, 33), (51, 33), (60, 33), (70, 33),
-                   (11, 51), (20, 51), (33, 51), (47, 51), (55, 51), (68, 51), (20, 59), (34, 59), (48, 59), (68, 59), (36, 37), (42, 37), (36, 61), (42, 61)):
+    # ---------- Taman Kota (x 23-72, y 18-48) ----------
+    cincin = cells(27, 22, 68, 22) | cells(27, 35, 68, 35) | cells(27, 22, 27, 35) | cells(68, 22, 68, 35)
+    salib = cells(23, 28, 72, 29) | cells(47, 18, 48, 48)
+    plaza = cells(41, 24, 54, 33)
+    p.ubin(cincin | salib - plaza, KREM)
+    p.ubin(plaza, ABU_KREM)
+    pool, alas = cells(45, 26, 50, 31), cells(47, 28, 48, 29)
+    p.autotile("jalan", pool, AIR)
+    p.autotile("bangunan", alas, BATU)
+    for c in pool:
+        p.block(*c)
+    p.obj(p.points, "patung", 48 * T, 29 * T + 6, jenis="pemula")
+    for (x, y) in ((46, 26), (49, 26), (46, 31), (49, 31)):
+        p.obj(p.points, "pancuran", x * T + 8, y * T + 8)
+    p.door("patung", "Patung Si Pemula", 47, 24, "panel", zone=(45 * T, 32 * T, 6 * T, T), label_x=48 * T, label_y=27 * T + 2)
+    for x in (43, 52):
+        p.perabot("palem", x, 25, dx=-8)
+    # kolam teratai di barat taman, gazebo di tepinya
+    kolam = gumpal(random.Random(5), (34, 31), 4, 2.4, 3) - p.lantai
+    pasang_alam(p, kolam, "danau")
+    for c in kolam:
+        p.block(*c)
+    p.perabot("pos-ronda", 29, 26)                                # gazebo taman (bentuknya sama dengan pos ronda)
+    # Papan Pengumuman di tepi utara taman, dekat zebra cross depan videotron
+    p.board("pengumuman", "papan", 31, 18, 7, 3, 22, name="Papan Pengumuman", zone=False)
+    p.door("papan", "Papan Pengumuman", 34, 20, "panel", zone=(31 * T, 22 * T, 7 * T, T), label=False)
+    # lapangan badminton di timur taman
+    p.ubin(cells(58, 30, 65, 33), BATU)
+    p.perabot("net-badminton", 60, 32, dx=0)
+    # taman baliho di selatan taman, menghadap Markas
+    for (n, x0) in ((5, 55), (6, 62)):
+        p.board("baliho", f"baliho-{n}", x0, 41, 5, 4, 47, order=n, name="Baliho")
+    p.ubin(cells(54, 46, 67, 48), KREM)
+    # bangku, lampu, semak bunga, dan pohon taman
+    for (x, y) in ((30, 21), (40, 21), (56, 21), (64, 21), (30, 36), (40, 36), (56, 36), (64, 36), (44, 34), (51, 34), (38, 30), (57, 27)):
+        p.thing(x, y, 250)
+    for (x, y) in ((27, 22), (68, 22), (27, 35), (68, 35), (41, 24), (54, 24), (41, 33), (54, 33), (23, 28), (72, 28), (47, 18), (48, 48)):
         p.lamp(x, y)
-    for (x, y) in ((30, 17), (49, 17), (30, 24), (49, 24), (35, 20), (35, 21), (44, 20), (44, 21), (11, 23), (19, 23), (68, 30), (60, 31)):
-        p.thing(x, y, 250)                     # bangku
-    for (x, y, k) in ((27, 17, "P"), (52, 17, "P"), (27, 24, "Q"), (52, 24, "Q"),
-                      (11, 19, "B"), (19, 19, "B"), (10, 24, "A"), (20, 24, "O"), (15, 24, "B"),
-                      (70, 24, "B"),
-                      (52, 29, "B"), (68, 28, "A"), (69, 31, "B"), (38, 28, "B"), (41, 28, "B"),
-                      (14, 8, "B"), (44, 8, "B"), (68, 7, "O"), (71, 9, "A")):
-        p.tree(x, y, k)
-    # pasar di timur alun-alun: lapak bertenda di kiri-kanan setapak (gambar di tools/gambar_benda.py).
-    # Pedagangnya (js/config.js) berdiri di ruang terbuka di bawah tenda; lapak digambar sedikit di depan mereka.
-    for (nama, x, y) in (("lapak-sayur", 58, 19), ("lapak-buah", 60, 19), ("lapak-ikan", 67, 19), ("lapak-kain", 69, 19),
-                         ("lapak-jamu", 58, 23), ("lapak-kue", 61, 23), ("lapak-mainan", 64, 23), ("lapak-kelapa", 67, 23)):
-        p.perabot(nama, x, y, geser=8, dy=4)
-    for (x, y, idx) in ((62, 19, 276), (66, 19, 273), (60, 23, 301), (63, 23, 275), (66, 23, 302), (69, 23, 277)):
-        p.thing(x, y, idx)
-    # perabot jalan
-    for (x, y, idx) in ((24, 12, 306), (13, 12, 280), (45, 12, 280), (35, 12, 278), (18, 33, 280), (37, 33, 306), (50, 33, 280),
-                        (59, 9, 307), (67, 9, 307)):
-        p.thing(x, y, idx, solid=idx != 307)
-    # mobil parkir (baris atas mobil di layer "atas" supaya karakter bisa lewat di belakangnya)
-    for (x, y, tiles) in ((69, 49, (447, 448, 474, 475)), (10, 49, (393, 394, 420, 421))):
-        p.put("atas", x, y - 1, tiles[0])
-        p.put("atas", x + 1, y - 1, tiles[1])
-        p.thing(x, y, tiles[2])
-        p.thing(x + 1, y, tiles[3])
-
-    # ---------- gerbang ----------
-    # Pengunjung tidak bisa keluar kota (tepi peta), tetapi kendaraan masuk dan keluar lewat sini.
-    p.door("gerbang-barat", "Gerbang Barat", 1, 12, "panel", "gerbang", zone=(0, 13 * T, 2 * T, 3 * T), label_y=12 * T)
-    p.door("gerbang-timur", "Gerbang Timur", 78, 12, "panel", "gerbang", zone=(78 * T, 13 * T, 2 * T, 3 * T), label_y=12 * T)
-    # Gerbang Selatan = jalan ke Perumahan CodeIn (peta perumahan.tmj, rumah warga terdaftar)
-    p.door("gerbang-selatan", "Perumahan CodeIn", 39, 61, "masuk", "perumahan", zone=(38 * T, 62 * T, 3 * T, 2 * T), label_y=61 * T)
-    for (x, y) in ((2, 12), (2, 16), (77, 12), (77, 16), (37, 62), (41, 62)):
-        p.thing(x, y, 221)                     # palang merah-putih di kiri-kanan gerbang
-    # ---------- properti kota dari paket CodeIn City Retro, digambar ulang bergaya Kenney (tools/gambar_benda.py) ----------
-    p.perabot("pos-ronda", 74, 10)               # pos ronda Pak Harun di dekat Gerbang Timur
-    p.perabot("halte", 57, 10)                   # halte di trotoar utara, di antara baliho 4 dan rumah proyek 1
-    p.perabot("gerobak", 63, 19)                 # gerobak bakso Mas Bakso di pojok pasar
-    p.perabot("meja-warkop", 18, 31)             # meja kopi di samping Warkop
-    for x in (36, 43):                           # palem di kiri-kanan air mancur
-        p.perabot("palem", x, 17, dx=-8)
-    p.perabot("lampu-merah", 41, 33, dx=3)        # lampu lalu lintas di simpang ke kampung
-    p.perabot("beringin", 31, 45, dx=4)          # beringin tua di ujung kampung barat
-    p.perabot("net-badminton", 67, 42)           # lapangan badminton kampung: Rafi dan Lia main di sini sore hari
-
-    # ---------- hutan tepi kota dan pohon pengisi ----------
-    # Hutan = pohon Kenney utuh yang ditaruh agak acak dan saling menumpuk (diurutkan menurut batangnya),
-    # tebalnya berubah-ubah 2-4 ubin, sesekali rumpun tiga pohon, dan sedikit pohon gugur. Petaknya tetap ditutup.
-    acak = random.Random(11)
-    gates = cells(0, 12, 2, 16) | cells(77, 12, 79, 16) | cells(37, 61, 41, 63)
-    dekat_gedung = cells(14, 0, 28, 4) | cells(33, 0, 45, 4)          # di atas menara CodeIn News dan kubah Galeri
-    def tebal(t, fase):
-        return 2 + (math.sin(t * .23 + fase) + math.sin(t * .51 + fase * 2) > .4) + (math.sin(t * .17 + fase * 3) > .75)
-    hutan = set()
-    for x in range(W):
-        hutan |= {(x, y) for y in range(0, min(tebal(x, 0), 2 if (x, 2) in dekat_gedung else 4))}
-        hutan |= {(x, y) for y in range(H - tebal(x, 1), H)}
-    for y in range(H):
-        hutan |= {(x, y) for x in range(0, tebal(y, 2))}
-        hutan |= {(x, y) for x in range(W - tebal(y, 3), W)}
-    hutan = {c for c in hutan if c not in gates and c not in p.lantai and c not in p.keras}
-    def jenis():
+    taman = cells(23, 18, 72, 48)
+    for (x, y) in sorted(taman, key=lambda c: (c[1], c[0])):
+        if (x, y) in p.lantai or (x, y) in p.keras or (x, y - 1) in p.lantai or (x, y + 1) in p.lantai or (x, y) in kolam:
+            continue
         r = acak.random()
-        return ("pohon-a" if r < .4 else "pohon-b" if r < .64 else "pohon-kecil" if r < .78 else "rumpun" if r < .92
-                else "pohon-gugur-a" if r < .96 else "pohon-gugur-b" if r < .99 else "rumpun-gugur")
-    # petak hutan tepat di bawah trotoar dibiarkan berumput: pohonnya akan menutupi trotoar
-    hutan = {(x, y) for (x, y) in hutan if (x, y - 1) not in p.lantai}
-    for (x, y) in sorted(hutan, key=lambda c: (c[1], c[0])):
+        rimbun = .5 + .5 * math.sin(x * .35) * math.cos(y * .41)
+        if r < .05 + .08 * rimbun:
+            p.halangi(x * T + 5, y * T + 10, 6, 6)
+            p.pohon(x * T + 8 + acak.randint(-3, 3), y * T + 15, acak.choice(("pohon-a", "pohon-b", "pohon-a", "pohon-kecil", "pohon-gugur-b")))
+        elif r < .11 + .06 * rimbun:
+            p.thing(x, y, acak.choice((291, 292, 329, 331)))
+    for x in range(23, 73):                                           # pagar tanaman di tepi taman, terbuka di jalan masuk
+        for y in (18, 48):
+            if (x, y) not in p.lantai and (x, y) not in p.keras and x not in (47, 48):
+                if y == 48 or not (31 <= x <= 37):
+                    p.thing(x, y, 329 if x % 5 else 331)
+
+    # ---------- kebun kota di barat taman ----------
+    kebun = cells(4, 31, 15, 40)
+    pematang = {(x, y) for (x, y) in kebun if (x - 4) % 4 == 0 or (y - 31) % 3 == 0 or x == 15 or y == 40}
+    for (x, y) in kebun - pematang:
+        p.put("tanah", x, y, ruang(f"sawah-{(x + y) % 2}"))
         p.block(x, y)
-        for _ in range(2 if acak.random() < .3 else 1):
-            nama = jenis()
-            if (x, y - 2) in p.lantai:                    # dua petak dari trotoar: cukup pohon pendek
-                nama = "pohon-kecil"
-            p.pohon(x * T + 8 + acak.randint(-5, 5), y * T + 15 + acak.randint(-2 if (x, y - 2) in p.lantai else -4, 2), nama)
-    # pohon pengisi di sela gedung dan rumah: satu-satu, sesekali rumpun, letaknya digeser sedikit supaya tidak berbaris
-    isian = ((cells(2, 2, 77, 4), .4), (cells(2, 17, 3, 33), .5), (cells(76, 17, 77, 33), .5), (cells(2, 38, 6, 61), .45), (cells(73, 38, 77, 61), .45),
-             (cells(8, 38, 71, 39), .28), (cells(8, 60, 71, 61), .35), (cells(8, 53, 71, 55), .12))
+    jalan_kebun = pematang | cells(16, 35, 17, 35)
+    p.board("info", "kebun", 6, 26, 4, 2, 29, name="Kebun Kota")
+    for (x, y) in ((4, 24), (12, 24), (16, 44)):
+        p.thing(x, y, 250)
+
+    # ---------- Pasar CodeIn di timur taman ----------
+    # tiga baris lapak menghadap lorong; pembeli berkeliling di lorong (baris 24-27, 31-34, 38-39)
+    pasar = cells(79, 19, 92, 40)
+    p.ubin(pasar, KREM)
+    lapak = (("lapak-sayur", 80, 23), ("lapak-buah", 83, 23), ("lapak-ikan", 86, 23), ("lapak-kain", 89, 23),
+             ("lapak-jamu", 80, 30), ("lapak-kue", 83, 30), ("lapak-mainan", 86, 30), ("lapak-kelapa", 89, 30),
+             ("lapak-tahu", 83, 37), ("lapak-rempah", 86, 37), ("lapak-bunga", 89, 37))
+    for (nama, x, y) in lapak:
+        p.perabot(nama, x, y, geser=8, dy=4)
+    p.perabot("gerobak", 79, 38, dx=4)
+    for (x, y, idx) in ((92, 23, 276), (92, 30, 273), (79, 33, 301), (92, 33, 275), (82, 33, 302), (88, 26, 277), (85, 26, 274), (92, 37, 303)):
+        p.thing(x, y, idx)
+    p.board("info", "pasar", 83, 19, 6, 2, 21, name="Pasar CodeIn")
+    for (x, y) in ((79, 19), (92, 19), (79, 39), (92, 39)):
+        p.lamp(x, y)
+    # parkir di selatan pasar
+    p.ubin(cells(79, 42, 92, 48), ABU_KREM)
+    for (x, y, tiles) in ((81, 46, (447, 448, 474, 475)), (85, 46, (393, 394, 420, 421)), (89, 46, (447, 448, 474, 475))):
+        p.put("atas", x, y - 1, tiles[0]); p.put("atas", x + 1, y - 1, tiles[1])
+        p.thing(x, y, tiles[2]); p.thing(x + 1, y, tiles[3])
+
+    # ---------- bangunan selatan (menghadap jalan selatan) ----------
+    atas = p.landmark("gedung-markas", 24, 43, 9)
+    p.sprite("bendera-0", 24 * T + 74, atas + 11, bingkai=2, laju=420)
+    p.landmark("warkop", 34, 43, 7)
+    p.landmark("gedung-aetheria", 41, 43, 7)
+    p.landmark("gedung-toko", 48, 43, 7)
+    p.door("markas", "Markas CodeIn", 28, 48, "masuk", "markas")
+    p.door("warkop", "Warkop CodeIn", 37, 48, "panel", "kunci")
+    p.door("proyek-2", "Gedung kosong", 44, 48, "panel", "proyek")
+    p.door("toko", "Toko Mbak Tika", 51, 48, "panel")
+    p.perabot("meja-warkop", 33, 48)
+
+    # ---------- kampung warga (selatan jalan selatan) ----------
+    penghuni = {(4, 55): "Bu Sari", (13, 57): "Bang Jo", (23, 55): "Dika", (33, 57): None, (7, 66): "Nek Ijah", (18, 67): "Kak Mita",
+                (52, 56): "Pak Harun", (62, 55): "Mbak Tika", (72, 57): "Kak Rani", (82, 55): None, (56, 66): "Om Budi", (67, 67): "Rafi dan Lia"}
+    rumah = []
+    for n, ((x0, y0), siapa) in enumerate(penghuni.items(), 1):
+        p.landmark(f"rumah-{(n - 1) % 6}", x0, y0, 6)
+        if siapa:
+            p.door(f"rumah-{n}", f"Rumah {siapa}", x0 + 2, y0 + 5, "panel", "rumah", penghuni=siapa)
+        else:
+            p.door("proyek-3" if x0 < 45 else "proyek-4", "Rumah kosong", x0 + 2, y0 + 5, "panel", "proyek")
+        p.thing(x0 + 5, y0 + 6, 305 if n % 2 else 306)
+        for x in (x0, x0 + 1, x0 + 4):
+            if acak.random() < .7:
+                p.thing(x, y0 + 7, 382 if x != x0 + 1 else 384)
+        rumah.append((x0, y0))
+    # lapangan kampung (Rafi dan Lia main badminton sore hari) dan kolam di timur kampung
+    p.ubin(cells(28, 67, 37, 72), BATU)
+    p.perabot("net-badminton", 31, 70, dx=0)
+    p.perabot("beringin", 40, 64, dx=4)
+    kolam_k = gumpal(random.Random(9), (87, 70), 3.5, 2.2, 2) - p.lantai
+    pasang_alam(p, kolam_k, "danau")
+    for c in kolam_k:
+        p.block(*c)
+    p.door("gerbang-selatan", "Perumahan CodeIn", 47, H - 2, "masuk", "perumahan", zone=(46 * T, (H - 2) * T, 3 * T, 2 * T), label_y=(H - 2) * T)
+    for (x, y) in ((45, H - 3), (49, H - 3)):
+        p.thing(x, y, 221)
+
+    # jalan setapak tanah dari tiap rumah ke jalan terdekat (A*), lalu ke lapangan, kolam, dan kebun
+    tepi = set()
+    for x in range(W):
+        tepi |= {(x, y) for y in range(0, 2 + int(1 + math.sin(x * .41)))} | {(x, y) for y in range(H - 2 - int(1 + math.sin(x * .3)), H)}
+    for y in range(H):
+        tepi |= {(x, y) for x in range(0, 2 + int(1 + math.sin(y * .37)))} | {(x, y) for x in range(W - 2 - int(1 + math.sin(y * .29)), W)}
+    tepi -= cells(0, 12, 3, 18) | cells(92, 12, 95, 18) | cells(44, H - 4, 50, H - 1)
+    larang = set(p.keras) | tepi | kolam | kolam_k | (kebun - pematang)
+    jaringan = (p.lantai - asphalt) | asphalt
+    setapak = set(jalan_kebun)
+    for (x0, y0) in rumah:
+        larang |= cells(x0, y0, x0 + 5, y0 + 6)
+    for (x0, y0) in sorted(rumah, key=lambda r: abs(r[0] + 2 - 47) + r[1]):
+        mulai = (x0 + 2, y0 + 7)
+        jalur = cari_jalan(W, H, mulai, jaringan | setapak, larang - {mulai, (x0 + 2, y0 + 6)}, setapak, set())
+        if jalur:
+            setapak |= set(jalur) - p.lantai
+        setapak |= {(x0 + 2, y0 + 6), (x0 + 3, y0 + 6)} - p.lantai
+    for tuju in ((32, 66), (84, 68), (16, 35)):
+        jalur = cari_jalan(W, H, tuju, jaringan | (setapak - {tuju}), larang, setapak, set())
+        if jalur:
+            setapak |= set(jalur) - p.lantai
+    pasang_alam(p, setapak, "setapak")
+    p.lantai |= setapak
+    for (x, y) in ((44, 56), (50, 56), (44, 64), (50, 64), (44, 72), (50, 72), (26, 61), (64, 62)):
+        if (x, y) not in p.lantai and (x, y) not in p.keras:
+            p.lamp(x, y)
+
+    # ---------- hutan tepi dan pohon pengisi ----------
+    pohon_tepi = ("pohon-a", "pohon-b", "pohon-a", "rumpun", "pohon-kecil", "pohon-gugur-a")
+    for (x, y) in sorted(tepi, key=lambda c: (c[1], c[0])):
+        if (x, y) in p.lantai or (x, y) in p.keras or (x, y - 1) in p.lantai:
+            continue
+        p.block(x, y)
+        p.pohon(x * T + 8 + acak.randint(-5, 5), y * T + 15 + acak.randint(-3, 2), acak.choice(pohon_tepi))
+    isian = ((cells(2, 2, 93, 5), .35), (cells(2, 18, 17, 49), .12), (cells(78, 40, 93, 49), .1), (cells(2, 54, 93, H - 4), .09))
     for area, peluang in isian:
-        for (x, y) in sorted(area - hutan - dekat_gedung, key=lambda c: (c[1], c[0])):
-            bebas = (x, y) not in p.keras and (x, y) not in p.lantai and (x, y - 1) not in p.lantai and (x, y + 1) not in p.lantai
-            if bebas and acak.random() < peluang:
-                p.halangi(x * T + 5, y * T + 10, 6, 6)    # batangnya saja
-                nama = jenis()
-                p.pohon(x * T + 8 + acak.randint(-3, 3), y * T + 15 + acak.randint(-2, 1), nama.replace("rumpun-gugur", "pohon-gugur-a").replace("rumpun", "pohon-a"))
+        for (x, y) in sorted(area, key=lambda c: (c[1], c[0])):
+            if (x, y) in p.keras or (x, y) in p.lantai or (x, y - 1) in p.lantai or (x, y + 1) in p.lantai or (x, y) in tepi:
+                continue
+            if any(x0 - 1 <= x <= x0 + 6 and y0 - 1 <= y <= y0 + 7 for (x0, y0) in rumah):
+                continue
+            if acak.random() < peluang:
+                p.halangi(x * T + 5, y * T + 10, 6, 6)
+                p.pohon(x * T + 8 + acak.randint(-3, 3), y * T + 15 + acak.randint(-2, 1), acak.choice(("pohon-a", "pohon-b", "pohon-kecil", "pohon-gugur-b")))
+            elif acak.random() < peluang * .4:
+                p.thing(x, y, acak.choice((291, 292)))
+    # lampu jalan raya dan jalan lingkar
+    for x in (8, 14, 26, 34, 44, 52, 58, 70, 80, 86):
+        p.lamp(x, 13)
+    for x in (10, 26, 40, 56, 70, 84):
+        p.lamp(x, 17)
+    for y in (24, 32, 40):
+        p.lamp(18, y); p.lamp(77, y)
+    for x in (26, 40, 56, 70):
+        p.lamp(x, 53)
+
+    # ---------- titik tempat untuk jadwal warga dan redaktur ----------
+    for ident, x, y in (("depan-news", 21, 13), ("depan-videotron", 31, 13), ("zebra-news", 29, 13), ("depan-galeri", 39, 13),
+                        ("depan-papan", 34, 23), ("alun-alun", 44, 34), ("dekat-patung", 52, 30), ("taman-kolam", 39, 31),
+                        ("gazebo", 31, 29), ("taman-timur", 62, 25), ("taman-baliho", 61, 48), ("depan-markas", 28, 49),
+                        ("depan-warkop", 37, 49), ("depan-toko", 51, 49), ("depan-aetheria", 44, 49), ("pos-timur", 89, 13),
+                        ("halte", 69, 13), ("gerobak-bakso", 81, 39), ("lapangan-1", 31, 69), ("lapangan-2", 31, 72),
+                        ("kebun", 16, 36), ("taman-lapangan", 61, 34),
+                        ("patung-1", 44, 25), ("patung-2", 51, 25), ("patung-3", 51, 32), ("patung-4", 44, 32),
+                        ("cincin-1", 27, 22), ("cincin-2", 68, 22), ("cincin-3", 68, 35), ("cincin-4", 27, 35),
+                        ("trotoar-utara-1", 50, 13), ("trotoar-utara-2", 72, 13), ("kampung-1", 47, 55), ("kampung-2", 45, 74),
+                        ("gang-barat-1", 10, 64), ("gang-barat-2", 26, 63),
+                        ("pasar-1", 80, 26), ("pasar-2", 91, 27), ("pasar-3", 91, 33), ("pasar-4", 80, 34), ("pasar-5", 86, 25), ("pasar-6", 86, 33)):
+        tempat(ident, x, y)
+    for (nama, x, y) in lapak:                                        # pedagang berdiri di bawah tenda lapaknya
+        tempat("lapak-" + nama.split("-")[1], x + 1, y)
 
     # ---------- titik mulai dan rute kendaraan ----------
-    p.obj(p.points, "mulai", 40 * T, 24 * T + 8)
-    # Lalu lintas kiri: ke timur lewat lajur utara, ke barat lewat lajur selatan; ke selatan lewat lajur timur.
-    # y = tepi bawah bodi kendaraan di tiap lajur (gambar kendaraan lebih tinggi dari satu lajur)
-    U1, S1, U2, S2 = 13 * T + 24, 16 * T - 1, 34 * T + 24, 37 * T - 1
+    p.obj(p.points, "mulai", 47 * T + 8, 20 * T + 8)
+    U1, S1, U2, S2 = 14 * T + 24, 17 * T - 1, 50 * T + 24, 53 * T - 1
     luar_b, luar_t, luar_s = -3 * T, (W + 3) * T, (H + 3) * T
     p.route("barat-timur", [(luar_b, U1), (luar_t, U1)])
     p.route("timur-barat", [(luar_t, S1), (luar_b, S1)])
-    p.route("selatan-timur", [(38 * T + 8, luar_s), (38 * T + 8, U2), (73 * T + 8, U2), (73 * T + 8, U1), (luar_t, U1)])
-    p.route("barat-selatan", [(luar_b, U1), (6 * T + 8, U1), (6 * T + 8, U2), (40 * T + 8, U2), (40 * T + 8, luar_s)])
-    p.route("timur-selatan", [(luar_t, S1), (75 * T + 8, S1), (75 * T + 8, S2), (40 * T + 8, S2), (40 * T + 8, luar_s)])
+    p.route("selatan-timur", [(46 * T + 8, luar_s), (46 * T + 8, U2), (74 * T + 8, U2), (74 * T + 8, U1), (luar_t, U1)])
+    p.route("barat-selatan", [(luar_b, U1), (21 * T + 8, U1), (21 * T + 8, U2), (48 * T + 8, U2), (48 * T + 8, luar_s)])
+    p.route("timur-selatan", [(luar_t, S1), (76 * T + 8, S1), (76 * T + 8, S2), (48 * T + 8, S2), (48 * T + 8, luar_s)])
     p.tulis("kota")
 
 

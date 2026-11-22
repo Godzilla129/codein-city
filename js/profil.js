@@ -42,9 +42,10 @@ const Profil = (() => {
   // Posisi terakhir (maks 24 jam), supaya saat kembali dari CodeIn News pengunjung muncul di depan gedungnya
   function muatPosisi() {
     const p = baca(KUNCI_POSISI);
-    return p && Number.isFinite(p.x) && Number.isFinite(p.y) && Date.now() - p.t < 864e5 ? p : null;
+    // posisi dari peta kota versi lama tidak dipakai lagi (bisa jatuh di dalam gedung)
+    return p && p.v === KOTA.versiPeta && Number.isFinite(p.x) && Number.isFinite(p.y) && Date.now() - p.t < 864e5 ? p : null;
   }
-  const simpanPosisi = (x, y) => tulis(KUNCI_POSISI, {x: Math.round(x), y: Math.round(y), t: Date.now()});
+  const simpanPosisi = (x, y) => tulis(KUNCI_POSISI, {x: Math.round(x), y: Math.round(y), t: Date.now(), v: KOTA.versiPeta});
 
   return {cekNama, muat, simpan, muatPosisi, simpanPosisi};
 })();

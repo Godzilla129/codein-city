@@ -11,12 +11,15 @@ const Warga = (() => {
 
   let daftar = [], adegan = null, ruang = "kota", grid = null, W = 0, H = 0, waktuKini = null, cekWaktu = 0;
   let rumah = {};          // nama penghuni -> tile di depan pintu rumahnya
+  let tempat = {};         // id titik "tempat" di peta kota -> tile; jadwal di config.js menyebut tempat dengan id-nya
   let tamu = [];           // warga tambahan dari berkas lain (redaktur CodeIn News yang sedang keliling kota), lihat aturTamu
 
   const tengah = (x, y) => [x * T + 8, y * T + 12];                       // titik kaki di tengah tile
   const tileDari = s => [Math.floor(s.x / T), Math.floor(s.y / T)];
   const arahDari = (dx, dy) => Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "kiri" : "kanan") : (dy < 0 ? "atas" : "bawah");
   const acak = (a, b) => a + Math.random() * (b - a);
+  // titik jadwal: [x, y] langsung, atau id tempat di peta ("depan-papan"). null kalau id tidak ada di peta.
+  const titik = v => typeof v === "string" ? tempat[v] || null : v || null;
 
   /* ---------- peta biaya untuk pencarian jalur: trotoar murah, rumput agak mahal, aspal mahal (kecuali zebra cross) ---------- */
   function bangunGrid(peta) {
@@ -91,9 +94,9 @@ const Warga = (() => {
   function tempatkan(w) {
     const j = jadwalKini(w);
     w.jalur = []; w.titikRute = 0; w.tunggu = acak(300, 2500);
-    if (!j) { const [x, y] = tengah(...w.def.di); w.s.setPosition(x, y); sembunyi(w, false); return; }
+    if (!j) { const [x, y] = tengah(...titik(w.def.di)); w.s.setPosition(x, y); sembunyi(w, false); return; }
     if (j.pulang) { const r = rumah[w.def.nama]; if (r) { const [x, y] = tengah(...r); w.s.setPosition(x, y); } sembunyi(w, true); return; }
-    const t = j.rute ? j.rute[0] : tileSekitar(j.di, j.r || 0), [x, y] = tengah(...t);
+    const t = (j.rute ? titik(j.rute[0]) : titik(j.di) && tileSekitar(titik(j.di), j.r || 0)) || [0, 0], [x, y] = tengah(...t);
     w.s.setPosition(x, y); sembunyi(w, false);
   }
   // waktu berganti: keluar rumah dulu kalau perlu, lalu berjalan ke tempat jadwal yang baru
@@ -112,8 +115,8 @@ const Warga = (() => {
     const j = jadwalKini(w);
     if (!j) return null;
     if (j.pulang) return rumah[w.def.nama] || null;
-    if (j.rute) { const t = j.rute[w.titikRute % j.rute.length]; w.titikRute++; return t; }
-    return tileSekitar(j.di, j.r || 0);
+    if (j.rute) { const t = titik(j.rute[w.titikRute % j.rute.length]); w.titikRute++; return t; }
+    return titik(j.di) && tileSekitar(titik(j.di), j.r || 0);
   }
 
   /* ---------- tiap bingkai ---------- */
@@ -173,7 +176,12 @@ const Warga = (() => {
   /* ---------- peta dimuat ---------- */
   Kota.saatSiap(({adegan: sc, ruang: r, peta}) => {
     adegan = sc; ruang = r; waktuKini = Kota.waktu().kunci; cekWaktu = 1000;
-    grid = null; rumah = {};
+    grid = null; rumah = {}; tempat = {};
+    const lap = peta.getObjectLayer("titik");
+    for (const o of lap ? lap.objects : []) {
+      const id = o.name === "tempat" && (o.properties || []).find(q => q.name === "id");
+      if (id) tempat[id.value] = [Math.floor(o.x / T), Math.floor(o.y / T)];
+    }
     if (r === "kota") {
       bangunGrid(peta);
       for (const p of Kota.pintu()) if (p.tujuan === "rumah") {
@@ -192,7 +200,7 @@ const Warga = (() => {
     const w = {def, s, label, arah: def.hadap || "bawah", jalur: [], tunggu: 0, tungguAwal: 0, giliran: 0, titikRute: 0, diRumah: false, hapusBalon: null};
     tempatkan(w);
     if (keluarDariPintu && def.dari) {         // baru keluar kantor: muncul di depan pintunya lalu berjalan ke rutenya
-      const [x, y] = tengah(...def.dari); s.setPosition(x, y); w.jalur = null; w.tunggu = 0;
+      const [x, y] = tengah(...(titik(def.dari) || [0, 0])); s.setPosition(x, y); w.jalur = null; w.tunggu = 0;
     }
     return w;
   }

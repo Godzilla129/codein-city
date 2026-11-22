@@ -30,11 +30,12 @@ const Redaksi = (() => {
   };
   // Redaktur yang lama tidak bekerja keluar kantor dan berjalan-jalan di kota (siang hari), lewat rute ini (tile kota).
   // Malam hari (mulai 18.00 WIB, lihat KOTA.waktu) mereka tetap di kantor: ngopi atau tertidur di meja.
-  const KELILING = 60, PINTU_KANTOR = [21, 11];
+  // tempat = id titik "tempat" di peta kota (tools/buat_peta.py)
+  const KELILING = 60, PINTU_KANTOR = "depan-news";
   const RUTE = {
-    Eko: {rute: [[31, 12], [40, 24], [47, 33], [64, 20], [31, 12]], ket: "keliling kota: videotron, alun-alun, Toko Mbak Tika, bakso di pojok pasar"},
-    Tekno: {rute: [[39, 12], [50, 12], [58, 12], [44, 24], [14, 33], [22, 12]], ket: "keliling kota: Galeri, baliho, halte, alun-alun, Markas"},
-    Rina: {rute: [[15, 22], [36, 24], [60, 32], [62, 20], [21, 12]], ket: "keliling kota: Papan Pengumuman, alun-alun, kolam, pojok pasar"},
+    Eko: {rute: ["depan-videotron", "alun-alun", "depan-toko", "gerobak-bakso", "depan-news"], ket: "keliling kota: videotron, taman kota, Toko Mbak Tika, bakso di Pasar CodeIn"},
+    Tekno: {rute: ["depan-galeri", "trotoar-utara-1", "halte", "dekat-patung", "depan-markas", "depan-news"], ket: "keliling kota: Galeri, baliho, halte, taman kota, Markas"},
+    Rina: {rute: ["depan-papan", "taman-kolam", "gazebo", "pasar-1", "depan-news"], ket: "keliling kota: Papan Pengumuman, kolam taman, gazebo, Pasar CodeIn"},
   };
 
   const data = {kabar: [], galOf: {}, sehat: null, buku: [], online: true, dimuat: false};
