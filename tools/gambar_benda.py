@@ -747,6 +747,90 @@ def semua():
     return g
 
 
+# ======================================================================================================
+#  UBIN ALAM untuk desa di Perumahan CodeIn: jalan setapak tanah, danau, sawah
+#  Setapak dan danau berupa autotile 47 bentuk: nama-<topeng>-<sudut>, topeng = U1 + T2 + S4 + B8 (bit = tetangga sejenis),
+#  sudut = lekuk dalam yang perlu dibulatkan: UT1 + ST2 + SB4 + UB8 (hanya bila kedua sisi di sudut itu bertetangga
+#  tetapi petak diagonalnya bukan). Tepi yang terbuka diisi rumput Kenney (ubin 28) bergerigi, jadi menyatu dengan rumput peta.
+# ======================================================================================================
+RUMPUT_K = kenney(28)
+TANAH_S, TANAH_SG, TANAH_ST, TANAH_SB = hx("c9a477"), hx("b48f63"), hx("d8b88c"), hx("9b7a52")
+AIR_D, AIR_DT, AIR_DG = hx("6fc2c9"), hx("9adde0"), hx("4fa3b0")
+
+
+def _gerigi(sisi, i):
+    """Kedalaman tepi (piksel) di posisi i sepanjang sisi; pola tetap, jadi ubin bersebelahan selalu cocok."""
+    return 3 + ((i * 7 + sisi * 5) % 5 == 0) - ((i * 3 + sisi) % 7 == 0)
+
+
+def bentuk_alam():
+    """Semua pasangan (topeng, sudut) yang mungkin: 47 bentuk."""
+    hasil = []
+    for t in range(16):
+        boleh = [b for b, (a, c) in ((1, (1, 2)), (2, (4, 2)), (4, (4, 8)), (8, (1, 8))) if t & a and t & c]
+        for m in range(16):
+            if all(b in boleh for b in (1, 2, 4, 8) if m & b):
+                hasil.append((t, m))
+    return hasil
+
+
+def _alam(topeng, isi, tepi_dalam, tepi_luar, sudut=0):
+    """isi(x, y) -> warna bagian dalam. Tepi: tepi_luar di batas rumput, tepi_dalam satu piksel ke dalam."""
+    k = _ubin()
+    rumput = RUMPUT_K.load()
+    U, Tm, S, B = topeng & 1, topeng & 2, topeng & 4, topeng & 8
+    for y in range(16):
+        for x in range(16):
+            jarak = 99                                     # jarak ke sisi terbuka terdekat (dikurangi gerigi)
+            if not U: jarak = min(jarak, y - _gerigi(0, x))
+            if not S: jarak = min(jarak, 15 - y - _gerigi(2, x))
+            if not B: jarak = min(jarak, x - _gerigi(3, y))
+            if not Tm: jarak = min(jarak, 15 - x - _gerigi(1, y))
+            # sudut membulat bila dua sisi bertemu terbuka
+            for (cx, cy, a, b) in ((0, 0, U, B), (15, 0, U, Tm), (0, 15, S, B), (15, 15, S, Tm)):
+                if not a and not b:
+                    jarak = min(jarak, int(((x - cx) ** 2 + (y - cy) ** 2) ** .5) - 6)
+            for (bit, cx, cy) in ((1, 15, 0), (2, 15, 15), (4, 0, 15), (8, 0, 0)):     # lekuk dalam
+                if sudut & bit:
+                    jarak = min(jarak, int(((x - cx) ** 2 + (y - cy) ** 2) ** .5) - 3)
+            if jarak < 0:
+                k.p(x, y, rumput[x, y])
+            elif jarak == 0:
+                k.p(x, y, tepi_luar)
+            elif jarak == 1:
+                k.p(x, y, tepi_dalam(x, y))
+            else:
+                k.p(x, y, isi(x, y))
+    return k
+
+
+def setapak(topeng, sudut=0):
+    def isi(x, y):
+        h = (x * 37 + y * 91 + topeng * 13) % 23
+        return TANAH_SB if h == 0 else TANAH_ST if h in (3, 11) else TANAH_SG if h in (7, 16) else TANAH_S
+    return _alam(topeng, isi, lambda x, y: TANAH_SG, hx("8c7a4f"), sudut)
+
+
+def danau(topeng, sudut=0):
+    def isi(x, y):
+        return AIR_DT if (x + y * 3 + topeng) % 17 == 0 and y % 4 == 1 else AIR_D
+    return _alam(topeng, isi, lambda x, y: hx("e8d9a8") if (x + y) % 3 else hx("d6c48e"), AIR_DG, sudut)
+
+
+def sawah(varian):
+    """Petak sawah: barisan padi hijau di atas air berlumpur."""
+    k = _ubin()
+    k.kotak(0, 0, 15, 15, hx("8fb98a"))
+    for y in range(1, 16, 4):
+        for x in range(16):
+            k.p(x, y, hx("a7cfa0") if (x + varian) % 5 else hx("bfe3e6"))
+    for y in range(0, 16, 4):
+        for x in range(1 + varian, 16, 3):
+            k.p(x, y + 2, hx("5f9a4c")); k.p(x, y + 3, hx("4f8540"))
+            k.p(x + 1, y + 2, hx("7cb35f"))
+    return k
+
+
 def ubin_ruang():
     """Ubin ruang.png berurutan; nama -> nomor (dipakai tools/buat_peta.py lewat gedung.json)."""
     daftar = [("kayu-0", lantai_kayu(0)), ("kayu-1", lantai_kayu(1)), ("kayu-2", lantai_kayu(2)), ("kayu-3", lantai_kayu(3)),
@@ -756,4 +840,10 @@ def ubin_ruang():
             daftar.append((f"dinding-{tema}-{b}", dinding(tema, b)))
     for bagian in ("atas", "bawah", "kiri", "kanan", "kiri-atas", "kanan-atas", "kiri-bawah", "kanan-bawah"):
         daftar.append((f"tepi-{bagian}", bingkai_ruang(bagian)))
+    # ubin alam ditambahkan di belakang, jadi nomor ubin lama tidak bergeser
+    for (t, m) in bentuk_alam():
+        daftar.append((f"setapak-{t}-{m}", setapak(t, m)))
+    for (t, m) in bentuk_alam():
+        daftar.append((f"danau-{t}-{m}", danau(t, m)))
+    daftar += [("sawah-0", sawah(0)), ("sawah-1", sawah(1))]
     return daftar

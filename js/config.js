@@ -217,7 +217,7 @@ const KOTA = {
       malam: {rute: [[26, 18], [53, 18], [53, 23], [26, 23]], laju: 18, ket: "jalan santai di alun-alun",
               ucapan: ["Malam-malam jalan santai di bawah lampu alun-alun. Tenang rasanya.", "Warga lain sudah pulang. Tinggal aku dan Pak Harun yang masih di luar."]}}},
     // Satpam di gapura Perumahan CodeIn: keterangan perumahan, antar pulang, ganti warna rumah (dialognya di js/perumahan.js)
-    {nama: "Pak Darto", karakter: 4, ruang: "perumahan", di: [32, 5], hadap: "kiri", peran: "satpam", ket: "jaga di gapura Perumahan CodeIn"},
+    {nama: "Pak Darto", karakter: 4, ruang: "perumahan", di: [59, 6], hadap: "kiri", peran: "satpam", ket: "jaga di gapura Perumahan CodeIn"},
     // Resepsionis Markas: semua pendaftaran (hosting proyek, baliho) lewat dia; dialognya dibuat di js/warga.js
     {nama: "Kak Rani", karakter: 7, ruang: "markas", di: [16, 8], hadap: "bawah", peran: "resepsionis", ket: "di meja resepsionis Markas CodeIn",
      salam: {pagi: "Selamat pagi, selamat datang di Markas CodeIn!", siang: "Selamat siang, selamat datang di Markas CodeIn!",
