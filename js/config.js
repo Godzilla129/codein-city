@@ -189,7 +189,7 @@ const KOTA = {
       malam: {di: "pos-timur", r: 1, ket: "berjaga malam di Gerbang Timur",
               ucapan: ["Malam begini aku jaga gerbang. Warga lain sudah pulang.", "Kalau lewat taman kota, lampunya sudah nyala semua."]}}},
     {nama: "Mbak Tika", karakter: 9, jadwal: {
-      pagi:  {di: "depan-toko", r: 1, ket: "membuka tokonya di selatan taman kota",
+      pagi:  {di: "depan-toko", r: 1, ket: "membuka tokonya di samping Pasar CodeIn",
               ucapan: ["Pagi! Lagi buka toko. Isinya belum ada, sabar, ya.", "Baliho di kota ini boleh dipakai anggota, gratis."]},
       siang: {di: "depan-toko", r: 1, ket: "di depan tokonya",
               ucapan: ["Tokoku memang belum bisa dimasuki. Nanti, kalau kotanya makin ramai."]},

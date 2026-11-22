@@ -310,6 +310,26 @@ def kota():
     for (x, y) in ((2, 13), (2, 17), (93, 13), (93, 17)):
         p.thing(x, y, 221)
 
+    # ---------- bangunan selatan taman (menghadap jalan selatan), berjarak dan berselang taman kecil ----------
+    # Markas | Warkop | (poros taman ke jalan kampung dibiarkan terbuka) | menara Aetheria | taman baliho 5-6
+    atas = p.landmark("gedung-markas", 24, 43, 9)
+    p.sprite("bendera-0", 24 * T + 74, atas + 11, bingkai=2, laju=420)
+    p.landmark("warkop", 36, 43, 7)
+    p.landmark("gedung-aetheria", 51, 43, 7)
+    p.door("markas", "Markas CodeIn", 28, 48, "masuk", "markas")
+    p.door("warkop", "Warkop CodeIn", 39, 48, "panel", "kunci")
+    p.door("proyek-2", "Gedung kosong", 54, 48, "panel", "proyek")
+    p.perabot("meja-warkop", 33, 48)
+    for (n, x0) in ((5, 61), (6, 67)):
+        p.board("baliho", f"baliho-{n}", x0, 41, 5, 4, 47, order=n, name="Baliho")
+    p.ubin(cells(60, 46, 72, 48), KREM)
+    for (x, y) in ((34, 47), (44, 46), (49, 46), (59, 47)):
+        p.halangi(x * T + 5, y * T + 10, 6, 6)
+        p.pohon(x * T + 8, y * T + 15, "pohon-a" if x % 2 else "pohon-b")
+    # Toko Mbak Tika pindah ke samping Pasar CodeIn, menghadap pelataran depan parkir
+    p.landmark("gedung-toko", 80, 43, 7)
+    p.door("toko", "Toko Mbak Tika", 83, 48, "panel")
+
     # ---------- Taman Kota (x 23-72, y 18-48) ----------
     cincin = cells(27, 22, 68, 22) | cells(27, 35, 68, 35) | cells(27, 22, 27, 35) | cells(68, 22, 68, 35)
     salib = cells(23, 28, 72, 29) | cells(47, 18, 48, 48)
@@ -339,10 +359,6 @@ def kota():
     # lapangan badminton di timur taman
     p.ubin(cells(58, 30, 65, 33), BATU)
     p.perabot("net-badminton", 60, 32, dx=0)
-    # taman baliho di selatan taman, menghadap Markas
-    for (n, x0) in ((5, 55), (6, 62)):
-        p.board("baliho", f"baliho-{n}", x0, 41, 5, 4, 47, order=n, name="Baliho")
-    p.ubin(cells(54, 46, 67, 48), KREM)
     # bangku, lampu, semak bunga, dan pohon taman
     for (x, y) in ((30, 21), (40, 21), (56, 21), (64, 21), (30, 36), (40, 36), (56, 36), (64, 36), (44, 34), (51, 34), (38, 30), (57, 27)):
         p.thing(x, y, 250)
@@ -391,23 +407,12 @@ def kota():
     p.board("info", "pasar", 83, 19, 6, 2, 21, name="Pasar CodeIn")
     for (x, y) in ((79, 19), (92, 19), (79, 39), (92, 39)):
         p.lamp(x, y)
-    # parkir di selatan pasar
-    p.ubin(cells(79, 42, 92, 48), ABU_KREM)
-    for (x, y, tiles) in ((81, 46, (447, 448, 474, 475)), (85, 46, (393, 394, 420, 421)), (89, 46, (447, 448, 474, 475))):
+    # parkir kecil di samping Toko Mbak Tika, pelataran depan toko tersambung ke trotoar
+    p.ubin(cells(88, 42, 92, 48), ABU_KREM)
+    p.ubin(cells(78, 49, 92, 49), BATU)
+    for (x, y, tiles) in ((89, 45, (447, 448, 474, 475)), (89, 48, (393, 394, 420, 421))):
         p.put("atas", x, y - 1, tiles[0]); p.put("atas", x + 1, y - 1, tiles[1])
         p.thing(x, y, tiles[2]); p.thing(x + 1, y, tiles[3])
-
-    # ---------- bangunan selatan (menghadap jalan selatan) ----------
-    atas = p.landmark("gedung-markas", 24, 43, 9)
-    p.sprite("bendera-0", 24 * T + 74, atas + 11, bingkai=2, laju=420)
-    p.landmark("warkop", 34, 43, 7)
-    p.landmark("gedung-aetheria", 41, 43, 7)
-    p.landmark("gedung-toko", 48, 43, 7)
-    p.door("markas", "Markas CodeIn", 28, 48, "masuk", "markas")
-    p.door("warkop", "Warkop CodeIn", 37, 48, "panel", "kunci")
-    p.door("proyek-2", "Gedung kosong", 44, 48, "panel", "proyek")
-    p.door("toko", "Toko Mbak Tika", 51, 48, "panel")
-    p.perabot("meja-warkop", 33, 48)
 
     # ---------- kampung warga (selatan jalan selatan) ----------
     penghuni = {(4, 55): "Bu Sari", (13, 57): "Bang Jo", (23, 55): "Dika", (33, 57): None, (7, 66): "Nek Ijah", (18, 67): "Kak Mita",
@@ -496,8 +501,8 @@ def kota():
     # ---------- titik tempat untuk jadwal warga dan redaktur ----------
     for ident, x, y in (("depan-news", 21, 13), ("depan-videotron", 31, 13), ("zebra-news", 29, 13), ("depan-galeri", 39, 13),
                         ("depan-papan", 34, 23), ("alun-alun", 44, 34), ("dekat-patung", 52, 30), ("taman-kolam", 39, 31),
-                        ("gazebo", 31, 29), ("taman-timur", 62, 25), ("taman-baliho", 61, 48), ("depan-markas", 28, 49),
-                        ("depan-warkop", 37, 49), ("depan-toko", 51, 49), ("depan-aetheria", 44, 49), ("pos-timur", 89, 13), ("pos-timur-2", 86, 13),
+                        ("gazebo", 31, 29), ("taman-timur", 62, 25), ("taman-baliho", 66, 49), ("depan-markas", 28, 49),
+                        ("depan-warkop", 39, 49), ("depan-toko", 83, 50), ("depan-aetheria", 54, 49), ("pos-timur", 89, 13), ("pos-timur-2", 86, 13),
                         ("halte", 69, 13), ("gerobak-bakso", 81, 39), ("lapangan-1", 31, 69), ("lapangan-2", 31, 72),
                         ("kebun", 16, 36), ("taman-lapangan", 61, 34),
                         ("patung-1", 44, 25), ("patung-2", 51, 25), ("patung-3", 51, 32), ("patung-4", 44, 32),
