@@ -16,7 +16,8 @@ const KOTA = {
   // Login warga (Firebase Authentication, hanya login Google). Isinya disalin dari Firebase Console > Project settings > Your apps.
   // Nilai ini memang publik (ikut tayang di JavaScript); yang menjaga adalah daftar Authorized domains di Firebase dan
   // pemeriksaan token di server CodeIn News. Kosongkan apiKey untuk mematikan login: kota tetap jalan, hanya tanpa fitur warga.
-  firebase: {apiKey: "", authDomain: "", projectId: "", appId: ""},
+  firebase: {apiKey: "AIzaSyCkoS9aR97PURBoviTtPCdMiPqEH2IwCsM", authDomain: "codein-city.firebaseapp.com",
+             projectId: "codein-city", appId: "1:945212767826:web:39ad37be63733b26af698b"},
   // Pilihan warna pita baliho. Harus sama dengan SWATCHES di server CodeIn News (dashboard/services/billboards.py).
   warna: ["#E9A23B", "#2A9D8F", "#E06D53", "#5466D1", "#3E9E5A", "#C94F7C"],
 

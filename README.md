@@ -157,4 +157,4 @@ Situs diterbitkan lewat Cloudflare (Workers dengan aset statis) yang terhubung k
 3. Project settings > Your apps > aplikasi web: salin `apiKey`, `authDomain`, `projectId`, `appId` ke `KOTA.firebase` di `js/config.js`.
    Nilai ini memang publik. Kosongkan `apiKey` untuk mematikan login; kota tetap jalan, hanya tanpa fitur warga.
 4. Server CodeIn News butuh `FIREBASE_PROJECT_ID` (= `projectId`) di `~/newsagent/.env` untuk memeriksa token (dipasang oleh `pasang-v23.sh`).
-5. `_headers` (CSP) sudah mengizinkan `apis.google.com`, `identitytoolkit.googleapis.com`, `securetoken.googleapis.com`, dan bingkai `*.firebaseapp.com`.
+5. `_headers` (CSP) sudah mengizinkan `apis.google.com`, `identitytoolkit.googleapis.com`, `securetoken.googleapis.com`, dan bingkai `codein-city.firebaseapp.com`.
