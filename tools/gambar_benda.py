@@ -516,35 +516,72 @@ def angkot(arah):
     return k
 
 
+def garis_luar(k, warna=hx("3a3440")):
+    """Garis tepi 1 piksel di luar siluet (seperti sprite Kenney)."""
+    px = k.im.load()
+    isi = {(x, y) for y in range(k.h) for x in range(k.w) if px[x, y][3]}
+    for (x, y) in list(isi):
+        for (dx, dy) in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            n = (x + dx, y + dy)
+            if 0 <= n[0] < k.w and 0 <= n[1] < k.h and n not in isi:
+                px[n] = warna
+    return k
+
+
 def motor(arah, ojol=False):
-    """Motor tampak atas dengan pengendara berhelm, 16 x 16. Ojol: jaket dan helm hijau, kotak di belakang."""
-    BADAN, BADAN_G = (hx("3e9e5a"), hx("2f7a45")) if ojol else (hx("e26c62"), hx("b8443c"))
-    JAKET, JAKET_G = (hx("3e9e5a"), hx("2f7a45")) if ojol else (hx("5466d1"), hx("3f4ea8"))
-    HELM = hx("2f7a45") if ojol else hx("e9a23b")
-    k = Kanvas(16, 16)
+    """Motor bebek berpengendara berhelm, bergaris tepi gelap. Tampak samping 28 x 21: dua roda bulat berpelek, bodi,
+    jok, tameng depan berlampu, knalpot. Tampak depan/belakang 14 x 23: roda tegak, setang dan spion, lampu.
+    Motor biasa merah dengan jaket biru; ojol bodi biru, jaket dan helm hijau, kotak pesanan di jok belakang."""
+    BODI, BODI_T, BODI_G = (hx("e26c62"), hx("f08a80"), hx("b8443c")) if not ojol else (hx("5466d1"), hx("7a8be0"), hx("3f4ea8"))
+    JAKET, JAKET_T, JAKET_G = (hx("3e9e5a"), hx("62bb7c"), hx("2f7a45")) if ojol else (hx("5b8cc7"), hx("7fa9de"), hx("4870a8"))
+    HELM, HELM_T = (hx("2f7a45"), hx("4f9e66")) if ojol else (hx("e9a23b"), hx("f6c46b"))
+    BAN, PELEK, KULIT, CELANA, KACA, JOK = hx("2e2a33"), hx("c9c3b8"), hx("ffcb9e"), hx("4a4e6e"), hx("2e2a33"), hx("3b3540")
+    KOTAK, KOTAK_T = hx("3e9e5a"), hx("8fd6a5")
     if arah in ("kiri", "kanan"):
-        k.kotak(0, 9, 3, 12, GARIS); k.kotak(12, 9, 15, 12, GARIS)             # roda belakang dan depan
-        k.kotak(1, 10, 2, 11, BATU_G); k.kotak(13, 10, 14, 11, BATU_G)
-        k.panel(3, 8, 12, 12, BADAN, BADAN, BADAN_G)                            # badan motor
-        k.panel(4, 3, 9, 9, JAKET, JAKET, JAKET_G)                              # punggung pengendara
-        k.panel(5, 0, 9, 4, HELM, PUTIH, HELM)                                  # helm
-        k.garis_v(11, 5, 8, GARIS)                                              # setang
-        k.p(15, 10, KUNING)
+        k = Kanvas(28, 21)
+        for cx in (6, 21):                                          # roda: ban, pelek, as
+            for y in range(11, 21):
+                for x in range(cx - 5, cx + 6):
+                    d = ((x - cx) ** 2 + (y - 15.5) ** 2) ** .5
+                    if d <= 4.4:
+                        k.p(x, y, BAN if d > 2.6 else PELEK if d > 1.1 else GARIS)
+        k.kotak(3, 10, 9, 11, BODI_G)                               # spakbor belakang
+        k.kotak(2, 14, 8, 14, BATU_G)                               # knalpot
+        k.kotak(8, 11, 18, 13, BODI); k.garis_h(8, 18, 11, BODI_T); k.garis_h(8, 18, 13, BODI_G)
+        for i in range(6):                                          # garpu depan miring
+            k.p(19 + i // 3, 8 + i, GARIS); k.p(20 + i // 3, 8 + i, GARIS)
+        k.kotak(19, 7, 22, 11, BODI); k.garis_v(19, 7, 11, BODI_T); k.kotak(23, 8, 23, 9, KUNING)   # tameng + lampu
+        k.kotak(7, 9, 14, 10, JOK)
         if ojol:
-            k.panel(0, 3, 4, 8, hx("3e9e5a"), hx("6cc488"), hx("2f7a45"))
+            k.kotak(2, 3, 7, 8, KOTAK); k.garis_h(2, 7, 3, KOTAK_T); k.garis_h(3, 6, 6, KOTAK_T)
+        k.kotak(10, 3, 14, 8, JAKET); k.garis_v(10, 3, 8, JAKET_T)  # badan pengendara
+        k.kotak(14, 5, 18, 5, JAKET_G); k.p(19, 5, KULIT)           # lengan dan tangan
+        k.kotak(19, 6, 20, 6, GARIS)                                # setang
+        k.kotak(12, 8, 16, 9, CELANA); k.kotak(15, 10, 16, 12, CELANA); k.kotak(15, 13, 17, 13, GARIS)   # kaki
+        k.kotak(10, 0, 15, 3, HELM); k.garis_h(11, 14, 0, HELM_T); k.kotak(14, 1, 15, 2, KACA)          # helm
+        garis_luar(k)
         if arah == "kiri":
             k.im = k.im.transpose(Image.FLIP_LEFT_RIGHT); k.px = k.im.load()
         return k
-    k.kotak(6, 0, 9, 3, GARIS); k.kotak(6, 12, 9, 15, GARIS)                  # roda
-    k.panel(5, 3, 10, 12, BADAN, BADAN, BADAN_G)
-    k.panel(3, 5, 12, 10, JAKET, JAKET, JAKET_G)                               # bahu pengendara
-    k.panel(5, 4, 10, 9, HELM, PUTIH, HELM)                                    # helm dari atas
-    k.garis_h(2, 13, 11 if arah == "bawah" else 4, GARIS)                     # setang
-    k.p(7, 15 if arah == "bawah" else 0, KUNING if arah == "bawah" else MERAH)
-    k.p(8, 15 if arah == "bawah" else 0, KUNING if arah == "bawah" else MERAH)
-    if ojol:
-        y0 = 0 if arah == "bawah" else 11
-        k.panel(4, y0, 11, y0 + 4, hx("3e9e5a"), hx("6cc488"), hx("2f7a45"))
+    depan = arah == "bawah"
+    k = Kanvas(14, 23)
+    k.kotak(6, 15, 7, 22, BAN)                                      # roda tegak
+    k.kotak(4, 10, 9, 15, BODI); k.garis_h(4, 9, 10, BODI_T); k.garis_h(4, 9, 15, BODI_G)
+    if depan:
+        k.kotak(6, 11, 7, 12, KUNING)                               # lampu depan
+    else:
+        k.kotak(5, 14, 8, 14, MERAH)                                # lampu rem
+    k.kotak(1, 8, 12, 8, GARIS)                                     # setang
+    k.kotak(1, 5, 1, 7, GARIS); k.kotak(12, 5, 12, 7, GARIS)        # tangkai spion
+    k.kotak(0, 4, 2, 5, PELEK); k.kotak(11, 4, 13, 5, PELEK)        # spion
+    k.kotak(4, 4, 9, 9, JAKET); k.garis_v(4, 4, 9, JAKET_T); k.garis_v(9, 4, 9, JAKET_G)
+    k.p(2, 8, KULIT); k.p(11, 8, KULIT)                             # tangan
+    if ojol and not depan:
+        k.kotak(3, 6, 10, 11, KOTAK); k.garis_h(3, 10, 6, KOTAK_T); k.garis_h(4, 9, 9, KOTAK_T)
+    k.kotak(4, 0, 9, 3, HELM); k.garis_h(5, 8, 0, HELM_T)
+    if depan:
+        k.kotak(5, 2, 8, 2, KACA)                                   # kaca helm
+    garis_luar(k)
     return k
 
 

@@ -123,9 +123,10 @@ const Akun = (() => {
 
   // permintaan ke CodeIn News atas nama warga (dipakai formulir hosting dan baliho)
   const kirim = (jalur, isi, metode = "POST") => minta(metode, jalur, isi);
+  const ambil = jalur => minta("GET", jalur);
 
   return {
     nyala: () => keadaan !== "mati", keadaan: () => keadaan, warga: () => warga, pesan: () => pesan, sudahWarga,
-    masuk, keluar, simpanProfil, pastikan, kirim, tunggu, saatBerubah: f => { pendengar.push(f); },
+    masuk, keluar, simpanProfil, pastikan, kirim, ambil, tunggu, saatBerubah: f => { pendengar.push(f); },
   };
 })();

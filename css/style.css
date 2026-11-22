@@ -203,3 +203,8 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 .papan.rumah.kosong{opacity:.85;font-style:italic}
 .papan.rumah.milikku{background:var(--emas);font-weight:600}
 .tbl.pulang{width:100%;margin-bottom:10px}
+/* acara: formulir pendaftaran dan kertas acara di papan pengumuman */
+.isian textarea{display:block;width:100%;margin-top:4px;padding:8px 10px;background:#fff;border:3px solid var(--tinta);border-radius:10px;font:inherit;font-weight:400;resize:vertical}
+.isian .pilihan .setuju{grid-template-columns:28px 1fr;align-items:center;min-height:40px;margin:0}
+.berhasil{background:#E6F1E2;border-radius:8px;padding:8px 10px}
+.pw-kertas span.acara{background:#FCE9C2;font-weight:600;transform:rotate(-1.5deg)}

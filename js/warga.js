@@ -222,12 +222,15 @@ const Warga = (() => {
     const ul = el("ul");
     ul.append(el("li", null, "Hosting proyek: situs, game web, atau portofolio tayang gratis di namaproyek." + KOTA.domain + " dan masuk Direktori Proyek."),
       el("li", null, "Baliho: pajang proyek, acara, atau portofoliomu di baliho kota."));
+    const acara = Acara.terbuka();
+    if (acara.length) ul.prepend(el("li", null, `Acara: ${acara.map(a => a.judul).join(", ")}. Pendaftarannya juga lewat aku.`));
     isi.push(ul);
     if (Akun.nyala() && !Akun.sudahWarga()) isi.push(el("p", null, "Pendaftaran khusus warga, yaitu anggota yang sudah masuk dengan akun Google. Belum masuk? Nanti aku bantu."));
     if (p.length) isi.push(el("p", "redup", "Pengumuman terbaru: " + p[0]));
     isi.push(el("p", "redup", "Mau ikut membangun kota atau membuka Warkop CodeIn? Sampaikan ke Jull lewat grup WhatsApp CodeIn."));
     Panel.buka("Kak Rani · Resepsionis", isi, [
-      {teks: "Daftar hosting proyek", utama: true, aksi: () => RumahProyek.formulir()},
+      ...(acara.length ? [{teks: acara.length > 1 ? "Daftar acara" : `Daftar ${acara[0].judul}`, utama: true, aksi: () => Acara.pilih()}] : []),
+      {teks: "Daftar hosting proyek", utama: !acara.length, aksi: () => RumahProyek.formulir()},
       {teks: "Pasang baliho", aksi: () => Papan.formulir(0)},
       {teks: "Direktori proyek", aksi: () => RumahProyek.direktori()},
       {teks: "Tutup"}]);

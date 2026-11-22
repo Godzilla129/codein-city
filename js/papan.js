@@ -20,6 +20,7 @@ const Papan = (() => {
   // keadaan tiap sumber: "memuat" (belum ada jawaban), "siap", atau "gagal" (server tidak terjangkau dan tidak ada simpanan)
   let slot = [], kabar = [], keadaan = {slot: "memuat", kabar: "memuat"}, giliran = 0, isian = null;
   const baliho = new Set();       // {e, n}: elemen baliho di peta yang sedang tampil dan nomor slotnya
+  const gabus = new Set();        // elemen Papan Pengumuman (digambar ulang saat data acara datang)
   const layar = new Set();        // elemen videotron
   let terakhir = 0;               // kapan terakhir bertanya ke server
   let gagalBeruntun = 0;
@@ -100,10 +101,11 @@ const Papan = (() => {
     e.replaceChildren(...isi);
     if (ganti) { e.classList.remove("ganti"); void e.offsetWidth; e.classList.add("ganti"); }   // kedip halus tanda kabar berganti
   }
-  // Papan Pengumuman: tiga pengumuman teratas dari config.js, ditempel sebagai kertas
+  // Papan Pengumuman: acara yang sedang buka (js/acara.js) lalu pengumuman teratas dari config.js, ditempel sebagai kertas
   function gambarGabus(e) {
-    const kertas = el("div", "pw-kertas");
-    for (const t of (KOTA.panel.papan.daftar || []).slice(0, 3)) kertas.append(el("span", null, t));
+    const kertas = el("div", "pw-kertas"), acara = Acara.tempelan();
+    if (acara) kertas.append(el("span", "acara", acara));
+    for (const t of (KOTA.panel.papan.daftar || []).slice(0, acara ? 2 : 3)) kertas.append(el("span", null, t));
     e.replaceChildren(el("span", "pw-kepala", "Papan Pengumuman"), kertas);
   }
   function gambarInfo(e, id) {
@@ -120,12 +122,13 @@ const Papan = (() => {
     e.style.setProperty("--pw", b.w); e.style.setProperty("--ph", b.h);
     if (b.jenis === "videotron") { e.classList.add("layar"); layar.add(e); gambarLayar(e, false); }
     else if (b.jenis === "baliho") { baliho.add({e, n: b.urutan}); gambarBaliho(e, slotKe(b.urutan), keadaan.slot); }
-    else if (b.jenis === "pengumuman") { e.classList.add("gabus"); gambarGabus(e); }
+    else if (b.jenis === "pengumuman") { e.classList.add("gabus"); gambarGabus(e); gabus.add(e); }
     else { e.classList.add("tulis"); gambarInfo(e, b.id); }
     return e;
   }
   // peta berganti: elemen papan lama sudah dibuang kota.js
-  function bersih() { baliho.clear(); layar.clear(); }
+  function bersih() { baliho.clear(); layar.clear(); gabus.clear(); }
+  const segarkanGabus = () => gabus.forEach(gambarGabus);
 
   /* ---------- dialog ---------- */
   const paragraf = t => el("p", null, t);
@@ -291,7 +294,7 @@ const Papan = (() => {
   function buka(b) {
     if (b.jenis === "videotron") panelLayar();
     else if (b.jenis === "baliho") panelBaliho(b.urutan);
-    else if (b.jenis === "pengumuman") Panel.gedung("papan", "Papan Pengumuman");
+    else if (b.jenis === "pengumuman") Acara.papan();
     else panelInfo(b.id);
   }
   // pintu = zona interaksi dari peta; true kalau dialognya ditangani di sini
@@ -300,7 +303,7 @@ const Papan = (() => {
     else if (p.tujuan === "baliho") panelBaliho(+p.id.split("-")[1]);
     else if (p.tujuan === "info") panelInfo(p.id);
     else if (p.id === "galeri") panelGaleri();
-    else if (p.id === "papan") Panel.gedung("papan", "Papan Pengumuman");
+    else if (p.id === "papan") Acara.papan();
     else return false;
     return true;
   }
@@ -314,5 +317,5 @@ const Papan = (() => {
   // judul kabar paling ramai saat ini (dipakai ucapan warga di dekat videotron), atau "" kalau belum ada
   const kabarTeratas = () => keadaan.kabar === "siap" && kabar.length ? kabar[0].title : "";
 
-  return {buat, buka, bersih, tangani, kabarTeratas, formulir};
+  return {buat, buka, bersih, tangani, kabarTeratas, formulir, segarkanGabus};
 })();
