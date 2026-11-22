@@ -90,7 +90,7 @@ const Redaksi = (() => {
   function bangunGrid(peta) {
     W = peta.width; H = peta.height; grid = new Uint8Array(W * H);
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const t = peta.getTileAt(x, y, true, "tabrakan");
+      const t = peta.getTileAt(x, y, true, "rintangan");
       grid[y * W + x] = t && t.index > 0 ? 0 : 1;
     }
   }
@@ -211,7 +211,7 @@ const Redaksi = (() => {
       const meja = [Math.floor(m.x / T), Math.floor(m.y / T)];
       const s = sc.add.sprite(m.x, m.y, "orang", Kota.frame(def.karakter, "bawah", 0)).setOrigin(.5, .8);
       const label = Kota.tempelkan(el("div", "nama", def.nama), () => [s.x, s.y - 14]);
-      return {def, s, label, meja, monitor: [m.x + 3, m.y + 7], jalur: [], hadap: "bawah", arah: "bawah", keadaan: null, siap: false};
+      return {def, s, label, meja, monitor: [m.x + 3, m.y - 2], jalur: [], hadap: "bawah", arah: "bawah", keadaan: null, siap: false};
     });
     jedaMuat = 0;
     if (data.dimuat) agen.forEach(perbaruiKeadaan);

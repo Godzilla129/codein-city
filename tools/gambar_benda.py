@@ -19,110 +19,103 @@ def bayangan(k, x0, x1, y):
 # ======================================================================================================
 #  PERABOT
 # ======================================================================================================
-def meja(w=48, h=28, laci=True):
-    """Meja kayu tampak 3/4: daun meja terang di atas, sisi depan dengan laci, kaki. w x h."""
+def meja(w=32, h=20, laci=True):
+    """Meja kayu tampak 3/4 seukuran karakter Kenney: daun meja di atas, sisi depan berlaci, kaki. w x h."""
     k = Kanvas(w, h)
-    k.panel(0, 0, w - 1, 11, MEJA_T, hx("ecd2b0"), MEJA)                  # daun meja
-    for x in range(4, w - 4, 7):
-        k.p(x, 4, MEJA); k.p(x + 2, 7, MEJA)
-    k.panel(1, 11, w - 2, h - 5, MEJA, MEJA_T, MEJA_G)                    # sisi depan
+    k.panel(0, 0, w - 1, 7, MEJA_T, hx("ecd2b0"), MEJA)
+    for x in range(4, w - 4, 6):
+        k.p(x, 3, MEJA)
+    k.panel(1, 7, w - 2, h - 4, MEJA, MEJA_T, MEJA_G)
     if laci:
-        for x0 in range(4, w - 12, 14):
-            k.panel(x0, 13, x0 + 10, h - 8, MEJA_G, MEJA, MEJA_GG)
-            k.kotak(x0 + 4, h - 11, x0 + 6, h - 11, KUNING)
-    for x in (2, w - 5):
-        k.kotak(x, h - 5, x + 2, h - 1, MEJA_GG)
+        for x0 in range(3, w - 9, 10):
+            k.panel(x0, 9, x0 + 7, h - 6, MEJA_G, MEJA, MEJA_GG)
+            k.p(x0 + 3, h - 8, KUNING); k.p(x0 + 4, h - 8, KUNING)
+    for x in (1, w - 3):
+        k.kotak(x, h - 4, x + 1, h - 1, MEJA_GG)
     bayangan(k, 2, w - 3, h - 1)
     return k
 
 
 def meja_resepsionis():
-    """Meja resepsionis Markas 56 x 30: daun meja, panel depan krem dengan logo </> CodeIn."""
-    k = Kanvas(56, 30)
-    k.panel(0, 0, 55, 9, MEJA_T, hx("ecd2b0"), MEJA)
-    k.panel(1, 9, 54, 28, KREM, KREM_T, KREM_G)
-    k.panel(16, 13, 39, 23, hx("2a9d8f"), hx("5cc0b2"), hx("1f6f66"))
-    for (x, y) in ((22, 16), (21, 17), (20, 18), (21, 19), (22, 20), (33, 16), (34, 17), (35, 18), (34, 19), (33, 20),
-                   (29, 15), (28, 16), (28, 17), (27, 18), (27, 19), (26, 20), (26, 21)):
+    """Meja resepsionis Markas 48 x 22: daun meja, panel krem dengan logo </> CodeIn, buku tamu dan telepon."""
+    k = Kanvas(48, 22)
+    k.panel(0, 0, 47, 6, MEJA_T, hx("ecd2b0"), MEJA)
+    k.panel(1, 6, 46, 21, KREM, KREM_T, KREM_G)
+    k.panel(16, 9, 31, 17, hx("2a9d8f"), hx("5cc0b2"), hx("1f6f66"))
+    for (x, y) in ((20, 11), (19, 12), (18, 13), (19, 14), (20, 15), (27, 11), (28, 12), (29, 13), (28, 14), (27, 15),
+                   (24, 11), (24, 12), (23, 13), (23, 14), (22, 15)):
         k.p(x, y, PUTIH)
-    k.kotak(4, 2, 12, 6, hx("efe6d6")); k.bingkai(4, 2, 12, 6, GARIS)     # buku tamu
-    k.kotak(44, 1, 50, 6, GELAP); k.bingkai(44, 1, 50, 6, GARIS)          # telepon
-    k.p(46, 3, KUNING)
-    bayangan(k, 2, 53, 29)
+    k.kotak(3, 1, 9, 4, hx("efe6d6")); k.bingkai(3, 1, 9, 4, GARIS)
+    k.kotak(38, 1, 43, 4, GELAP); k.bingkai(38, 1, 43, 4, GARIS); k.p(40, 2, KUNING)
     return k
 
 
 def kursi(arah="bawah"):
-    """Kursi kayu 14 x 20. arah 'bawah' = menghadap pengunjung (sandaran di belakang), 'atas' = sandaran di depan."""
-    k = Kanvas(14, 20)
+    """Kursi kayu 12 x 14. 'bawah' = sandaran di belakang (menghadap pengunjung), 'atas' = sandaran di depan."""
+    k = Kanvas(12, 14)
     if arah == "bawah":
-        k.panel(1, 0, 12, 8, MEJA, MEJA_T, MEJA_G)                         # sandaran
-        k.garis_h(3, 10, 3, MEJA_G)
-        k.panel(0, 8, 13, 13, MEJA_T, hx("ecd2b0"), MEJA)                  # dudukan
+        k.panel(1, 0, 10, 6, MEJA, MEJA_T, MEJA_G)
+        k.panel(0, 5, 11, 9, MEJA_T, hx("ecd2b0"), MEJA)
     else:
-        k.panel(0, 4, 13, 9, MEJA_T, hx("ecd2b0"), MEJA)
-        k.panel(1, 7, 12, 15, MEJA, MEJA_T, MEJA_G)
-        k.garis_h(3, 10, 11, MEJA_G)
-    for x in (1, 11):
-        k.kotak(x, 14 if arah == "bawah" else 15, x + 1, 19, MEJA_GG)
+        k.panel(0, 2, 11, 6, MEJA_T, hx("ecd2b0"), MEJA)
+        k.panel(1, 5, 10, 10, MEJA, MEJA_T, MEJA_G)
+    for x in (1, 9):
+        k.kotak(x, 10, x + 1, 13, MEJA_GG)
     return k
 
 
 def kursi_kantor():
-    """Kursi kerja beroda 16 x 20 tampak belakang (dipakai di belakang meja redaksi)."""
-    k = Kanvas(16, 20)
-    k.panel(2, 0, 13, 11, GELAP_T, hx("736b86"), GELAP)
-    k.panel(1, 10, 14, 14, GELAP, GELAP_T, hx("2f2b3a"))
-    k.garis_v(7, 14, 17, GARIS); k.garis_v(8, 14, 17, GARIS)
-    for x in (2, 7, 12):
-        k.kotak(x, 18, x + 1, 19, GARIS)
-    k.garis_h(3, 12, 17, GARIS)
+    """Kursi kerja beroda 12 x 15 tampak belakang."""
+    k = Kanvas(12, 15)
+    k.panel(1, 0, 10, 8, GELAP_T, hx("736b86"), GELAP)
+    k.panel(0, 7, 11, 10, GELAP, GELAP_T, hx("2f2b3a"))
+    k.garis_v(5, 11, 13, GARIS); k.garis_v(6, 11, 13, GARIS)
+    k.garis_h(1, 10, 13, GARIS)
+    for x in (1, 5, 9):
+        k.kotak(x, 14, x + 1, 14, GARIS)
     return k
 
 
-def sofa(w=48):
-    """Sofa oranye bata w x 26: sandaran, dua bantal duduk, lengan."""
-    k = Kanvas(w, 26)
-    k.panel(3, 0, w - 4, 12, KAIN, KAIN_T, KAIN_G)
-    for x in range(w // 2 - 1, w // 2 + 1):
-        k.garis_v(x, 2, 11, KAIN_G)
-    k.panel(3, 11, w - 4, 21, KAIN_T, hx("f4c39f"), KAIN)
-    k.garis_v(w // 2, 12, 20, KAIN)
-    for x0 in (0, w - 7):
-        k.panel(x0, 6, x0 + 6, 22, KAIN, KAIN_T, KAIN_G)
-    k.kotak(3, 22, 5, 25, KAYU_G); k.kotak(w - 6, 22, w - 4, 25, KAYU_G)
-    bayangan(k, 3, w - 4, 25)
+def sofa(w=32):
+    """Sofa oranye bata w x 18."""
+    k = Kanvas(w, 18)
+    k.panel(2, 0, w - 3, 8, KAIN, KAIN_T, KAIN_G)
+    k.garis_v(w // 2, 2, 7, KAIN_G)
+    k.panel(2, 7, w - 3, 14, KAIN_T, hx("f4c39f"), KAIN)
+    k.garis_v(w // 2, 8, 13, KAIN)
+    for x0 in (0, w - 5):
+        k.panel(x0, 4, x0 + 4, 15, KAIN, KAIN_T, KAIN_G)
+    k.kotak(2, 15, 3, 17, KAYU_G); k.kotak(w - 4, 15, w - 3, 17, KAYU_G)
+    bayangan(k, 2, w - 3, 17)
     return k
 
 
 def bangku_galeri():
-    """Bangku empuk galeri 40 x 18: dudukan hijau toska berkancing, kaki kayu."""
-    k = Kanvas(40, 18)
-    k.panel(0, 2, 39, 11, hx("2a9d8f"), hx("5cc0b2"), hx("1f6f66"))
-    for x in range(6, 36, 8):
-        k.p(x, 6, hx("1f6f66"))
-    k.panel(1, 10, 38, 13, MEJA, MEJA_T, MEJA_G)
-    for x in (2, 35):
-        k.kotak(x, 13, x + 2, 17, MEJA_GG)
+    """Bangku empuk galeri 32 x 12: dudukan hijau toska berkancing, kaki kayu."""
+    k = Kanvas(32, 12)
+    k.panel(0, 0, 31, 7, hx("2a9d8f"), hx("5cc0b2"), hx("1f6f66"))
+    for x in range(5, 30, 7):
+        k.p(x, 3, hx("1f6f66"))
+    k.panel(1, 6, 30, 8, MEJA, MEJA_T, MEJA_G)
+    for x in (2, 28):
+        k.kotak(x, 9, x + 1, 11, MEJA_GG)
     return k
 
 
-def rak_buku(w=32, h=40):
+def rak_buku(w=24, h=30):
     """Rak buku w x h: bingkai kayu, tiga papan, buku warna-warni."""
     k = Kanvas(w, h)
     k.panel(0, 0, w - 1, h - 1, MEJA_G, MEJA, MEJA_GG)
     warna = [hx("c75a52"), hx("2a9d8f"), hx("e9a23b"), hx("5466d1"), hx("86c264"), hx("efe6d6"), hx("9f8fc4")]
-    papan = [3 + i * ((h - 6) // 3) for i in range(3)]
-    for j, y0 in enumerate(papan):
-        y1 = y0 + (h - 6) // 3 - 3
+    tinggi_rak = (h - 4) // 3
+    for j in range(3):
+        y0, y1 = 2 + j * tinggi_rak, 2 + j * tinggi_rak + tinggi_rak - 3
         k.kotak(2, y0, w - 3, y1, hx("5e3f2b"))
-        x = 3
-        n = j * 3
-        while x < w - 4:
-            lebar = 2 + (n * 7 + j) % 2
-            tinggi = y1 - y0 - (n % 3)
-            k.kotak(x, y1 - tinggi + 1, x + lebar - 1, y1, warna[n % len(warna)])
-            k.garis_v(x + lebar - 1, y1 - tinggi + 1, y1, (0, 0, 0, 40))
+        x, n = 3, j * 3
+        while x < w - 3:
+            lebar = 2 if n % 3 else 1
+            t = y1 - y0 - (n % 2)
+            k.kotak(x, y1 - t + 1, x + lebar - 1, y1, warna[n % len(warna)])
             x += lebar + (1 if n % 4 == 3 else 0)
             n += 1
         k.garis_h(1, w - 2, y1 + 1, MEJA_T)
@@ -131,61 +124,59 @@ def rak_buku(w=32, h=40):
 
 
 def lemari():
-    """Lemari laci 30 x 30 dengan vas bunga di atasnya."""
-    k = Kanvas(30, 30)
-    k.panel(0, 8, 29, 29, MEJA, MEJA_T, MEJA_G)
-    for y in (11, 17, 23):
-        k.panel(3, y, 26, y + 4, MEJA_G, MEJA, MEJA_GG)
-        k.kotak(13, y + 2, 16, y + 2, KUNING)
-    k.panel(11, 1, 18, 8, hx("5466d1"), hx("7b8be0"), hx("3f4ea8"))
-    for (x, y, c) in ((12, 0, MERAH), (14, 0, KUNING), (16, 0, MERAH), (13, 1, HIJAU), (15, 1, HIJAU)):
+    """Lemari laci 22 x 22 dengan vas bunga di atasnya."""
+    k = Kanvas(22, 22)
+    k.panel(0, 6, 21, 21, MEJA, MEJA_T, MEJA_G)
+    for y in (8, 13):
+        k.panel(2, y, 19, y + 3, MEJA_G, MEJA, MEJA_GG)
+        k.kotak(10, y + 2, 11, y + 2, KUNING)
+    k.panel(8, 1, 13, 6, hx("5466d1"), hx("7b8be0"), hx("3f4ea8"))
+    for (x, y, c) in ((9, 0, MERAH), (11, 0, KUNING), (12, 1, MERAH), (10, 1, HIJAU)):
         k.p(x, y, c)
     return k
 
 
 def jam_besar():
-    """Jam lantai kayu 16 x 40 dengan bandul."""
-    k = Kanvas(16, 40)
-    k.panel(1, 0, 14, 39, MEJA_G, MEJA, MEJA_GG)
-    for y in range(3, 13):
-        for x in range(3, 13):
-            d = ((x - 7.5) ** 2 + (y - 7.5) ** 2) ** .5
-            if d <= 5:
-                k.p(x, y, GARIS if d > 4.2 else hx("f4ecd8"))
-    k.garis_v(8, 5, 8, GARIS); k.garis_h(8, 10, 8, GARIS)
-    k.panel(4, 16, 11, 34, hx("5e3f2b"), MEJA_G, hx("4a3122"))
-    k.garis_v(7, 17, 28, KUNING); k.kotak(6, 28, 8, 30, KUNING)
+    """Jam lantai kayu 12 x 28 dengan bandul."""
+    k = Kanvas(12, 28)
+    k.panel(1, 0, 10, 27, MEJA_G, MEJA, MEJA_GG)
+    for y in range(2, 10):
+        for x in range(2, 10):
+            d = ((x - 5.5) ** 2 + (y - 5.5) ** 2) ** .5
+            if d <= 3.8:
+                k.p(x, y, GARIS if d > 3 else hx("f4ecd8"))
+    k.garis_v(6, 4, 6, GARIS); k.p(7, 6, GARIS)
+    k.panel(3, 12, 8, 24, hx("5e3f2b"), MEJA_G, hx("4a3122"))
+    k.garis_v(5, 13, 20, KUNING); k.kotak(5, 20, 6, 21, KUNING)
     return k
 
 
 def lampu_lantai():
-    """Lampu berdiri 12 x 36 dengan kap krem."""
-    k = Kanvas(12, 36)
-    for y in range(0, 10):
-        setengah = 2 + y // 2
-        k.garis_h(6 - setengah, 5 + setengah, y, hx("f4ecd8") if y < 8 else KREM_G)
-        k.p(6 - setengah, y, GARIS); k.p(5 + setengah, y, GARIS)
-    k.garis_h(1, 10, 0, GARIS); k.garis_h(0, 11, 10, GARIS)
-    k.garis_v(5, 11, 33, GARIS); k.garis_v(6, 11, 33, MEJA_G)
-    k.kotak(2, 33, 9, 35, MEJA_GG)
+    """Lampu berdiri 9 x 24 dengan kap krem."""
+    k = Kanvas(9, 24)
+    for y in range(0, 7):
+        setengah = 1 + y // 2
+        k.garis_h(4 - setengah, 4 + setengah, y, hx("f4ecd8") if y < 5 else KREM_G)
+        k.p(4 - setengah, y, GARIS); k.p(4 + setengah, y, GARIS)
+    k.garis_h(0, 8, 7, GARIS)
+    k.garis_v(4, 8, 21, GARIS)
+    k.kotak(2, 21, 6, 23, MEJA_GG)
     return k
 
 
 def tanaman_pot(besar=False):
-    """Tanaman monstera dalam pot terakota, 16 x 24 (besar: 20 x 30)."""
-    w, h = (20, 30) if besar else (16, 24)
-    k = Kanvas(w, h)
+    """Tanaman dalam pot terakota, 12 x 18 (besar: 14 x 22)."""
     import math
+    w, h = (14, 22) if besar else (12, 18)
+    k = Kanvas(w, h)
     for i in range(7):
         sudut = -math.pi / 2 + (i - 3) * .45
-        for t in range(3, h - 9):
-            x = int(w / 2 + math.cos(sudut) * t * .5)
-            y = int(h - 10 + math.sin(sudut) * t)
-            for dx in (-1, 0, 1):
-                k.p(x + dx, y, HIJAU if (t + i) % 4 else hx("a0d671"))
-            k.p(x - 2, y, HIJAU_TUA); k.p(x + 2, y, HIJAU_TUA)
-    k.panel(w // 2 - 5, h - 9, w // 2 + 4, h - 1, hx("c4704a"), hx("dd8a5f"), hx("9c5538"))
-    k.garis_h(w // 2 - 6, w // 2 + 5, h - 9, GARIS)
+        for t in range(2, h - 7):
+            x = int(w / 2 + math.cos(sudut) * t * .45)
+            y = int(h - 8 + math.sin(sudut) * t)
+            k.p(x, y, HIJAU if (t + i) % 4 else hx("a0d671"))
+            k.p(x - 1, y, HIJAU_TUA); k.p(x + 1, y, HIJAU)
+    k.panel(w // 2 - 4, h - 7, w // 2 + 3, h - 1, hx("c4704a"), hx("dd8a5f"), hx("9c5538"))
     return k
 
 
@@ -205,106 +196,136 @@ def karpet(w=64, h=32, warna=(hx("b5574b"), hx("8f4038"), hx("e9a23b"))):
 
 
 def kulkas():
-    """Kulkas dua pintu 18 x 34."""
-    k = Kanvas(18, 34)
-    k.panel(0, 0, 17, 33, hx("e8eef0"), PUTIH, hx("b9c4c8"))
-    k.garis_h(1, 16, 12, hx("b9c4c8"))
-    k.kotak(13, 4, 14, 9, GARIS); k.kotak(13, 15, 14, 24, GARIS)
-    k.kotak(3, 16, 8, 21, hx("fcaf5f")); k.kotak(4, 23, 7, 25, hx("86c264"))
+    """Kulkas dua pintu 14 x 24."""
+    k = Kanvas(14, 24)
+    k.panel(0, 0, 13, 23, hx("e8eef0"), PUTIH, hx("b9c4c8"))
+    k.garis_h(1, 12, 8, hx("b9c4c8"))
+    k.kotak(10, 3, 10, 6, GARIS); k.kotak(10, 10, 10, 16, GARIS)
+    k.kotak(3, 11, 6, 14, hx("fcaf5f")); k.kotak(3, 16, 5, 17, hx("86c264"))
     return k
 
 
 def dispenser():
-    """Dispenser air galon 12 x 28."""
-    k = Kanvas(12, 28)
-    k.panel(2, 0, 9, 10, hx("9fd1e8"), hx("c8e8f4"), hx("78b2cc"))
-    k.panel(0, 10, 11, 27, hx("e8eef0"), PUTIH, hx("b9c4c8"))
-    k.p(3, 15, MERAH); k.p(8, 15, BIRU)
-    k.kotak(3, 19, 8, 20, GARIS)
+    """Dispenser air galon 9 x 20."""
+    k = Kanvas(9, 20)
+    k.panel(1, 0, 7, 7, hx("9fd1e8"), hx("c8e8f4"), hx("78b2cc"))
+    k.panel(0, 7, 8, 19, hx("e8eef0"), PUTIH, hx("b9c4c8"))
+    k.p(2, 10, MERAH); k.p(6, 10, BIRU)
+    k.garis_h(2, 6, 13, GARIS)
     return k
 
 
-def lukisan(w=24, h=18, warna=hx("e9a23b")):
+def lukisan(w=18, h=13, warna=hx("e9a23b")):
     """Lukisan berbingkai kayu untuk dinding."""
     k = Kanvas(w, h)
     k.panel(0, 0, w - 1, h - 1, MEJA_G, MEJA, MEJA_GG)
-    k.kotak(3, 3, w - 4, h - 4, hx("bfe1ea"))
-    for x in range(3, w - 3):
-        y = h - 6 - int(3 * abs(((x * 7) % 11) / 11 - .5))
-        k.garis_v(x, y, h - 4, HIJAU if x % 5 else HIJAU_TUA)
-    k.kotak(w - 9, 5, w - 7, 7, warna)
+    k.kotak(2, 2, w - 3, h - 3, hx("bfe1ea"))
+    for x in range(2, w - 2):
+        y = h - 5 - int(2 * abs(((x * 7) % 11) / 11 - .5))
+        k.garis_v(x, y, h - 3, HIJAU if x % 5 else HIJAU_TUA)
+    k.kotak(w - 7, 3, w - 6, 4, warna)
     return k
 
 
 def jendela_dinding():
-    """Jendela di dinding dalam ruangan 26 x 22, tirai di kiri-kanan."""
-    k = Kanvas(26, 22)
-    k.jendela(4, 2, 18, 15, kayu=True)
-    for x0 in (0, 21):
-        k.panel(x0, 0, x0 + 4, 19, hx("d98b5f"), hx("eaa77c"), hx("b56e47"))
-    k.garis_h(0, 25, 0, MEJA_GG)
+    """Jendela di dinding dalam ruangan 22 x 18, tirai di kiri-kanan."""
+    k = Kanvas(22, 18)
+    k.jendela(4, 2, 14, 12, kayu=True)
+    for x0 in (0, 18):
+        k.panel(x0, 0, x0 + 3, 16, hx("d98b5f"), hx("eaa77c"), hx("b56e47"))
+    k.garis_h(0, 21, 0, MEJA_GG)
     return k
 
 
 def meja_bundar():
-    """Meja bundar kecil 22 x 22 dengan teko dan cangkir."""
-    k = Kanvas(22, 22)
-    for y in range(0, 10):
-        for x in range(0, 22):
-            if ((x - 10.5) / 10.5) ** 2 + ((y - 4.5) / 4.5) ** 2 <= 1:
-                k.p(x, y, MEJA_T if y < 6 else MEJA)
-    for x in range(22):
-        for y in range(10):
-            if ((x - 10.5) / 10.5) ** 2 + ((y - 4.5) / 4.5) ** 2 <= 1 and not ((x - 10.5) / 9.5) ** 2 + ((y - 4.5) / 3.5) ** 2 <= 1:
-                k.p(x, y, MEJA_G)
-    k.kotak(9, 10, 12, 19, MEJA_G); k.kotak(5, 19, 16, 21, MEJA_GG)
-    k.panel(6, 0, 11, 4, PUTIH, PUTIH, KREM_G); k.p(12, 2, KREM_G)
-    k.kotak(14, 2, 16, 4, PUTIH); k.bingkai(14, 2, 16, 4, KREM_G)
+    """Meja bundar kecil 16 x 14 dengan teko dan cangkir."""
+    k = Kanvas(16, 14)
+    for y in range(0, 7):
+        for x in range(16):
+            d = ((x - 7.5) / 7.5) ** 2 + ((y - 3) / 3) ** 2
+            if d <= 1:
+                k.p(x, y, MEJA_G if d > .7 else MEJA_T)
+    k.kotak(7, 7, 8, 12, MEJA_G); k.kotak(4, 12, 11, 13, MEJA_GG)
+    k.panel(4, 0, 7, 3, PUTIH, PUTIH, KREM_G); k.p(10, 2, PUTIH); k.p(11, 2, KREM_G)
     return k
 
 
 def mesin_kopi():
-    """Konter dapur 32 x 30 dengan mesin kopi merah dan cangkir."""
-    k = Kanvas(32, 30)
-    k.panel(0, 10, 31, 29, MEJA, MEJA_T, MEJA_G)
-    k.panel(0, 8, 31, 12, KREM_T, PUTIH, KREM_G)
-    k.panel(3, 0, 15, 11, hx("e5534b"), hx("f07a72"), hx("b83f38"))
-    k.kotak(5, 2, 13, 5, hx("2e2017")); k.p(6, 3, hx("7fe0a0"))
-    k.kotak(7, 8, 10, 10, PUTIH)
-    k.panel(20, 5, 24, 10, PUTIH, PUTIH, KREM_G); k.panel(25, 6, 29, 10, hx("fcaf5f"), KUNING, ORANYE)
-    k.garis_v(16, 14, 27, MEJA_G)
-    k.kotak(7, 19, 9, 19, KUNING); k.kotak(22, 19, 24, 19, KUNING)
+    """Konter dapur 32 x 22 dengan mesin kopi merah dan cangkir."""
+    k = Kanvas(32, 22)
+    k.panel(0, 9, 31, 21, MEJA, MEJA_T, MEJA_G)
+    k.panel(0, 7, 31, 10, KREM_T, PUTIH, KREM_G)
+    k.panel(3, 0, 13, 9, hx("e5534b"), hx("f07a72"), hx("b83f38"))
+    k.kotak(5, 2, 11, 4, hx("2e2017")); k.p(6, 3, hx("7fe0a0"))
+    k.kotak(7, 6, 9, 8, PUTIH)
+    k.panel(19, 4, 22, 8, PUTIH, PUTIH, KREM_G); k.panel(24, 5, 27, 8, hx("fcaf5f"), KUNING, ORANYE)
+    k.garis_v(16, 12, 19, MEJA_G)
+    k.kotak(7, 15, 8, 15, KUNING); k.kotak(23, 15, 24, 15, KUNING)
     return k
 
 
 def meja_komputer():
-    """Meja terminal 32 x 32 dengan monitor menyala (layar CodeIn News)."""
-    k = meja(32, 22, laci=False)
-    g = Kanvas(32, 32)
-    g.tempel(k.im, 0, 10)
-    g.panel(8, 0, 23, 13, GELAP, GELAP_T, hx("2f2b3a"))
-    g.kotak(10, 2, 21, 10, hx("1e2433"))
-    g.kotak(11, 3, 18, 3, hx("e9a23b")); g.kotak(11, 5, 20, 5, hx("4fc3f7")); g.kotak(11, 7, 17, 7, hx("7fe0a0"))
-    g.kotak(14, 13, 17, 15, GARIS)
-    g.kotak(9, 16, 22, 17, hx("efe6d6")); g.bingkai(9, 16, 22, 17, GARIS)
+    """Meja terminal 24 x 22 dengan monitor menyala (layar CodeIn News)."""
+    g = Kanvas(24, 22)
+    g.tempel(meja(24, 14, laci=False).im, 0, 8)
+    g.panel(5, 0, 18, 10, GELAP, GELAP_T, hx("2f2b3a"))
+    g.kotak(7, 2, 16, 7, hx("1e2433"))
+    g.kotak(8, 3, 13, 3, hx("e9a23b")); g.kotak(8, 5, 15, 5, hx("4fc3f7"))
+    g.kotak(11, 10, 12, 11, GARIS)
     return g
 
 
 def papan_tulis():
-    """Papan tulis kecil di kaki tiga, 24 x 30 (rencana rapat)."""
-    k = Kanvas(24, 30)
-    k.panel(0, 0, 23, 17, hx("f4f6f0"), PUTIH, hx("c9cfc4"))
-    for (y, w, c) in ((4, 14, hx("5466d1")), (8, 10, hx("c75a52")), (12, 16, hx("2a9d8f"))):
-        k.garis_h(3, 3 + w, y, c)
-    for (x0, x1) in ((4, 1), (19, 22)):
-        for i in range(12):
-            k.p(x0 + (x1 - x0) * i // 11, 18 + i, MEJA_GG)
+    """Papan tulis kecil di kaki tiga, 18 x 22."""
+    k = Kanvas(18, 22)
+    k.panel(0, 0, 17, 12, hx("f4f6f0"), PUTIH, hx("c9cfc4"))
+    for (y, w, c) in ((3, 10, hx("5466d1")), (6, 7, hx("c75a52")), (9, 12, hx("2a9d8f"))):
+        k.garis_h(2, 2 + w, y, c)
+    for (x0, x1) in ((3, 1), (14, 16)):
+        for i in range(9):
+            k.p(x0 + (x1 - x0) * i // 8, 13 + i, MEJA_GG)
     return k
 
 
 # ======================================================================================================
 #  PROPERTI KOTA
 # ======================================================================================================
+def lapak(atap, barang):
+    """Lapak pasar 32 x 32: tenda bergaris di dua tiang, ruang terbuka tempat pedagang berdiri (kepala dan bahunya terlihat),
+    meja dengan dagangan. atap = (warna, warna2); barang = sayur, buah, ikan, kain, jamu, kue, mainan, kelapa."""
+    k = Kanvas(32, 32)
+    w1, w2 = atap
+    for x in range(0, 32):
+        c = w1 if (x // 4) % 2 == 0 else w2
+        for y in range(0, 6):
+            k.p(x, y, c)
+        if x % 4 in (1, 2):
+            k.p(x, 6, c)
+    k.garis_h(0, 31, 0, GARIS)
+    for x in range(32):
+        k.p(x, 6 if x % 4 in (0, 3) else 7, GARIS)
+    for x in (1, 29):
+        k.kotak(x, 7, x + 1, 31, MEJA_GG)
+    k.panel(0, 22, 31, 31, MEJA, MEJA_T, MEJA_G)                    # meja depan
+    k.garis_h(1, 30, 26, MEJA_G)
+    warna = {"sayur": [HIJAU, hx("4c7d3f"), hx("e26c62")], "buah": [hx("e9a23b"), MERAH, KUNING], "ikan": [hx("9fb8c8"), hx("7a95a8"), PUTIH],
+             "kain": [hx("5466d1"), hx("c75a52"), hx("e9a23b")], "jamu": [hx("e9a23b"), hx("c4704a"), hx("efe6d6")],
+             "kue": [hx("f7a8c4"), hx("efe6d6"), hx("c4704a")], "mainan": [hx("5466d1"), MERAH, KUNING], "kelapa": [hx("8a6a4a"), hx("86c264"), hx("6b4a35")]}[barang]
+    for i, x in enumerate(range(3, 29, 4)):
+        c = warna[i % len(warna)]
+        if barang == "ikan":
+            k.kotak(x, 20, x + 3, 21, c); k.p(x + 3, 19, c); k.p(x, 20, GARIS)
+        elif barang == "kain":
+            k.panel(x, 18, x + 3, 22, c, c, GARIS); k.garis_v(x + 1, 18, 22, PUTIH)
+        elif barang == "jamu":
+            k.kotak(x + 1, 17, x + 2, 18, GARIS); k.panel(x, 18, x + 3, 22, c, PUTIH, GARIS)
+        else:
+            k.panel(x, 19, x + 3, 22, c, c, GARIS)
+            if barang in ("mainan", "kue"):
+                k.p(x + 1, 18, KUNING)
+    return k
+
+
 def halte():
     """Halte bus 48 x 40: atap hijau toska, dinding kaca belakang, bangku, papan rute."""
     k = Kanvas(48, 40)
@@ -496,30 +517,31 @@ def angkot(arah):
 
 
 def motor(arah, ojol=False):
-    """Motor dengan pengendara berhelm; ojol: jaket hijau dan kotak di belakang."""
-    BADAN = hx("e26c62") if not ojol else hx("3e9e5a")
-    JAKET, HELM = (hx("3e9e5a"), hx("2f7a45")) if ojol else (hx("5466d1"), hx("e9a23b"))
+    """Motor tampak atas dengan pengendara berhelm, 16 x 16. Ojol: jaket dan helm hijau, kotak di belakang."""
+    BADAN, BADAN_G = (hx("3e9e5a"), hx("2f7a45")) if ojol else (hx("e26c62"), hx("b8443c"))
+    JAKET, JAKET_G = (hx("3e9e5a"), hx("2f7a45")) if ojol else (hx("5466d1"), hx("3f4ea8"))
+    HELM = hx("2f7a45") if ojol else hx("e9a23b")
     k = Kanvas(16, 16)
     if arah in ("kiri", "kanan"):
-        s = 1 if arah == "kanan" else -1
-        cx = 8
-        for dx in (-5, 5):
-            for y in range(11, 16):
-                for x in range(cx + dx - 2, cx + dx + 3):
-                    if (x - cx - dx) ** 2 + (y - 13) ** 2 <= 5:
-                        k.p(x, y, GARIS)
-        k.panel(cx - 5, 9, cx + 5, 12, BADAN, BADAN, GARIS)
-        k.kotak(cx - 2 * s - 1, 3, cx - 2 * s + 1, 9, JAKET)
-        k.kotak(cx - 2 * s - 1, 0, cx - 2 * s + 1, 3, HELM); k.bingkai(cx - 2 * s - 2, 0, cx - 2 * s + 2, 3, GARIS)
-        k.p(cx + 5 * s, 8, GARIS); k.p(cx + 6 * s, 9, KUNING)
+        k.kotak(0, 9, 3, 12, GARIS); k.kotak(12, 9, 15, 12, GARIS)             # roda belakang dan depan
+        k.kotak(1, 10, 2, 11, BATU_G); k.kotak(13, 10, 14, 11, BATU_G)
+        k.panel(3, 8, 12, 12, BADAN, BADAN, BADAN_G)                            # badan motor
+        k.panel(4, 3, 9, 9, JAKET, JAKET, JAKET_G)                              # punggung pengendara
+        k.panel(5, 0, 9, 4, HELM, PUTIH, HELM)                                  # helm
+        k.garis_v(11, 5, 8, GARIS)                                              # setang
+        k.p(15, 10, KUNING)
         if ojol:
-            k.panel(cx - 7 * s - (2 if s > 0 else -1), 4, cx - 7 * s + (1 if s > 0 else 4), 10, hx("3e9e5a"), hx("6cc488"), hx("2f7a45"))
+            k.panel(0, 3, 4, 8, hx("3e9e5a"), hx("6cc488"), hx("2f7a45"))
+        if arah == "kiri":
+            k.im = k.im.transpose(Image.FLIP_LEFT_RIGHT); k.px = k.im.load()
         return k
-    k.kotak(7, 0, 8, 15, GARIS)
-    k.panel(5, 4, 10, 12, BADAN, BADAN, GARIS)
-    k.panel(4, 5, 11, 10, JAKET, JAKET, GARIS)
-    k.panel(5, 3 if arah == "bawah" else 7, 10, 7 if arah == "bawah" else 11, HELM, HELM, GARIS)
-    k.p(7, 15 if arah == "bawah" else 0, KUNING); k.p(8, 15 if arah == "bawah" else 0, KUNING if arah == "bawah" else MERAH)
+    k.kotak(6, 0, 9, 3, GARIS); k.kotak(6, 12, 9, 15, GARIS)                  # roda
+    k.panel(5, 3, 10, 12, BADAN, BADAN, BADAN_G)
+    k.panel(3, 5, 12, 10, JAKET, JAKET, JAKET_G)                               # bahu pengendara
+    k.panel(5, 4, 10, 9, HELM, PUTIH, HELM)                                    # helm dari atas
+    k.garis_h(2, 13, 11 if arah == "bawah" else 4, GARIS)                     # setang
+    k.p(7, 15 if arah == "bawah" else 0, KUNING if arah == "bawah" else MERAH)
+    k.p(8, 15 if arah == "bawah" else 0, KUNING if arah == "bawah" else MERAH)
     if ojol:
         y0 = 0 if arah == "bawah" else 11
         k.panel(4, y0, 11, y0 + 4, hx("3e9e5a"), hx("6cc488"), hx("2f7a45"))
@@ -628,17 +650,21 @@ def keset():
 
 def semua():
     """Semua benda untuk atlas, nama -> Kanvas."""
-    g = {"meja-kerja": meja(), "meja-panjang": meja(64, 28), "meja-resepsionis": meja_resepsionis(),
+    g = {"meja-kerja": meja(), "meja-panjang": meja(48, 20), "meja-resepsionis": meja_resepsionis(),
          "kursi": kursi("bawah"), "kursi-belakang": kursi("atas"), "kursi-kantor": kursi_kantor(),
-         "sofa": sofa(), "sofa-kecil": sofa(28), "bangku-galeri": bangku_galeri(),
-         "rak-buku": rak_buku(), "rak-buku-lebar": rak_buku(48, 40), "lemari": lemari(), "jam-besar": jam_besar(),
+         "sofa": sofa(), "sofa-kecil": sofa(22), "bangku-galeri": bangku_galeri(),
+         "rak-buku": rak_buku(), "rak-buku-lebar": rak_buku(36, 30), "lemari": lemari(), "jam-besar": jam_besar(),
          "lampu-lantai": lampu_lantai(), "tanaman": tanaman_pot(), "tanaman-besar": tanaman_pot(True),
-         "karpet": karpet(), "karpet-biru": karpet(48, 32, (hx("5466d1"), hx("3f4ea8"), hx("e9a23b"))),
-         "karpet-panjang": karpet(32, 64, (hx("b5574b"), hx("8f4038"), hx("e9a23b"))),
-         "kulkas": kulkas(), "dispenser": dispenser(), "lukisan": lukisan(), "lukisan-hijau": lukisan(28, 20, hx("2a9d8f")),
+         "karpet": karpet(56, 30), "karpet-biru": karpet(40, 26, (hx("5466d1"), hx("3f4ea8"), hx("e9a23b"))),
+         "karpet-panjang": karpet(30, 60, (hx("b5574b"), hx("8f4038"), hx("e9a23b"))),
+         "kulkas": kulkas(), "dispenser": dispenser(), "lukisan": lukisan(), "lukisan-hijau": lukisan(20, 14, hx("2a9d8f")),
          "jendela-dinding": jendela_dinding(), "meja-bundar": meja_bundar(), "konter-kopi": mesin_kopi(),
          "meja-komputer": meja_komputer(), "papan-tulis": papan_tulis(),
-         "halte": halte(), "gerobak": gerobak(), "pos-ronda": pos_ronda(), "kolam": kolam(), "beringin": beringin(),
+         "halte": halte(),
+         "lapak-sayur": lapak((hx("2a9d8f"), PUTIH), "sayur"), "lapak-buah": lapak((MERAH, PUTIH), "buah"),
+         "lapak-ikan": lapak((hx("5466d1"), PUTIH), "ikan"), "lapak-kain": lapak((hx("e9a23b"), PUTIH), "kain"),
+         "lapak-jamu": lapak((hx("86c264"), PUTIH), "jamu"), "lapak-kue": lapak((hx("f7a8c4"), PUTIH), "kue"),
+         "lapak-mainan": lapak((hx("9f8fc4"), PUTIH), "mainan"), "lapak-kelapa": lapak((hx("c4704a"), KREM_T), "kelapa"), "gerobak": gerobak(), "pos-ronda": pos_ronda(), "kolam": kolam(), "beringin": beringin(),
          "palem": palem(), "meja-warkop": meja_warkop(), "net-badminton": net_badminton(), "lampu-merah": lampu_merah()}
     for arah in ("kiri", "kanan", "bawah", "atas"):
         g[f"mobil-angkot-{arah}"] = angkot(arah)

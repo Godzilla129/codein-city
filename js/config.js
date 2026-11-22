@@ -145,7 +145,7 @@ const KOTA = {
               ucapan: ["Warkop ini masih dikunci. Katanya buat anggota yang mau ikut membangun kota.", "Sore-sore begini enaknya ngopi. Sayang belum buka."]},
       malam: {pulang: true}}},
     {nama: "Dika", karakter: 6, jadwal: {
-      pagi:  {di: [60, 32], r: 1, ket: "di taman baliho selatan, dekat kolam",
+      pagi:  {di: [60, 32], r: 1, ket: "duduk-duduk di taman baliho selatan",
               ucapan: ["Pagi. Peregangan dulu di taman sambil baca baliho."]},
       siang: {di: [47, 33], r: 2, ket: "di depan Toko Mbak Tika",
               ucapan: ["Nunggu Mbak Tika. Katanya tokonya sebentar lagi ada isinya.", "Kalau ada pengunjung lain, kamu bisa lihat mereka jalan-jalan di sini."]},
@@ -203,9 +203,31 @@ const KOTA = {
       malam: {rute: [[26, 18], [53, 18], [53, 23], [26, 23]], laju: 18, ket: "jalan santai di alun-alun",
               ucapan: ["Malam-malam jalan santai di bawah lampu alun-alun. Tenang rasanya.", "Warga lain sudah pulang. Tinggal aku dan Pak Harun yang masih di luar."]}}},
     // Resepsionis Markas: semua pendaftaran (hosting proyek, baliho) lewat dia; dialognya dibuat di js/warga.js
-    {nama: "Kak Rani", karakter: 7, ruang: "markas", di: [16, 7], hadap: "bawah", peran: "resepsionis", ket: "di meja resepsionis Markas CodeIn",
+    {nama: "Kak Rani", karakter: 7, ruang: "markas", di: [16, 8], hadap: "bawah", peran: "resepsionis", ket: "di meja resepsionis Markas CodeIn",
      salam: {pagi: "Selamat pagi, selamat datang di Markas CodeIn!", siang: "Selamat siang, selamat datang di Markas CodeIn!",
              sore: "Selamat sore, selamat datang di Markas CodeIn!", malam: "Malam-malam mampir? Markas tetap buka, aku piket malam."}},
+    // Pasar di timur alun-alun. Pedagang berdiri di bawah tenda lapaknya; namanya muncul kalau didekati (pedagang: true).
+    // Mereka tidak tinggal di kampung: malam hari pasar tutup dan mereka pulang (tidak terlihat).
+    ...[["Bu Sayur", 9, [59, 19], ["Sayurnya baru dipetik subuh tadi, masih segar!", "Kangkung tiga ikat sepuluh ribu, Nak."]],
+        ["Pak Buah", 4, [61, 19], ["Jeruk manis, pisang, mangga. Mau dicicip dulu?", "Kalau beli sekilo, kukasih bonus satu."]],
+        ["Pak Ikan", 3, [68, 19], ["Ikan laut Bengkulu, tadi pagi baru turun dari kapal.", "Mau dibersihkan sekalian? Gratis."]],
+        ["Mbak Kain", 5, [70, 19], ["Kain batik besurek, khas Bengkulu. Motifnya kaligrafi.", "Cocok buat seragam komunitas, lho."]],
+        ["Nek Jamu", 11, [59, 23], ["Jamu kunyit asam, beras kencur. Biar kuat ngoding sampai malam.", "Sudah empat puluh tahun Nenek jualan jamu di sini."]],
+        ["Bu Kue", 1, [62, 23], ["Kue lapis, klepon, onde-onde. Masih hangat!", "Pesanan untuk acara Markas juga bisa."]],
+        ["Pak Mainan", 2, [65, 23], ["Gasing, layangan, kelereng. Mainan zaman dulu, sekarang dicari lagi.", "Rafi tadi beli layangan, katanya buat lomba."]],
+        ["Pak Kelapa", 10, [68, 23], ["Es kelapa muda, segar buat siang bolong.", "Kelapanya dari kebun sendiri di Rejang Lebong."]]]
+      .map(([nama, karakter, di, ucapan]) => {
+        const buka = {di, r: 0, hadap: "bawah", ket: "berjualan di pasar", ucapan};
+        return {nama, karakter, pedagang: true, angkat: 8, jadwal: {pagi: buka, siang: buka, sore: buka, malam: {pulang: true}}};
+      }),
+    // pembeli yang berkeliling pasar dari pagi sampai sore
+    ...[["Bu Ani", 7, [[57, 21], [71, 20], [66, 24], [57, 24]], "Belanja buat masak siang. Sayur di Bu Sayur paling murah."],
+        ["Pak Udin", 0, [[71, 21], [56, 20], [62, 24], [71, 24]], "Cari kelapa muda buat istri. Panas sekali hari ini."],
+        ["Tante Rosa", 5, [[64, 21], [57, 20], [70, 24], [60, 24]], "Mau beli kain besurek buat arisan. Kamu ikut ke pasar juga?"]]
+      .map(([nama, karakter, rute, kata]) => {
+        const j = {rute, laju: 22, ket: "berbelanja di pasar", ucapan: [kata]};
+        return {nama, karakter, pedagang: true, jadwal: {pagi: j, siang: j, sore: j, malam: {pulang: true}}};
+      }),
     // Pedagang dan tukang ojek di kota. Tidak punya rumah di kampung: malam hari tetap di tempatnya.
     {nama: "Mas Bakso", karakter: 3, jadwal: {
       pagi:  {di: [64, 20], r: 0, ket: "menyiapkan gerobak bakso di pojok pasar",
@@ -225,6 +247,6 @@ const KOTA = {
               ucapan: ["Sore ramai orderan. Mau diantar ke Gerbang Timur? Bercanda, gerbangnya belum dibuka."]},
       malam: {di: [75, 12], r: 1, ket: "ngobrol dengan Pak Harun di pos ronda",
               ucapan: ["Malam-malam nemenin Pak Harun ronda. Kopinya dari Warkop, eh, Warkop masih tutup ding."]}}},
-    {nama: "Kak Mita", karakter: 1, ruang: "galeri", di: [3, 9], hadap: "kanan", buka: "galeri", ket: "di Galeri Showcase"},
+    {nama: "Kak Mita", karakter: 1, ruang: "galeri", di: [2, 9], hadap: "bawah", buka: "galeri", ket: "di Galeri Showcase"},
   ],
 };

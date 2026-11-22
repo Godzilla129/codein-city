@@ -24,7 +24,12 @@ R0 = 486                    # nomor ubin pertama ruang.png (setelah 486 ubin urb
 
 def ruang(nama):
     return R0 + RUANG[nama]
-LAYERS = ["tanah", "jalan", "bangunan", "hiasan", "atas", "tabrakan"]
+LAYERS = ["tanah", "jalan", "bangunan", "hiasan", "atas", "tabrakan", "rintangan"]
+# tabrakan = petak yang tidak bisa dilewati pengunjung (hutan, dinding ruangan, kolam air mancur).
+# Benda kecil dan gedung tidak memakai petak penuh: tabrakannya kotak kecil di kakinya (layer objek "padat"),
+# jadi pengunjung bisa lewat di belakang lampu, pohon, perabot, dan atap rumah.
+# rintangan = petak yang dihindari warga saat mencari jalan (tabrakan + petak di bawah kotak padat).
+DINDING = {"gedung-news": 73, "gedung-galeri": 73, "gedung-markas": 51, "gedung-aetheria": 80, "gedung-toko": 71, "warkop": 65}
 BLOCK = 222           # tile penanda di layer "tabrakan" (pagar merah-putih, hanya terlihat di Tiled)
 RUMPUT = 28
 BATU, KREM, ABU_KREM, AIR = 8, 81, 89, 170      # dasar tile berbingkai 9 potong: trotoar, alun-alun/dinding krem, dinding abu, air
@@ -47,6 +52,7 @@ class Peta:
         self.oid = 0
         self.benda = []
         self.tapak = []           # (x0, y0, w) gedung gambar: papan namanya ditaruh di garis atapnya
+        self.kotak = []           # kotak tabrakan kecil (piksel), lihat halangi()
 
     # ----- ubin -----
     def put(self, layer, x, y, idx):
@@ -55,7 +61,17 @@ class Peta:
 
     def block(self, x, y):
         self.put("tabrakan", x, y, BLOCK)
+        self.put("rintangan", x, y, BLOCK)
         self.keras.add((x, y))
+
+    def halangi(self, x, y, w, h):
+        """Kotak tabrakan kecil (piksel) di kaki benda. Petak di bawahnya ditandai rintangan untuk jalur warga."""
+        x, y, w, h = int(x), int(y), int(w), int(h)
+        self.kotak.append((x, y, w, h))
+        for cx in range((x + 1) // T, (x + w - 2) // T + 1):
+            for cy in range((y + 1) // T, (y + h - 2) // T + 1):
+                self.put("rintangan", cx, cy, BLOCK)
+                self.keras.add((cx, cy))
 
     def autotile(self, layer, area, base):
         """Pasang tile berbingkai (9 potong) mengikuti bentuk area. base = nomor tile pojok kiri atas."""
@@ -79,14 +95,14 @@ class Peta:
         top, bottom = POHON[kind]
         self.put("hiasan", x, y, bottom)
         self.put("atas", x, y - 1, top)
-        self.block(x, y)
+        self.halangi(x * T + 5, y * T + 9, 6, 6)          # batang saja
 
     def sprite(self, nama, kiri, bawah, **props):
         """Gambar dari atlas gedung.png; titik objek = pojok kiri bawah gambar (piksel)."""
         assert nama in UKURAN, nama
         self.obj(self.benda, nama, int(kiri), int(bawah), **props)
 
-    def perabot(self, nama, x, y, padat=True, datar=False, geser=0, dx=0):
+    def perabot(self, nama, x, y, padat=True, datar=False, geser=0, dx=0, dy=0):
         """Benda dengan tepi kiri di kolom x (+dx piksel) dan tepi bawah di bawah baris y. padat = tutup baris bawahnya
         (dan baris di atasnya kalau bendanya tinggi), selebar gambarnya."""
         w, h = UKURAN[nama]
@@ -95,12 +111,10 @@ class Peta:
             props["datar"] = 1
         if geser:
             props["geser"] = geser
-        self.sprite(nama, x * T + dx, (y + 1) * T, **props)
-        if padat:
-            x1 = x + max(1, (w + dx + 8) // T) - 1
-            for yy in range(y - (1 if h > 28 else 0), y + 1):
-                for xx in range(x, x1 + 1):
-                    self.block(xx, yy)
+        self.sprite(nama, x * T + dx, (y + 1) * T + dy, **props)
+        if padat:                                          # kaki benda saja (8 piksel terbawah), sisanya bisa dilewati di belakangnya
+            tinggi = min(h, 8)
+            self.halangi(x * T + dx + 2, (y + 1) * T + dy - tinggi, w - 4, tinggi)
 
     def landmark(self, nama, x0, y0, w):
         """Gedung ikonik selebar w ubin dan setinggi 6 ubin (tapaknya), mulai (x0, y0). Bagian atasnya (kubah, menara, bendera)
@@ -109,8 +123,8 @@ class Peta:
         bawah = (y0 + 6) * T
         self.sprite(nama, x0 * T, bawah)
         self.tapak.append((x0, y0, w))
-        for c in cells(x0, y0, x0 + w - 1, y0 + 5):
-            self.block(*c)
+        dinding = DINDING.get(nama, 45)                    # rumah: dinding 45 piksel; atapnya bisa dilewati di belakangnya
+        self.halangi(x0 * T + 4, bawah - dinding + 8, w * T - 8, dinding - 8)
         return bawah - h
 
     def pohon(self, cx, bawah, nama):
@@ -121,13 +135,13 @@ class Peta:
     def lamp(self, x, y):
         self.put("hiasan", x, y, 196)
         self.put("atas", x, y - 1, 169)
-        self.block(x, y)
+        self.halangi(x * T + 6, y * T + 11, 4, 5)          # tiang lampu
         self.lamps.append((x, y - 1))
 
     def thing(self, x, y, idx, solid=True):
         self.put("hiasan", x, y, idx)
         if solid:
-            self.block(x, y)
+            self.halangi(x * T + 2, y * T + 8, 12, 8)
 
     def building(self, x0, y0, w, roof, wall, door, door_idx, windows=()):
         """Bangunan tinggi 6 tile: 4 baris atap + 2 baris dinding. door = kolom pintu (x). Semua tapaknya tabrakan."""
@@ -155,11 +169,14 @@ class Peta:
         """Papan HTML (lihat js/papan.js) selebar w tile dan setinggi h tile mulai dari (x0, y0).
         ground = baris tempat orang berdiri membacanya. Tapak papan dan tiangnya tidak bisa dilewati."""
         self.boards.append((kind, ident, x0, y0, w, h, ground, order))
-        for c in cells(x0, y0, x0 + w - 1, y0 + h - 1):
-            self.block(*c)
-        for y in range(y0 + h, ground):
-            self.block(x0, y)
-            self.block(x0 + w - 1, y)
+        if ground > y0 + h:                                # papan bertiang: hanya tiangnya yang menghalangi
+            for c in cells(x0, y0, x0 + w - 1, y0 + h - 1):
+                self.put("rintangan", *c, BLOCK)
+            for x in (x0, x0 + w - 1):
+                self.halangi(x * T + 5, (y0 + h) * T, 6, (ground - y0 - h) * T)
+        else:
+            for c in cells(x0, y0, x0 + w - 1, y0 + h - 1):
+                self.block(*c)
         if zone:
             self.door(ident, name, x0, ground - 1, "panel", kind, zone=(x0 * T, ground * T, w * T, T), label=False)
 
@@ -198,8 +215,11 @@ class Peta:
         for (x, y) in self.lamps:
             self.obj(self.points, "lampu", x * T + 8, y * T + 8)
         tile_layers = [{"id": i + 1, "name": n, "type": "tilelayer", "x": 0, "y": 0, "width": self.W, "height": self.H,
-                        "opacity": .45 if n == "tabrakan" else 1, "visible": True, "data": self.L[n]} for i, n in enumerate(LAYERS)]
-        groups = (("benda", self.benda), ("pintu", self.doors), ("titik", self.points), ("papan", papan), ("rute", self.routes))
+                        "opacity": .45 if n in ("tabrakan", "rintangan") else 1, "visible": n != "rintangan", "data": self.L[n]} for i, n in enumerate(LAYERS)]
+        padat = []
+        for (x, y, w, h) in self.kotak:
+            self.obj(padat, "padat", x, y, w, h)
+        groups = (("benda", self.benda), ("padat", padat), ("pintu", self.doors), ("titik", self.points), ("papan", papan), ("rute", self.routes))
         obj_layers = [{"id": len(LAYERS) + 1 + i, "name": n, "type": "objectgroup", "draworder": "topdown", "x": 0, "y": 0,
                        "opacity": 1, "visible": True, "objects": o} for i, (n, o) in enumerate(groups)]
         tmj = {"type": "map", "version": "1.10", "tiledversion": "1.11.0", "orientation": "orthogonal", "renderorder": "right-down",
@@ -328,21 +348,24 @@ def kota():
     for x in range(8, 72):                     # pagar tanaman antara alun-alun dan gedung selatan
         if x not in (39, 40):
             p.thing(x, 26, 329 if x % 5 else 331)
-    for (x, y) in ((25, 17), (54, 17), (25, 24), (54, 24), (33, 24), (46, 24), (10, 17), (20, 17), (57, 19), (70, 19),
+    for (x, y) in ((25, 17), (54, 17), (25, 24), (54, 24), (33, 24), (46, 24), (10, 17), (20, 17), (57, 23), (70, 23),
                    (14, 12), (27, 12), (34, 12), (44, 12), (58, 12), (67, 12), (8, 33), (19, 33), (28, 33), (36, 33), (42, 33), (51, 33), (60, 33), (70, 33),
                    (11, 51), (20, 51), (33, 51), (47, 51), (55, 51), (68, 51), (20, 59), (34, 59), (48, 59), (68, 59), (36, 37), (42, 37), (36, 61), (42, 61)):
         p.lamp(x, y)
-    for (x, y) in ((30, 17), (49, 17), (30, 24), (49, 24), (35, 20), (35, 21), (44, 20), (44, 21), (11, 23), (19, 23), (68, 30)):
+    for (x, y) in ((30, 17), (49, 17), (30, 24), (49, 24), (35, 20), (35, 21), (44, 20), (44, 21), (11, 23), (19, 23), (68, 30), (60, 31)):
         p.thing(x, y, 250)                     # bangku
     for (x, y, k) in ((27, 17, "P"), (52, 17, "P"), (27, 24, "Q"), (52, 24, "Q"),
                       (11, 19, "B"), (19, 19, "B"), (10, 24, "A"), (20, 24, "O"), (15, 24, "B"),
-                      (58, 17, "B"), (70, 17, "A"), (58, 24, "A"), (64, 24, "O"), (70, 24, "B"),
+                      (70, 24, "B"),
                       (52, 29, "B"), (68, 28, "A"), (69, 31, "B"), (38, 28, "B"), (41, 28, "B"),
                       (14, 8, "B"), (44, 8, "B"), (68, 7, "O"), (71, 9, "A")):
         p.tree(x, y, k)
-    # pojok pasar di timur alun-alun: lapak di utara dan selatan setapak
-    for (x, y, idx) in ((60, 19, 276), (61, 19, 277), (67, 19, 273),
-                        (60, 22, 301), (61, 22, 302), (64, 22, 275), (67, 22, 276), (68, 22, 277)):
+    # pasar di timur alun-alun: lapak bertenda di kiri-kanan setapak (gambar di tools/gambar_benda.py).
+    # Pedagangnya (js/config.js) berdiri di ruang terbuka di bawah tenda; lapak digambar sedikit di depan mereka.
+    for (nama, x, y) in (("lapak-sayur", 58, 19), ("lapak-buah", 60, 19), ("lapak-ikan", 67, 19), ("lapak-kain", 69, 19),
+                         ("lapak-jamu", 58, 23), ("lapak-kue", 61, 23), ("lapak-mainan", 64, 23), ("lapak-kelapa", 67, 23)):
+        p.perabot(nama, x, y, geser=8, dy=4)
+    for (x, y, idx) in ((62, 19, 276), (66, 19, 273), (60, 23, 301), (63, 23, 275), (66, 23, 302), (69, 23, 277)):
         p.thing(x, y, idx)
     # perabot jalan
     for (x, y, idx) in ((24, 12, 306), (13, 12, 280), (45, 12, 280), (35, 12, 278), (18, 33, 280), (37, 33, 306), (50, 33, 280),
@@ -366,9 +389,6 @@ def kota():
     p.perabot("pos-ronda", 74, 10)               # pos ronda Pak Harun di dekat Gerbang Timur
     p.perabot("halte", 57, 10)                   # halte di trotoar utara, di antara baliho 4 dan rumah proyek 1
     p.perabot("gerobak", 63, 19)                 # gerobak bakso Mas Bakso di pojok pasar
-    p.perabot("kolam", 59, 31, datar=True)       # kolam teratai di taman baliho selatan
-    for c in cells(59, 30, 61, 31):
-        p.block(*c)
     p.perabot("meja-warkop", 18, 31)             # meja kopi di samping Warkop
     for x in (36, 43):                           # palem di kiri-kanan air mancur
         p.perabot("palem", x, 17, dx=-8)
@@ -396,10 +416,15 @@ def kota():
         r = acak.random()
         return ("pohon-a" if r < .4 else "pohon-b" if r < .64 else "pohon-kecil" if r < .78 else "rumpun" if r < .92
                 else "pohon-gugur-a" if r < .96 else "pohon-gugur-b" if r < .99 else "rumpun-gugur")
+    # petak hutan tepat di bawah trotoar dibiarkan berumput: pohonnya akan menutupi trotoar
+    hutan = {(x, y) for (x, y) in hutan if (x, y - 1) not in p.lantai}
     for (x, y) in sorted(hutan, key=lambda c: (c[1], c[0])):
         p.block(x, y)
         for _ in range(2 if acak.random() < .3 else 1):
-            p.pohon(x * T + 8 + acak.randint(-5, 5), y * T + 15 + acak.randint(-4, 2), jenis())
+            nama = jenis()
+            if (x, y - 2) in p.lantai:                    # dua petak dari trotoar: cukup pohon pendek
+                nama = "pohon-kecil"
+            p.pohon(x * T + 8 + acak.randint(-5, 5), y * T + 15 + acak.randint(-2 if (x, y - 2) in p.lantai else -4, 2), nama)
     # pohon pengisi di sela gedung dan rumah: satu-satu, sesekali rumpun, letaknya digeser sedikit supaya tidak berbaris
     isian = ((cells(2, 2, 77, 4), .4), (cells(2, 17, 3, 33), .5), (cells(76, 17, 77, 33), .5), (cells(2, 38, 6, 61), .45), (cells(73, 38, 77, 61), .45),
              (cells(8, 38, 71, 39), .28), (cells(8, 60, 71, 61), .35), (cells(8, 53, 71, 55), .12))
@@ -407,7 +432,7 @@ def kota():
         for (x, y) in sorted(area - hutan - dekat_gedung, key=lambda c: (c[1], c[0])):
             bebas = (x, y) not in p.keras and (x, y) not in p.lantai and (x, y - 1) not in p.lantai and (x, y + 1) not in p.lantai
             if bebas and acak.random() < peluang:
-                p.block(x, y)
+                p.halangi(x * T + 5, y * T + 10, 6, 6)    # batangnya saja
                 nama = jenis()
                 p.pohon(x * T + 8 + acak.randint(-3, 3), y * T + 15 + acak.randint(-2, 1), nama.replace("rumpun-gugur", "pohon-gugur-a").replace("rumpun", "pohon-a"))
 
@@ -465,11 +490,12 @@ def ruangan(w, h, tema, lantai, tinggi_dinding, pintu_x, keluar_ke):
 
 
 def markas():
-    """Markas CodeIn: balai kayu, papan Tentang dan Rencana, Patung Pendiri, meja rapat, meja resepsionis Kak Rani, pojok baca."""
+    """Markas CodeIn: balai kayu, papan Tentang dan Rencana, Patung Pendiri, meja rapat, meja resepsionis Kak Rani, pojok baca.
+    Perabot seukuran karakter Kenney (meja setinggi pinggang orang)."""
     p = ruangan(20, 11, "krem", "kayu", 3, 10, "markas")
     p.board("info", "tentang", 3, 1, 6, 3, 4, name="Tentang CodeIn")
     p.board("info", "rencana", 13, 1, 6, 3, 4, name="Rencana kota")
-    p.perabot("jendela-dinding", 19, 2, padat=False, datar=True, dx=-4)
+    p.perabot("jendela-dinding", 19, 2, padat=False, datar=True, dx=-2)
     p.perabot("lukisan", 1, 2, padat=False, datar=True, dx=4)
     # Patung Pendiri di tengah dinding utara, di atas alas batu, diapit dua tanaman
     p.autotile("bangunan", cells(10, 4, 11, 4), BATU)
@@ -477,49 +503,47 @@ def markas():
     p.block(11, 4)
     p.obj(p.points, "patung", 11 * T, 4 * T + 6, jenis="pendiri")
     p.door("pendiri", "Patung Pendiri (Jull)", 10, 4, "panel", zone=(int(9.5 * T), 5 * T, 3 * T, T), label_x=11 * T, label_y=2 * T + 2)
-    p.perabot("tanaman", 9, 4)
-    p.perabot("tanaman", 12, 4)
-    # meja resepsionis di sisi kanan; Kak Rani berdiri di belakangnya (baris 7), tamu menyapa dari depan meja (baris 10)
-    p.perabot("meja-resepsionis", 15, 9, dx=-4)
-    for x in (15, 16, 17):
-        p.block(x, 9)
+    p.perabot("tanaman", 9, 4, dx=2)
+    p.perabot("tanaman", 12, 4, dx=2)
+    # meja resepsionis: Kak Rani berdiri di belakangnya (baris 8, badannya terlihat di atas meja), tamu menyapa dari baris 10
+    p.perabot("meja-resepsionis", 15, 9)
     p.door("resepsionis", "Meja resepsionis", 16, 9, "panel", "sapa", zone=(15 * T, 10 * T, 3 * T, T), label=False, penghuni="Kak Rani")
     # meja rapat di atas karpet, kursi di belakang dan di depannya
-    p.perabot("karpet", 6, 8, padat=False, datar=True)
-    for x in (6, 8, 10):
-        p.perabot("kursi", x, 5, padat=False, dx=6)
-    p.perabot("meja-panjang", 6, 7)
-    for x in (6, 8, 10):
-        p.perabot("kursi-belakang", x, 8, padat=False, dx=6)
-    p.perabot("papan-tulis", 3, 6)
-    # pojok baca di kiri bawah dan rak di kanan
+    p.perabot("karpet", 6, 8, padat=False, datar=True, dx=4)
+    for x in (7, 8, 9):
+        p.perabot("kursi", x, 6, padat=False, dx=2)
+    p.perabot("meja-panjang", 7, 7)
+    for x in (7, 8, 9):
+        p.perabot("kursi-belakang", x, 8, padat=False, dx=2)
+    p.perabot("papan-tulis", 4, 7, dx=4)
+    # rak dan lemari di sisi ruangan, pojok baca di kiri bawah
     p.perabot("rak-buku-lebar", 1, 5)
     p.perabot("lemari", 18, 5, dx=8)
-    p.perabot("jam-besar", 20, 7)
+    p.perabot("jam-besar", 20, 7, dx=2)
     p.perabot("sofa", 2, 10)
-    p.perabot("lampu-lantai", 5, 10, dx=4)
-    p.perabot("meja-bundar", 6, 10, dx=4)
-    p.perabot("karpet-biru", 9, 11, padat=False, datar=True, dx=8)
+    p.perabot("lampu-lantai", 4, 10, dx=4)
+    p.perabot("meja-bundar", 5, 10, dx=4)
+    p.perabot("karpet-biru", 9, 11, padat=False, datar=True, dx=12)
     p.perabot("tanaman-besar", 1, 10, dx=-2)
-    p.perabot("tanaman-besar", 20, 10, dx=-2)
-    p.perabot("dispenser", 14, 4)
+    p.perabot("tanaman-besar", 20, 10, dx=0)
+    p.perabot("dispenser", 14, 4, dx=4)
     p.tulis("markas")
 
 
 def galeri():
-    """Galeri Showcase: lantai ubin museum, enam karya (baliho) di dinding, bangku empuk, karpet merah dari pintu."""
+    """Galeri Showcase: lantai ubin museum, enam karya (baliho) di dinding, bangku empuk di depan tiap karya, karpet merah dari pintu."""
     p = ruangan(37, 11, "oranye", "ubin", 5, 18, "galeri")
     for n in range(6):                         # enam karya di dinding = enam slot baliho
         p.board("baliho", f"baliho-{n + 1}", 2 + n * 6, 1, 5, 4, 6, order=n + 1, name="Karya")
     for x in (7, 13, 19, 25, 31):              # tanaman di antara karya
-        p.perabot("tanaman", x, 6)
-    for n in range(6):                         # bangku untuk duduk memandang karya
-        p.perabot("bangku-galeri", 3 + n * 6, 9, dx=4)
-    p.perabot("karpet-panjang", 18, 11, padat=False, datar=True)
-    p.perabot("meja-kerja", 1, 10)             # meja penjaga galeri (Kak Mita)
+        p.perabot("tanaman", x, 6, dx=2)
+    for n in range(6):                         # bangku di depan tiap karya
+        p.perabot("bangku-galeri", 3 + n * 6, 9, dx=8)
+    p.perabot("karpet-panjang", 18, 11, padat=False, datar=True, dx=1)
+    p.perabot("meja-kerja", 1, 10, dx=8)       # meja penjaga galeri; Kak Mita berdiri di belakangnya
     for (x, y) in ((1, 6), (37, 6), (37, 11)):
-        p.perabot("tanaman-besar", x, y, dx=-2)
-    p.perabot("jam-besar", 36, 10)
+        p.perabot("tanaman-besar", x, y, dx=0)
+    p.perabot("jam-besar", 36, 10, dx=2)
     p.tulis("galeri")
 
 
@@ -530,30 +554,27 @@ def redaksi():
     p.board("info", "cara-kerja", 2, 1, 5, 3, 4, name="Cara kerja redaksi")
     p.board("videotron", "layar-redaksi", 9, 1, 8, 3, 4, name="Sedang ramai")
     p.perabot("jendela-dinding", 19, 2, padat=False, datar=True)
-    p.perabot("lukisan-hijau", 22, 2, padat=False, datar=True, dx=-6)
-    # tiga meja redaksi; agen duduk di baris 4 di kursinya (kepala terlihat di atas meja), pengunjung menyapa dari baris 7.
+    p.perabot("lukisan-hijau", 22, 2, padat=False, datar=True, dx=-4)
+    # tiga meja redaksi; agen duduk di baris 5 di kursinya (badannya terlihat di atas meja), pengunjung menyapa dari baris 7.
     # Layar komputer di meja digambar js/redaksi.js, sedikit di depan meja.
     for agen, x0 in (("Eko", 3), ("Tekno", 11), ("Rina", 19)):
-        p.perabot("kursi-kantor", x0 + 1, 4, padat=False, geser=-12)
-        p.perabot("meja-kerja", x0, 6, padat=False, geser=-3)
-        for x in range(x0, x0 + 3):
-            p.block(x, 6)
-        p.obj(p.points, "meja", (x0 + 1) * T + 8, 4 * T + 12, agen=agen)
+        p.perabot("kursi-kantor", x0 + 1, 5, padat=False, geser=-12, dx=2)
+        p.perabot("meja-kerja", x0, 6, geser=-3, dx=8)
+        p.obj(p.points, "meja", (x0 + 1) * T + 8, 5 * T + 12, agen=agen)
         p.door("meja-" + agen.lower(), "Meja " + agen, x0 + 1, 6, "panel", "redaksi",
                zone=(x0 * T, 7 * T, 3 * T, T), label=False, penghuni=agen)
     # dapur kecil di kiri bawah: konter dengan mesin kopi dan kulkas; agen ngopi di baris 9-10 kolom 2-3
     p.perabot("konter-kopi", 1, 8)
     p.perabot("kulkas", 1, 10)
     # meja rapat di kanan bawah; agen berkumpul di baris 8 di belakangnya saat ada gangguan sistem
-    p.perabot("karpet", 18, 10, padat=False, datar=True)
-    p.perabot("meja-panjang", 19, 10)
+    p.perabot("karpet", 18, 10, padat=False, datar=True, dx=8)
+    p.perabot("meja-panjang", 19, 9)
     # terminal untuk membaca CodeIn News di situsnya
-    p.perabot("meja-komputer", 7, 9, padat=False)
-    p.block(8, 9)
+    p.perabot("meja-komputer", 7, 9, dx=12)
     p.door("baca", "Baca CodeIn News", 8, 9, "pindah", "https://news.codeinhub.my.id/", zone=(7 * T, 9 * T + 8, 3 * T, 24))
     for (x, y) in ((1, 5), (24, 5), (24, 10), (8, 4)):
-        p.perabot("tanaman", x, y)
-    p.perabot("dispenser", 17, 4, dx=2)
+        p.perabot("tanaman", x, y, dx=2)
+    p.perabot("dispenser", 17, 4, dx=4)
     p.perabot("rak-buku", 22, 4)
     p.tulis("redaksi")
 

@@ -22,7 +22,7 @@ const Warga = (() => {
   function bangunGrid(peta) {
     W = peta.width; H = peta.height; grid = new Float32Array(W * H);
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const keras = peta.getTileAt(x, y, true, "tabrakan"), dasar = peta.getTileAt(x, y, true, "tanah");
+      const keras = peta.getTileAt(x, y, true, "rintangan"), dasar = peta.getTileAt(x, y, true, "tanah");
       if (keras && keras.index > 0) { grid[y * W + x] = 0; continue; }
       const t = dasar ? dasar.index - 1 : -1;
       grid[y * W + x] = ASPAL.has(t) ? 6 : ZEBRA.has(t) ? 1 : t === RUMPUT ? 2 : 1;
@@ -120,6 +120,8 @@ const Warga = (() => {
   function gerak(dt) {
     const pos = Kota.posisi(), pf = Kota.profil();
     if (!pos) return;
+    // pedagang pasar: namanya baru muncul kalau pemain mendekat, supaya pasar yang ramai tidak penuh tulisan
+    for (const w of daftar) if (w.def.pedagang && !w.diRumah) w.label.elemen.hidden = Math.abs(w.s.x - pos.x) > 72 || Math.abs(w.s.y - pos.y) > 56;
     if ((cekWaktu -= dt) <= 0) {
       cekWaktu = 1000;
       const baru = Kota.waktu().kunci;
@@ -183,8 +185,10 @@ const Warga = (() => {
     if (r === "kota") tamu.forEach(def => daftar.push(buatWarga(def, true)));
   });
   function buatWarga(def, keluarDariPintu) {
-    const s = adegan.add.sprite(0, 0, "orang", Kota.frame(def.karakter, def.hadap || "bawah", 0)).setOrigin(.5, .8);
-    const label = Kota.tempelkan(el("div", "nama" + (def.redaksi ? " redaktur" : ""), def.label || def.nama), () => [s.x, s.y - 14]);
+    // angkat = digambar beberapa piksel lebih tinggi (pedagang yang berdiri di balik meja lapak, supaya kepala dan bahunya terlihat)
+    const angkat = def.angkat || 0;
+    const s = adegan.add.sprite(0, 0, "orang", Kota.frame(def.karakter, def.hadap || "bawah", 0)).setOrigin(.5, .8 + angkat / 16);
+    const label = Kota.tempelkan(el("div", "nama" + (def.redaksi ? " redaktur" : ""), def.label || def.nama), () => [s.x, s.y - 14 - angkat]);
     const w = {def, s, label, arah: def.hadap || "bawah", jalur: [], tunggu: 0, tungguAwal: 0, giliran: 0, titikRute: 0, diRumah: false, hapusBalon: null};
     tempatkan(w);
     if (keluarDariPintu && def.dari) {         // baru keluar kantor: muncul di depan pintunya lalu berjalan ke rutenya

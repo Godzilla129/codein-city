@@ -94,6 +94,30 @@ const Kota = (() => {
     return kunci;
   }
 
+  // huruf LED 3 x 5 untuk ticker CodeIn News (setiap huruf 15 bit, baris demi baris dari atas)
+  const HURUF_LED = {A: "010101111101101", B: "110101110101110", C: "011100100100011", D: "110101101101110", E: "111100110100111",
+    F: "111100110100100", G: "011100101101011", H: "101101111101101", I: "111010010010111", J: "001001001101010", K: "101101110101101",
+    L: "100100100100111", M: "101111111101101", N: "110101101101101", O: "010101101101010", P: "110101110100100", Q: "010101101110011",
+    R: "110101110101101", S: "011100010001110", T: "111010010010010", U: "101101101101111", V: "101101101101010", W: "101101111111101",
+    X: "101101010101101", Y: "101101010010010", Z: "111001010100111", "0": "111101101101111", "1": "010110010010111",
+    "2": "110001010100111", "3": "110001010001110", "4": "101101111001001", "5": "111100110001110", "6": "011100111101111",
+    "7": "111001010010010", "8": "111101111101111", "9": "111101111001110", ",": "000000000010100", ".": "000000000000010",
+    "!": "010010010000010", "-": "000000111000000", ":": "000010000010000", "*": "000000010000000", " ": "000000000000000"};
+  // tulis teks berulang ke tekstur kanvas (supaya bisa berjalan tanpa putus); mengembalikan lebar satu putaran
+  function tulisLED(sc, kunci, teks) {
+    const lebar = teks.length * 4;
+    if (!sc.textures.exists(kunci)) {
+      const kanvas = sc.textures.createCanvas(kunci, lebar + 220, 7), c = kanvas.getContext();
+      for (let ulang = 0; ulang * lebar < lebar + 220; ulang++) [...teks].forEach((h, i) => {
+        const bit = HURUF_LED[h] || HURUF_LED[" "];
+        c.fillStyle = h === "*" ? "#4fc3f7" : "#fcaf5f";
+        for (let b = 0; b < 15; b++) if (bit[b] === "1") c.fillRect(ulang * lebar + i * 4 + (b % 3), 1 + Math.floor(b / 3), 1, 1);
+      });
+      kanvas.refresh();
+    }
+    return lebar;
+  }
+
   class Adegan extends Phaser.Scene {
     constructor() { super("kota"); }
     init(d) { this.kunciPeta = d && PETA.includes(d.peta) ? d.peta : "kota"; this.dariPintu = (d && d.pintu) || null; }
@@ -148,19 +172,16 @@ const Kota = (() => {
           this.time.addEvent({delay: p.laju || 400, loop: true, callback: () => { i = (i + 1) % p.bingkai; g.setFrame(`${dasar}-${i}`); }});
         }
       }
-      // papan ticker CodeIn News: titik-titik LED berjalan (di atas lapisan malam, jadi tetap menyala saat gelap)
+      // papan ticker CodeIn News: tulisan LED berjalan yang mengajak masuk (di atas lapisan malam, jadi tetap menyala saat gelap)
       for (const o of titik.filter(o => o.name === "ticker")) {
-        const p = prop(o), g = this.add.graphics().setDepth(7004), warna = [0x4fc3f7, 0xfcaf5f, 0x7fe0a0, 0xe26c62];
+        const p = prop(o), sapa = {pagi: "SELAMAT PAGI", siang: "SELAMAT SIANG", sore: "SELAMAT SORE", malam: "SELAMAT MALAM"}[waktu().kunci];
+        const teks = `${sapa}, WARGA CODEIN CITY! * MAMPIR KE REDAKSI CODEIN NEWS * SAPA EKO, TEKNO, DAN RINA DI MEJANYA * ` +
+                     "KABAR EKONOMI, TEKNOLOGI, DAN UMUM TIAP HARI * MASUK LEWAT PINTU KACA DI BAWAH INI * ";
+        const kunci = "ticker-" + sapa, w = tulisLED(this, kunci, teks), img = this.add.image(o.x, o.y, kunci).setOrigin(0, 0).setDepth(7004);
         let geser = 0;
-        const gambar = () => {
-          g.clear();
-          for (let x = 0; x < p.lebar; x += 2) {
-            const k = Math.floor((x + geser) / 2) % 40;
-            if (k % 10 < 6) g.fillStyle(warna[Math.floor(k / 10) % 4]).fillRect(o.x + x, o.y + 2 + (k % 3 === 0 ? 1 : 0), 1, 2);
-          }
-        };
-        gambar();
-        if (!tenang) this.time.addEvent({delay: 120, loop: true, callback: () => { geser = (geser + 2) % 80; gambar(); }});
+        const geserkan = () => { img.setCrop(geser, 0, p.lebar, p.tinggi).setX(o.x - geser); };
+        geserkan();
+        if (!tenang) this.time.addEvent({delay: 70, loop: true, callback: () => { geser = (geser + 1) % w; geserkan(); }});
       }
       const mulai = titik.find(o => o.name === "mulai") || {x: lebar / 2, y: tinggi / 2};
 
@@ -179,6 +200,10 @@ const Kota = (() => {
       pemain.body.setSize(8, 5).setOffset(4, 10);
       pemain.setCollideWorldBounds(true);
       this.physics.add.collider(pemain, tabrakan);
+      // kotak tabrakan kecil di kaki benda (tiang lampu, batang pohon, kaki perabot, dinding gedung): atap dan puncaknya bisa dilewati di belakangnya
+      const padat = this.physics.add.staticGroup();
+      for (const o of lapis("padat")) padat.add(this.add.zone(o.x + o.width / 2, o.y + o.height / 2, o.width, o.height));
+      this.physics.add.collider(pemain, padat);
       const papanNama = el("div", "nama saya");
       tempelkan(papanNama, () => [pemain.x, pemain.y - 14]);
       this.papanNama = papanNama;
