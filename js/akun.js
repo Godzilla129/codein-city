@@ -122,7 +122,7 @@ const Akun = (() => {
   }
 
   // permintaan ke CodeIn News atas nama warga (dipakai formulir hosting dan baliho)
-  const kirim = (jalur, isi) => minta("POST", jalur, isi);
+  const kirim = (jalur, isi, metode = "POST") => minta(metode, jalur, isi);
 
   return {
     nyala: () => keadaan !== "mati", keadaan: () => keadaan, warga: () => warga, pesan: () => pesan, sudahWarga,

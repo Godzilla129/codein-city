@@ -113,14 +113,23 @@ const KOTA = {
             "Mau bergabung atau punya ide kegiatan? Hubungi admin CodeIn lewat grup komunitas.",
             "Kredit kota: ubin dan karakter dari RPG Urban Pack karya Kenney (CC0). Musik dari High Quality 16-bit RPG Music karya Hydrogene (CC0)."],
     },
+    "info-perumahan": {
+      judul: "Perumahan CodeIn",
+      baris: ["Blok A: 24 kavling.", "Khusus warga CodeIn.", "Rumah starter gratis."],
+      isi: ["Perumahan CodeIn adalah tempat tinggal warga, yaitu anggota yang sudah masuk dengan akun Google.",
+            "Pilih kavling yang masih kosong (bertanda papan kecil), lalu tempati. Rumah starter langsung berdiri dengan nama dan model pilihanmu. Satu warga satu kavling.",
+            "Siapa pun boleh bertamu ke rumah warga. Dari menu Tempat, tombol Pulang ke rumahku mengantarmu langsung ke depan rumah."],
+      daftar: ["Segera: menata isi rumah dengan perabot, buku tamu, dan komputer yang membuka situs hosting pemiliknya."],
+    },
     rencana: {
       judul: "Rencana kota",
-      baris: ["Sudah: kota, baliho, obrolan.", "Rumah proyek, Kantor Redaksi.", "Warkop: menunggu kontributor."],
+      baris: ["Sudah: kota, baliho, obrolan.", "Redaksi, hosting, Perumahan.", "Warkop: menunggu kontributor."],
       isi: ["Kota ini dibangun bertahap."],
       daftar: ["Sudah jadi: kota yang bisa dijelajahi, baliho dan videotron, pengunjung lain dan obrolan, Markas dan Galeri yang bisa dimasuki, warga dengan jadwal pagi sampai malam.",
                "Warkop CodeIn sengaja dikunci sampai ada anggota yang mau ikut membangun kota ini.",
                "Hosting proyek: anggota mendaftar lewat Kak Rani, unggah zip, situsnya tayang. Proyek unggulan dapat rumah di kota.",
-               "Kantor Redaksi CodeIn News: Eko, Tekno, dan Rina bekerja sesuai kabar yang benar-benar masuk."],
+               "Kantor Redaksi CodeIn News: Eko, Tekno, dan Rina bekerja sesuai kabar yang benar-benar masuk.",
+               "Perumahan CodeIn lewat Gerbang Selatan: warga yang masuk dengan akun Google bisa menempati kavling dan mendapat rumah starter."],
     },
   },
 
@@ -207,6 +216,8 @@ const KOTA = {
               ucapan: ["Tiap sore aku jalan kaki sampai dekat Gerbang Selatan."]},
       malam: {rute: [[26, 18], [53, 18], [53, 23], [26, 23]], laju: 18, ket: "jalan santai di alun-alun",
               ucapan: ["Malam-malam jalan santai di bawah lampu alun-alun. Tenang rasanya.", "Warga lain sudah pulang. Tinggal aku dan Pak Harun yang masih di luar."]}}},
+    // Satpam di gapura Perumahan CodeIn: keterangan perumahan, antar pulang, ganti warna rumah (dialognya di js/perumahan.js)
+    {nama: "Pak Darto", karakter: 4, ruang: "perumahan", di: [37, 6], hadap: "bawah", peran: "satpam", ket: "jaga di gapura Perumahan CodeIn"},
     // Resepsionis Markas: semua pendaftaran (hosting proyek, baliho) lewat dia; dialognya dibuat di js/warga.js
     {nama: "Kak Rani", karakter: 7, ruang: "markas", di: [16, 8], hadap: "bawah", peran: "resepsionis", ket: "di meja resepsionis Markas CodeIn",
      salam: {pagi: "Selamat pagi, selamat datang di Markas CodeIn!", siang: "Selamat siang, selamat datang di Markas CodeIn!",

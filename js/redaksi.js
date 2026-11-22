@@ -77,7 +77,7 @@ const Redaksi = (() => {
   }
   function keadaan(def) {
     if (!data.online) return {kunci: "offline", alasan: "Server CodeIn News tidak bisa dihubungi."};
-    const rusak = data.sehat ? data.sehat.checks.filter(c => !c.ok && PENTING.includes(c.name)) : [];
+    const rusak = data.sehat && Array.isArray(data.sehat.checks) ? data.sehat.checks.filter(c => !c.ok && PENTING.includes(c.name)) : [];
     if (rusak.length) return {kunci: "alarm", alasan: `${rusak.map(c => c.name).join(", ")} sedang bermasalah.`};
     const k = kerja(def.gal), umur = k.terbaru ? umurMenit(k.terbaru.last_seen) : Infinity;
     if (umur < SEGAR) return {kunci: "typing", alasan: `Kabar ${def.gal.toLowerCase()} terakhir masuk ${lalu(k.terbaru.last_seen)}.`};

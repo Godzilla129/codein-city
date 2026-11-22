@@ -194,3 +194,12 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 .akun[data-k="warga"] .tbl{min-height:40px;font-size:15px;color:var(--redup)}
 .akun .tbl:disabled{opacity:.6;cursor:progress}
 #btn-profil.warga{background:#E6F1E2}
+/* Perumahan CodeIn: pilihan warna rumah, label kavling */
+.pilih-rumah{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 10px}
+.rumah-pilihan{background:var(--kertas-2);border:2px solid transparent;border-radius:8px;padding:6px;cursor:pointer;min-height:44px}
+.rumah-pilihan[aria-checked="true"]{border-color:var(--tinta);background:#FCE9C2}
+.rumah-pilihan:focus-visible{outline:3px solid var(--emas);outline-offset:2px}
+.pratinjau-rumah{display:block;width:100%;max-width:72px;height:auto;margin:0 auto;image-rendering:pixelated}
+.papan.rumah.kosong{opacity:.85;font-style:italic}
+.papan.rumah.milikku{background:var(--emas);font-weight:600}
+.tbl.pulang{width:100%;margin-bottom:10px}

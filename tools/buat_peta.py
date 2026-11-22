@@ -1,6 +1,6 @@
-"""Pembuat peta CodeIn City -> assets/maps/kota.tmj, markas.tmj, galeri.tmj, redaksi.tmj (format Tiled JSON).
+"""Pembuat peta CodeIn City -> assets/maps/kota.tmj, markas.tmj, galeri.tmj, redaksi.tmj, perumahan.tmj, rumah.tmj (Tiled JSON).
 
-PERHATIAN: skrip ini menulis ulang ketiga peta dari nol. Setelah peta diubah lewat aplikasi Tiled,
+PERHATIAN: skrip ini menulis ulang semua peta dari nol. Setelah peta diubah lewat aplikasi Tiled,
 JANGAN jalankan skrip ini lagi (perubahan di Tiled akan hilang). Skrip disimpan sebagai dokumentasi
 cara peta disusun, dan untuk membuat peta baru dari awal.
 
@@ -53,6 +53,7 @@ class Peta:
         self.benda = []
         self.tapak = []           # (x0, y0, w) gedung gambar: papan namanya ditaruh di garis atapnya
         self.kotak = []           # kotak tabrakan kecil (piksel), lihat halangi()
+        self.urut_aspal = False   # peta baru: petak aspal diurutkan supaya hasil acaknya tetap (kota memakai urutan lama)
 
     # ----- ubin -----
     def put(self, layer, x, y, idx):
@@ -233,6 +234,24 @@ class Peta:
         print(f"{out.name}: {self.W}x{self.H} tile, {len(self.doors)} pintu, {len(self.boards)} papan, {len(self.routes)} rute, {len(self.lamps)} lampu")
 
 
+def aspal(p, roads):
+    """Jalan aspal 3 ubin bergaris tengah. roads = [(x0, y0, x1, y1, "h"/"v")]. Mengembalikan petak aspal."""
+    asphalt = set().union(*(cells(x0, y0, x1, y1) for (x0, y0, x1, y1, _) in roads))
+    for (x, y) in sorted(asphalt, key=lambda c: (c[1], c[0])) if p.urut_aspal else asphalt:
+        hs = [r for r in roads if r[4] == "h" and r[0] <= x <= r[2] and r[1] <= y <= r[3]]
+        vs = [r for r in roads if r[4] == "v" and r[0] <= x <= r[2] and r[1] <= y <= r[3]]
+        idx = p.rnd.choice((441, 468))
+        if hs and not vs:
+            row = y - hs[0][1]
+            idx = 406 if row == 0 else 460 if row == 2 else (433 if x % 2 == 0 else idx)
+        elif vs and not hs:
+            col = x - vs[0][0]
+            idx = 461 if col == 0 else 463 if col == 2 else (462 if y % 2 == 0 else idx)
+        p.put("tanah", x, y, idx)
+    p.lantai |= asphalt
+    return asphalt
+
+
 # =====================================================================================================
 #  KOTA (80 x 64)
 #  utara  : baliho, CodeIn News, videotron, Galeri Showcase, gedung terkunci
@@ -252,19 +271,7 @@ def kota():
              (4, 13, 6, 36, "v"), (73, 13, 75, 36, "v"),     # jalan lingkar barat dan timur
              (38, 37, 40, 63, "v"),     # jalan kampung -> gerbang selatan
              (8, 48, 71, 50, "h")]      # gang kampung
-    asphalt = set().union(*(cells(x0, y0, x1, y1) for (x0, y0, x1, y1, _) in roads))
-    for (x, y) in asphalt:
-        hs = [r for r in roads if r[4] == "h" and r[0] <= x <= r[2] and r[1] <= y <= r[3]]
-        vs = [r for r in roads if r[4] == "v" and r[0] <= x <= r[2] and r[1] <= y <= r[3]]
-        idx = p.rnd.choice((441, 468))
-        if hs and not vs:
-            row = y - hs[0][1]
-            idx = 406 if row == 0 else 460 if row == 2 else (433 if x % 2 == 0 else idx)
-        elif vs and not hs:
-            col = x - vs[0][0]
-            idx = 461 if col == 0 else 463 if col == 2 else (462 if y % 2 == 0 else idx)
-        p.put("tanah", x, y, idx)
-    p.lantai |= asphalt
+    asphalt = aspal(p, roads)
     for (cx, cy) in ((21, 13), (39, 13), (36, 34)):    # zebra cross: depan CodeIn News, depan Galeri, jalan selatan (ke kampung)
         for i, idx in enumerate((405, 432, 459)):
             p.put("tanah", cx, cy + i, idx)
@@ -382,7 +389,8 @@ def kota():
     # Pengunjung tidak bisa keluar kota (tepi peta), tetapi kendaraan masuk dan keluar lewat sini.
     p.door("gerbang-barat", "Gerbang Barat", 1, 12, "panel", "gerbang", zone=(0, 13 * T, 2 * T, 3 * T), label_y=12 * T)
     p.door("gerbang-timur", "Gerbang Timur", 78, 12, "panel", "gerbang", zone=(78 * T, 13 * T, 2 * T, 3 * T), label_y=12 * T)
-    p.door("gerbang-selatan", "Gerbang Selatan", 39, 61, "panel", "gerbang", zone=(38 * T, 62 * T, 3 * T, 2 * T), label_y=61 * T)
+    # Gerbang Selatan = jalan ke Perumahan CodeIn (peta perumahan.tmj, rumah warga terdaftar)
+    p.door("gerbang-selatan", "Perumahan CodeIn", 39, 61, "masuk", "perumahan", zone=(38 * T, 62 * T, 3 * T, 2 * T), label_y=61 * T)
     for (x, y) in ((2, 12), (2, 16), (77, 12), (77, 16), (37, 62), (41, 62)):
         p.thing(x, y, 221)                     # palang merah-putih di kiri-kanan gerbang
     # ---------- properti kota dari paket CodeIn City Retro, digambar ulang bergaya Kenney (tools/gambar_benda.py) ----------
@@ -453,7 +461,7 @@ def kota():
 # =====================================================================================================
 #  INTERIOR: ruangan dikelilingi kehampaan (petak kosong), dinding di utara, pintu keluar di selatan
 # =====================================================================================================
-def ruangan(w, h, tema, lantai, tinggi_dinding, pintu_x, keluar_ke):
+def ruangan(w, h, tema, lantai, tinggi_dinding, pintu_x, keluar_ke, keluar_peta="kota"):
     """Ruangan selebar w dan setinggi h ubin (peta w+2 x h+3), dengan ubin ruang.png: dinding wallpaper bergaris (tema)
     dengan lis di atas dan lambersering kayu di bawah, lantai (kayu/ubin), tepi tembok tebal, dan keset di pintu keluar."""
     p = Peta(w + 2, h + 3)
@@ -484,7 +492,7 @@ def ruangan(w, h, tema, lantai, tinggi_dinding, pintu_x, keluar_ke):
         for x in range(p.W):
             if (x, y) not in lantai_area and (x, y) not in keset:
                 p.block(x, y)
-    p.door("keluar", "Pintu keluar", pintu_x, h, "keluar", "kota", zone=(pintu_x * T, (h + 1) * T, 2 * T, T), label=False, ke=keluar_ke)
+    p.door("keluar", "Pintu keluar", pintu_x, h, "keluar", keluar_peta, zone=(pintu_x * T, (h + 1) * T, 2 * T, T), label=False, ke=keluar_ke)
     p.obj(p.points, "mulai", (pintu_x + 1) * T, h * T + 8)
     return p
 
@@ -579,7 +587,103 @@ def redaksi():
     p.tulis("redaksi")
 
 
+# =====================================================================================================
+#  PERUMAHAN CODEIN (68 x 48), lewat Gerbang Selatan kota
+#  Blok A: 24 kavling dalam tiga baris (A01-A08, A09-A16, A17-A24), empat di kiri dan empat di kanan jalan masuk.
+#  Rumahnya tidak digambar di peta: js/perumahan.js menaruh rumah starter (atau tanda kavling kosong) menurut data
+#  CodeIn News. Peta hanya menyimpan letak tiap kavling di pintu "kav-<kode>" (properti kiri, bawah = pojok kiri bawah rumah).
+# =====================================================================================================
+def perumahan():
+    p = Peta(68, 48, seed=23)
+    p.urut_aspal = True
+    W, H = p.W, p.H
+    for y in range(H):
+        for x in range(W):
+            p.put("tanah", x, y, RUMPUT)
+    BARIS = (5, 16, 27)                                   # y0 rumah tiap baris; trotoar di y0+6, jalan di y0+7..y0+9
+    KIRI, KANAN = (4, 11, 18, 25), (38, 45, 52, 59)
+    roads = [(33, 0, 35, 36, "v")] + [(4, y0 + 7, 64, y0 + 9, "h") for y0 in BARIS]
+    asphalt = aspal(p, roads)
+    trotoar = set()
+    for y0 in BARIS:
+        trotoar |= cells(4, y0 + 6, 30, y0 + 6) | cells(38, y0 + 6, 64, y0 + 6)
+    trotoar |= cells(32, 0, 32, 36) | cells(36, 0, 36, 36) | cells(4, 37, 64, 37)
+    trotoar -= asphalt
+    p.ubin(trotoar, BATU)
+
+    # gapura di ujung utara jalan masuk; pintunya kembali ke Gerbang Selatan kota
+    p.sprite("gerbang-perumahan", 31 * T, 5 * T)
+    p.halangi(31 * T + 1, 5 * T - 8, 12, 8)
+    p.halangi(31 * T + 83, 5 * T - 8, 12, 8)
+    p.door("gerbang-kota", "Ke CodeIn City", 34, 0, "keluar", "kota", zone=(33 * T, 0, 3 * T, 2 * T), label_y=2 * T, ke="gerbang-selatan")
+    p.obj(p.points, "mulai", 34 * T + 8, 6 * T + 8)
+
+    # kavling
+    n = 0
+    for y0 in BARIS:
+        for x0 in KIRI + KANAN:
+            n += 1
+            kode = f"A{n:02d}"
+            p.tapak.append((x0, y0, 6))
+            p.door(f"kav-{kode}", f"Kavling {kode}", x0 + 2, y0 + 5, "panel", "kavling", kavling=kode, kiri=x0 * T, bawah=(y0 + 6) * T)
+            p.thing(x0 + 5, y0 + 6, 305 if n % 2 else 306)            # kotak surat di trotoar
+        for x in (10, 17, 24, 44, 51, 58):                              # pagar kayu di sela rumah
+            p.thing(x, y0 + 5, 383)
+        for x in (18, 30, 38, 52):                                      # lampu trotoar depan rumah
+            p.lamp(x, y0 + 6)
+    for (x, y) in ((32, 6), (36, 6), (32, 18), (36, 18), (32, 29), (36, 29)):
+        p.lamp(x, y)
+
+    # taman di selatan: lapangan rumput, bangku, papan informasi perumahan
+    p.ubin(cells(28, 39, 40, 43), KREM)
+    p.board("info", "info-perumahan", 31, 39, 7, 2, 42, name="Papan Perumahan CodeIn")
+    for (x, y) in ((28, 43), (40, 43), (30, 43), (38, 43)):
+        p.thing(x, y, 250)                                              # bangku
+    p.perabot("beringin", 18, 43, dx=4)
+    p.perabot("net-badminton", 47, 41)
+    for (x, y) in ((28, 39), (40, 39)):
+        p.lamp(x, y)
+
+    # hutan tepi dan pohon pengisi di belakang tiap baris rumah
+    acak = random.Random(29)
+    gerbang = cells(31, 0, 37, 4)
+    hutan = set()
+    for x in range(W):
+        hutan |= {(x, y) for y in range(0, 2 + (x * 7 % 5 == 0))} | {(x, y) for y in range(H - 3 - (x * 3 % 4 == 0), H)}
+    for y in range(H):
+        hutan |= {(x, y) for x in range(0, 3)} | {(x, y) for x in range(W - 3, W)}
+    hutan = {c for c in hutan if c not in gerbang and c not in p.lantai and c not in p.keras and (c[0], c[1] - 1) not in p.lantai}
+    for (x, y) in sorted(hutan, key=lambda c: (c[1], c[0])):
+        p.block(x, y)
+        nama = acak.choice(("pohon-a", "pohon-b", "pohon-a", "rumpun", "pohon-kecil"))
+        p.pohon(x * T + 8 + acak.randint(-4, 4), y * T + 15 + acak.randint(-3, 2), nama)
+    for (x, y) in sorted(cells(3, 2, 30, 4) | cells(38, 2, 64, 4) | cells(3, 44, 64, 44), key=lambda c: (c[1], c[0])):
+        if (x, y) not in p.keras and (x, y) not in p.lantai and (x, y) not in hutan and acak.random() < .3:
+            p.halangi(x * T + 5, y * T + 10, 6, 6)
+            p.pohon(x * T + 8 + acak.randint(-3, 3), y * T + 15, acak.choice(("pohon-a", "pohon-b", "pohon-kecil")))
+    p.tulis("perumahan")
+
+
+def rumah_dalam():
+    """Dalam rumah starter warga (satu peta untuk semua rumah; pemiliknya diatur js/perumahan.js)."""
+    p = ruangan(10, 7, "krem", "kayu", 3, 5, "", keluar_peta="perumahan")
+    p.perabot("jendela-dinding", 2, 2, padat=False, datar=True)
+    p.perabot("lukisan", 7, 2, padat=False, datar=True, dx=2)
+    p.perabot("kasur", 1, 6, dx=2)
+    p.perabot("lemari", 3, 4, dx=6)
+    p.perabot("rak-buku", 9, 4, dx=-4)
+    p.perabot("karpet-biru", 4, 7, padat=False, datar=True, dx=4)
+    p.perabot("sofa-kecil", 5, 6, dx=-2)
+    p.perabot("meja-bundar", 5, 7, dx=0)
+    p.perabot("meja-komputer", 8, 7, dx=0)
+    p.perabot("tanaman", 1, 7, dx=1)
+    p.perabot("lampu-lantai", 10, 7, dx=4)
+    p.tulis("rumah")
+
+
 kota()
 markas()
 galeri()
 redaksi()
+perumahan()
+rumah_dalam()

@@ -1,5 +1,5 @@
 /* CodeIn City · musik latar.
-   Lagu mengikuti tempat dan waktu: kota siang, kota malam, di dalam Markas dan Kantor Redaksi, dan Galeri.
+   Lagu mengikuti tempat dan waktu: kota dan Perumahan siang atau malam, di dalam gedung dan rumah, dan Galeri.
    Musik baru diputar setelah pengunjung menekan tombol atau layar (aturan browser), lalu lagu berganti pelan-pelan.
    Tombol ♪ di bilah atas menyalakan dan mematikannya; pilihannya diingat di browser pengunjung.
    Semua lagu CC0, "High Quality 16-bit RPG Music" karya Hydrogene (lihat README). */
@@ -17,7 +17,7 @@ const Musik = (() => {
   function laguSekarang() {
     const r = Kota.ruang();
     if (r === "galeri") return "galeri";
-    if (r !== "kota") return "dalam";
+    if (!Kota.luar()) return "dalam";
     return Kota.waktu().kunci === "malam" ? "kota-malam" : "kota-siang";
   }
 

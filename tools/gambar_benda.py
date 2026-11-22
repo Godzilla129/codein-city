@@ -648,6 +648,79 @@ def keset():
     return k
 
 
+# ======================================================================================================
+#  PERUMAHAN CODEIN
+# ======================================================================================================
+TANAH, TANAH_G, TANAH_T = hx("b98a5e"), hx("9c714b"), hx("cfa074")
+
+
+def kavling_kosong():
+    """Kavling kosong 88 x 60 (datar, di bawah karakter): tanah gembur berpatok dengan tali rafia di keliling."""
+    k = Kanvas(88, 60)
+    k.kotak(4, 4, 83, 55, TANAH)
+    for y in range(8, 54, 6):                               # alur tanah
+        for x in range(8, 80):
+            if (x + y // 6) % 9:
+                k.p(x, y, TANAH_G)
+            if (x * 7 + y) % 23 == 0:
+                k.p(x, y - 2, TANAH_T)
+    for (x, y) in ((20, 14), (55, 26), (33, 40), (68, 46), (12, 33)):    # rumput liar
+        k.p(x, y, HIJAU); k.p(x + 1, y - 1, HIJAU); k.p(x + 2, y, hx("6ea64f"))
+    tali = hx("e26c62")
+    for x in range(4, 84):
+        k.p(x, 3, tali); k.p(x, 56, tali)
+    for y in range(3, 57):
+        k.p(3, y, tali); k.p(84, y, tali)
+    for (x, y) in ((2, 1), (83, 1), (2, 54), (83, 54)):     # patok kayu
+        k.panel(x, y, x + 2, y + 5, MEJA, MEJA_T, MEJA_G)
+    return k
+
+
+def papan_kavling():
+    """Papan kavling 14 x 22: papan kayu bertiang dengan gambar rumah kecil (tanda kavling bisa ditempati)."""
+    k = Kanvas(14, 22)
+    k.kotak(6, 10, 7, 21, MEJA_GG)
+    k.panel(0, 0, 13, 11, MEJA_T, hx("ecd2b0"), MEJA)
+    for x in range(3, 11):                                  # atap
+        k.p(x, 5 - min(x - 3, 10 - x), GENTENG)
+    for x in range(4, 10):
+        k.p(x, 5, GENTENG_G)
+    k.kotak(5, 6, 8, 9, KREM_T); k.kotak(6, 7, 7, 9, KAYU)
+    bayangan(k, 4, 9, 21)
+    return k
+
+
+def gerbang_perumahan():
+    """Gapura Perumahan CodeIn 96 x 60: dua tiang bata berlampu dan balok atas berpapan (nama ditulis label kota)."""
+    k = Kanvas(96, 60)
+    for x0 in (0, 82):
+        k.panel(x0, 14, x0 + 13, 59, KREM, KREM_T, KREM_G)
+        for y in range(18, 58, 5):                           # nat bata
+            k.garis_h(x0 + 1, x0 + 12, y, KREM_G)
+            for x in range(x0 + 2 + (y // 5 % 2) * 3, x0 + 12, 6):
+                k.p(x, y + 1, KREM_G); k.p(x, y + 2, KREM_G)
+        k.panel(x0 - 1, 10, x0 + 14, 14, BATU_T, PUTIH, BATU_G)
+        k.panel(x0 + 4, 3, x0 + 9, 10, KUNING, hx("ffe0a8"), ORANYE)   # lampu tiang
+    k.panel(10, 14, 85, 22, GENTENG, GENTENG_T, GENTENG_G)
+    k.panel(24, 4, 71, 16, hx("2a9d8f"), hx("49b8aa"), hx("1f7a70"))   # papan nama
+    k.garis_h(28, 67, 9, hx("e9f4e4")); k.garis_h(32, 63, 12, hx("9fd8cf"))
+    bayangan(k, 1, 13, 59); bayangan(k, 83, 95, 59)
+    return k
+
+
+def kasur():
+    """Kasur 24 x 32 tampak atas: sandaran kayu, bantal, selimut biru bergaris."""
+    k = Kanvas(24, 32)
+    k.panel(0, 0, 23, 6, MEJA_G, MEJA, MEJA_GG)
+    k.panel(1, 5, 22, 30, PUTIH, PUTIH, KREM_G)
+    k.panel(4, 7, 19, 12, PUTIH, PUTIH, BATU_G)               # bantal
+    k.panel(1, 14, 22, 30, hx("5b8cc7"), hx("7fa9de"), hx("4870a8"))
+    for y in (18, 24):
+        k.garis_h(2, 21, y, hx("4870a8"))
+    k.kotak(1, 31, 2, 31, MEJA_GG); k.kotak(21, 31, 22, 31, MEJA_GG)
+    return k
+
+
 def semua():
     """Semua benda untuk atlas, nama -> Kanvas."""
     g = {"meja-kerja": meja(), "meja-panjang": meja(48, 20), "meja-resepsionis": meja_resepsionis(),
@@ -665,7 +738,8 @@ def semua():
          "lapak-ikan": lapak((hx("5466d1"), PUTIH), "ikan"), "lapak-kain": lapak((hx("e9a23b"), PUTIH), "kain"),
          "lapak-jamu": lapak((hx("86c264"), PUTIH), "jamu"), "lapak-kue": lapak((hx("f7a8c4"), PUTIH), "kue"),
          "lapak-mainan": lapak((hx("9f8fc4"), PUTIH), "mainan"), "lapak-kelapa": lapak((hx("c4704a"), KREM_T), "kelapa"), "gerobak": gerobak(), "pos-ronda": pos_ronda(), "kolam": kolam(), "beringin": beringin(),
-         "palem": palem(), "meja-warkop": meja_warkop(), "net-badminton": net_badminton(), "lampu-merah": lampu_merah()}
+         "palem": palem(), "meja-warkop": meja_warkop(), "net-badminton": net_badminton(), "lampu-merah": lampu_merah(),
+         "kavling-kosong": kavling_kosong(), "papan-kavling": papan_kavling(), "gerbang-perumahan": gerbang_perumahan(), "kasur": kasur()}
     for arah in ("kiri", "kanan", "bawah", "atas"):
         g[f"mobil-angkot-{arah}"] = angkot(arah)
         g[f"mobil-motor-{arah}"] = motor(arah)

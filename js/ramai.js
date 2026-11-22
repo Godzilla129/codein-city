@@ -23,7 +23,7 @@ const Ramai = (() => {
     kunciProfil = p.nama + "|" + p.karakter;
     try { ws = new WebSocket(ALAMAT); } catch (e) { ws = null; return; }
     const ini = ws;
-    ini.onopen = () => { const q = Kota.posisi(); kirim({t: "gabung", n: p.nama, k: p.karakter, r: Kota.ruang(), x: Math.round(q.x), y: Math.round(q.y)}); };
+    ini.onopen = () => { const q = Kota.posisi(); kirim({t: "gabung", n: p.nama, k: p.karakter, r: Kota.kamar(), x: Math.round(q.x), y: Math.round(q.y)}); };
     ini.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } if (m && typeof m === "object") terima(m); };
     ini.onclose = () => {
       if (ws !== ini) return;
@@ -71,7 +71,7 @@ const Ramai = (() => {
   }
   // sprite hanya dibuat untuk pengunjung yang berada di peta yang sama
   function pasang(o) {
-    if (!adegan || o.s || o.r !== Kota.ruang()) return;
+    if (!adegan || o.s || o.r !== Kota.kamar()) return;
     o.s = adegan.add.sprite(o.x, o.y, "orang", Kota.frame(o.k, ARAH[o.a], 0)).setOrigin(.5, .8);
     o.label = Kota.tempelkan(el("div", "nama lain", o.n), () => [o.s.x, o.s.y - 14]);
   }
@@ -81,11 +81,11 @@ const Ramai = (() => {
     if (o.s) { o.x = o.s.x; o.y = o.s.y; o.s.destroy(); o.s = null; }
   }
 
-  Kota.saatSiap(({adegan: sc, ruang}) => {
+  Kota.saatSiap(({adegan: sc}) => {
     adegan = sc;
     for (const o of lain.values()) { o.s = null; o.label = null; o.hapusBalon = null; pasang(o); }      // sprite dan label lama hilang bersama peta lama
     const q = Kota.posisi();
-    if (tersambung && q) kirim({t: "ruang", r: ruang, x: Math.round(q.x), y: Math.round(q.y)});
+    if (tersambung && q) kirim({t: "ruang", r: Kota.kamar(), x: Math.round(q.x), y: Math.round(q.y)});
     terakhir.x = -1;
   });
 

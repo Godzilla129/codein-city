@@ -55,8 +55,10 @@ const Panel = (() => {
       b.onclick = () => { tutup(); if (document.activeElement) document.activeElement.blur(); Kota.pindahKe(p.id); };
       li.append(el("span", null, nama), b); ul.append(li);
     }
-    const judul = {kota: "Tempat di CodeIn City", markas: "Tempat di Markas CodeIn", galeri: "Tempat di Galeri Showcase", redaksi: "Tempat di Kantor Redaksi"}[Kota.ruang()] || "Tempat";
-    buka(judul, [el("p", null, "Pilih tempat untuk langsung berpindah ke depannya."), ul], [{teks: "Tutup"}]);
+    const judul = {kota: "Tempat di CodeIn City", markas: "Tempat di Markas CodeIn", galeri: "Tempat di Galeri Showcase", redaksi: "Tempat di Kantor Redaksi",
+                   perumahan: "Tempat di Perumahan CodeIn", rumah: "Di dalam rumah"}[Kota.ruang()] || "Tempat";
+    const pulang = Perumahan.tombolPulang();         // "Pulang ke rumahku" (warga) di atas daftar
+    buka(judul, [...(pulang ? [pulang] : []), el("p", null, "Pilih tempat untuk langsung berpindah ke depannya."), ul], [{teks: "Tutup"}]);
   }
 
   $("panel").addEventListener("click", e => { if (e.target.id === "panel") tutup(); });

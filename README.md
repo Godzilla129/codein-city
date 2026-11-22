@@ -7,6 +7,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 ## Fitur
 
 - **Warga dan tamu**: siapa pun bisa jalan-jalan dan mengobrol sebagai tamu. Anggota yang masuk dengan akun Google jadi **warga**: nama wargamu unik, nama dan karakter tersimpan di akun (ikut ke perangkat lain), dan hanya warga yang bisa daftar hosting dan mengajukan baliho. Login lewat Firebase Authentication; profil warga disimpan di server CodeIn News, yang juga memeriksa token loginnya. Email akun hanya terlihat oleh admin.
+- **Perumahan CodeIn** (lewat Gerbang Selatan): 24 kavling Blok A untuk warga. Warga memilih kavling kosong, memilih satu dari enam model rumah, dan rumah starternya langsung berdiri dengan nama pemiliknya. Satu warga satu kavling. Siapa pun boleh bertamu; pengunjung yang berada di rumah yang sama saling terlihat. Tombol **Pulang ke rumahku** di menu Tempat, dan Pak Darto si satpam di gapura (keterangan perumahan, ganti model rumah).
 - Layar judul: dua belas pilihan karakter (enam karakter Kenney dan enam dari paket CodeIn City Retro: pemuda berhoodie, mahasiswi, bocil bertopi, ibu warung, kakek bertongkat, nenek) dan nama panggilan dengan penyaring kata kasar.
 - Jalan dengan WASD atau tombol panah. Di ponsel, sentuh layar lalu geser.
 - Kota 80 x 64 petak: jalan utama dengan tiga gerbang, alun-alun dengan air mancur dan Patung Si Pemula, pojok pasar, dan kampung warga di selatan.
@@ -43,6 +44,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/kendali.js` | Kendali sentuh |
 | `js/kota.js` | Adegan (Phaser) untuk semua peta: pemain, pintu, masuk dan keluar gedung, patung, siang dan malam |
 | `js/redaksi.js` | Kantor Redaksi: Eko, Tekno, dan Rina; keadaannya dihitung dari API publik CodeIn News, dialog tiap redaktur |
+| `js/perumahan.js` | Perumahan CodeIn: rumah atau kavling kosong per kavling (data dari CodeIn News), menempati kavling, bertamu, pulang, satpam |
 | `js/rumah.js` | Hosting proyek anggota: formulir pendaftaran, Direktori Proyek, dan nama proyek unggulan di pintu rumahnya (data dari CodeIn News) |
 | `js/warga.js` | Warga dan jadwal hariannya: pencarian jalur, jalan-jalan kecil, pulang ke rumah, ucapan per waktu |
 | `js/lalulintas.js` | Kendaraan yang mengikuti jalur di peta dan berhenti untuk pejalan kaki |
@@ -52,6 +54,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/main.js` | Titik mulai |
 | `assets/maps/kota.tmj` | Peta kota, dibuka dan diubah dengan Tiled |
 | `assets/maps/markas.tmj`, `galeri.tmj`, `redaksi.tmj` | Peta ruangan Markas CodeIn, Galeri Showcase, dan Kantor Redaksi |
+| `assets/maps/perumahan.tmj`, `rumah.tmj` | Perumahan CodeIn (pintu `kav-A01` .. `kav-A24` menyimpan letak kavling) dan dalam rumah warga (satu peta untuk semua rumah) |
 | `assets/tiles/urban.png` | Tileset dan karakter (Kenney, CC0) |
 | `assets/sprites/gedung.png`, `gedung.json` | Atlas gambar bergaya Kenney: gedung ikonik, rumah warga, bendera, pohon hutan, perabot ruangan, properti kota (halte, gerobak bakso, pos ronda, kolam, beringin, palem), angkot dan motor |
 | `assets/sprites/orang.png` | Lembar karakter: 13 karakter, masing-masing 4 arah x 3 langkah |
@@ -61,7 +64,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `tools/buat_gambar.py` | Menyusun semua gambar di atas (jalankan sebelum `buat_peta.py`). Bagian-bagiannya: `kanvas.py` (palet dan alat gambar Kenney), `gambar_benda.py` (perabot, properti kota, kendaraan, ubin ruangan), `gambar_orang.py` (karakter). Semuanya digambar piksel demi piksel dengan palet Kenney, bentuknya mengacu ke paket CodeIn City Retro dan Top-Down Retro Interior |
 | `vendor/phaser.min.js` | Phaser 3.90.0 (lisensi MIT) |
 | `vendor/firebase-app-compat.js`, `firebase-auth-compat.js` | Firebase JavaScript SDK 13.2.0, versi compat, hanya bagian login (lisensi Apache 2.0) |
-| `tools/buat_peta.py` | Pembuat keempat peta (jalankan sesudah `buat_gambar.py`). Sampai versi ini peta masih sama persis dengan hasil skrip. Jangan dijalankan lagi setelah peta diubah di Tiled |
+| `tools/buat_peta.py` | Pembuat semua peta (jalankan sesudah `buat_gambar.py`). Sampai versi ini peta masih sama persis dengan hasil skrip. Jangan dijalankan lagi setelah peta diubah di Tiled |
 
 Berkas JavaScript dimuat berurutan dari `index.html`, dan setiap berkas memakai isi berkas sebelumnya.
 

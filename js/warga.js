@@ -234,6 +234,7 @@ const Warga = (() => {
   }
   function sapa(w) {
     if (w.def.peran === "resepsionis") { resepsionis(w); return; }
+    if (w.def.peran === "satpam") { Perumahan.satpam(); return; }
     if (w.def.redaksi) { Redaksi.buka(w.def.redaksi); return; }
     if (w.def.buka) { Papan.tangani({id: w.def.buka, tujuan: ""}); return; }
     const j = jadwalKini(w), daftarUcapan = ((j && j.ucapan) || []).map(isiUcapan).filter(Boolean);

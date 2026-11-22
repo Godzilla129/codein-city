@@ -1,4 +1,5 @@
-/* CodeIn City · adegan (Phaser 3). Satu adegan dipakai untuk semua peta: kota, dan interior Markas, Galeri, serta Kantor Redaksi.
+/* CodeIn City · adegan (Phaser 3). Satu adegan dipakai untuk semua peta: kota, Perumahan CodeIn, interior Markas, Galeri,
+   Kantor Redaksi, dan rumah warga (satu peta "rumah" untuk semua rumah; pemiliknya diatur js/perumahan.js).
    Peta dibaca dari assets/maps/<nama>.tmj (dibuat dan diubah dengan Tiled):
      layer ubin  : tanah, jalan, bangunan, hiasan (di bawah karakter), atas (di atas karakter),
                    tabrakan (tidak digambar; setiap ubin di layer ini tidak bisa dilewati)
@@ -15,7 +16,8 @@ const Kota = (() => {
   const T = KOTA.ubin;
   const KOLOM = {kiri: 0, bawah: 1, atas: 2, kanan: 3};          // kolom arah di orang.png (susunan karakter Kenney)
   const ARAH = ["bawah", "kiri", "kanan", "atas"];               // nomor arah yang dikirim lewat jaringan
-  const PETA = ["kota", "markas", "galeri", "redaksi"];
+  const PETA = ["kota", "markas", "galeri", "redaksi", "perumahan", "rumah"];
+  const LUAR = ["kota", "perumahan"];                            // peta di luar ruangan: ada langit malam dan lampu jalan
   // assets/sprites/orang.png (tools/gambar_orang.py): tiap karakter 4 kolom arah x 3 baris langkah, k = urutan karakter
   const frame = (k, arah, langkah) => (k * 3 + langkah) * 4 + KOLOM[arah];
   const tenang = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -137,7 +139,7 @@ const Kota = (() => {
       tempel.forEach(t => t.elemen.remove()); tempel = []; Papan.bersih();
       dekat = null; $("aksi").hidden = true; lapisanMalam = null; cahaya = []; kunang = []; faseKini = null; balonSaya = null;
       adegan = this; ruang = this.kunciPeta; pindah = false;
-      const dalam = ruang !== "kota";
+      const dalam = !LUAR.includes(ruang);
       document.body.dataset.ruang = ruang;
 
       const peta = this.make.tilemap({key: ruang});
@@ -155,6 +157,7 @@ const Kota = (() => {
       pintu = lapis("pintu").map(o => {
         const p = prop(o);
         return {id: p.id, nama: o.name, aksi: p.aksi, tujuan: p.tujuan || "", ke: p.ke || "", penghuni: p.penghuni || "",
+                kavling: p.kavling || "", kiri: p.kiri || 0, bawah: p.bawah || 0,
                 x: o.x, y: o.y, w: o.width, h: o.height,
                 lx: p.label_x ?? o.x + o.width / 2, ly: p.label_y ?? o.y - T, tanpaLabel: !!p.tanpa_label};
       });
@@ -204,6 +207,7 @@ const Kota = (() => {
       const padat = this.physics.add.staticGroup();
       for (const o of lapis("padat")) padat.add(this.add.zone(o.x + o.width / 2, o.y + o.height / 2, o.width, o.height));
       this.physics.add.collider(pemain, padat);
+      this.padat = padat;                  // js/perumahan.js menambah kotak tabrakan rumah warga setelah datanya datang
       const papanNama = el("div", "nama saya");
       tempelkan(papanNama, () => [pemain.x, pemain.y - 14]);
       this.papanNama = papanNama;
@@ -226,7 +230,7 @@ const Kota = (() => {
         if (p.tanpaLabel) continue;
         const kunci = p.tujuan === "kunci";
         const d = el("div", "papan" + (kunci ? " kunci" : "") + (p.aksi === "pindah" || p.aksi === "masuk" ? " utama" : "")
-          + (p.tujuan === "rumah" ? " rumah" : "") + (p.tujuan === "proyek" ? " proyek" : ""), (kunci ? "🔒 " : "") + p.nama);
+          + (p.tujuan === "rumah" || p.tujuan === "kavling" ? " rumah" : "") + (p.tujuan === "proyek" ? " proyek" : ""), (kunci ? "🔒 " : "") + p.nama);
         p.labelEl = d;                       // rumah proyek mengganti tulisannya setelah data dari CodeIn News datang
         tempelkan(d, () => [p.lx, p.ly]);
       }
@@ -329,7 +333,7 @@ const Kota = (() => {
     if (p.id === "pendiri") return "Baca plakat patung";
     return {kunci: "Periksa gedung", baliho: ruang === "galeri" ? "Lihat karya" : "Baca baliho", videotron: "Lihat kabar ramai",
             rumah: "Ketuk pintu", info: "Baca papan", sapa: `Sapa ${p.penghuni}`, redaksi: `Sapa ${p.penghuni}`,
-            proyek: p.proyek ? `Kunjungi ${p.proyek.judul}` : "Lihat rumah kosong"}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
+            proyek: p.proyek ? `Kunjungi ${p.proyek.judul}` : "Lihat rumah kosong", kavling: Perumahan.teksAksi(p)}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
   }
   function cariTerdekat() {
     let baru = null;
@@ -396,6 +400,7 @@ const Kota = (() => {
       else if (p.tujuan === "sapa") Warga.sapaNama(p.penghuni);
       else if (p.id === "toko") toko(p);
       else if (p.tujuan === "proyek") RumahProyek.buka(p);
+      else if (p.tujuan === "kavling") Perumahan.buka(p);
       else if (p.tujuan === "redaksi") Redaksi.buka(p.penghuni);
       else Panel.gedung(KOTA.panel[p.id] ? p.id : p.tujuan, p.nama);
       return;
@@ -488,6 +493,23 @@ const Kota = (() => {
     clearTimeout(waktuKabar); waktuKabar = setTimeout(() => { k.hidden = true; }, 3200);
   }
   function masuk(id) { const p = pintu.find(x => x.id === id); if (p) lewat(p); }
+  // tulisan tombol aksi dihitung ulang (misalnya kavling kosong yang baru saja jadi rumah)
+  function segarkanAksi() { dekat = null; cariTerdekat(); }
+  // pindah ke peta lain dan muncul di depan pintu pintuId (dipakai "Pulang ke rumahku")
+  function keTempat(peta, pintuId) {
+    if (!adegan || !PETA.includes(peta)) return;
+    Panel.tutup();
+    if (peta === ruang && pintuId) { pindahKe(pintuId); return; }
+    if (ruang === "kota" && pemain) Profil.simpanPosisi(pemain.x, pemain.y);
+    gantiPeta(peta, pintuId);
+  }
+  // kotak tabrakan tambahan (piksel dunia) di peta yang sedang tampil; mengembalikan zonanya supaya bisa dibuang lagi
+  function padatkan(x, y, w, h) {
+    if (!adegan || !adegan.padat) return null;
+    const z = adegan.add.zone(x + w / 2, y + h / 2, w, h);
+    adegan.padat.add(z);
+    return z;
+  }
   // Semua pendaftaran lewat Kak Rani: dari mana pun, pemain diantar ke depan meja resepsionis Markas
   function keResepsionis() {
     Panel.tutup();
@@ -508,8 +530,10 @@ const Kota = (() => {
   }
 
   return {
-    nyalakan, mulai, pindahKe, masuk, keResepsionis, bukaNews, ucap, balon, tempelkan, lepaskan, frame, ARAH, waktu, kabar,
-    pintu: () => pintu, ruang: () => ruang, profil: () => profil, adegan: () => adegan,
+    nyalakan, mulai, pindahKe, masuk, keTempat, padatkan, segarkanAksi, keResepsionis, bukaNews, ucap, balon, tempelkan, lepaskan, frame, ARAH, waktu, kabar,
+    pintu: () => pintu, ruang: () => ruang, profil: () => profil, adegan: () => adegan, luar: () => LUAR.includes(ruang),
+    // nama ruangan untuk layanan obrolan: tiap rumah warga punya ruangannya sendiri (rumah-A07), jadi tamu di rumah yang sama saling terlihat
+    kamar: () => ruang === "rumah" && Perumahan.kini() ? "rumah-" + Perumahan.kini() : ruang,
     posisi: () => pemain ? {x: pemain.x, y: pemain.y, arah, jalan} : null,
     orang: () => pemain ? [pemain, ...Warga.sprites()] : [],                // semua yang perlu dihindari kendaraan
     saatSiap: f => saatSiapList.push(f), tiapBingkai: f => tiapBingkaiList.push(f),
