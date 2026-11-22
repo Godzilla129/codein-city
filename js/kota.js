@@ -501,7 +501,9 @@ const Kota = (() => {
     return new Phaser.Game({
       type: Phaser.AUTO, parent: "game", backgroundColor: "#141830", pixelArt: true, roundPixels: true, banner: false,
       scale: {mode: Phaser.Scale.RESIZE}, audio: {noAudio: true}, input: {keyboard: false},
-      physics: {default: "arcade"}, scene: [Adegan],
+      // fixedStep false: fisika maju sekali tiap bingkai layar dengan selang waktu sebenarnya. Dengan langkah tetap 60 Hz,
+      // layar HP 90/120 Hz menggerakkan pemain hanya di sebagian bingkai, sehingga jalannya terlihat bergetar.
+      physics: {default: "arcade", arcade: {fixedStep: false}}, scene: [Adegan],
     });
   }
 
