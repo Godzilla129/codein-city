@@ -277,7 +277,7 @@ const KOTA = {
               ucapan: ["Siang panas, orderan sepi. Jalan-jalan dulu."]},
       sore:  {di: "halte", r: 1, ket: "menunggu penumpang di halte utara",
               ucapan: ["Sore ramai orderan. Mau diantar ke Gerbang Timur? Bercanda, gerbangnya belum dibuka."]},
-      malam: {di: "pos-timur", r: 1, ket: "ngobrol dengan Pak Harun di pos ronda",
+      malam: {di: "pos-timur-2", r: 0, ket: "ngobrol dengan Pak Harun di pos ronda",
               ucapan: ["Malam-malam nemenin Pak Harun ronda. Kopinya dari Warkop, eh, Warkop masih tutup ding."]}}},
     {nama: "Kak Mita", karakter: 1, ruang: "galeri", di: [2, 9], hadap: "bawah", buka: "galeri", ket: "di Galeri Showcase"},
   ],

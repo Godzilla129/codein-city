@@ -497,7 +497,7 @@ def kota():
     for ident, x, y in (("depan-news", 21, 13), ("depan-videotron", 31, 13), ("zebra-news", 29, 13), ("depan-galeri", 39, 13),
                         ("depan-papan", 34, 23), ("alun-alun", 44, 34), ("dekat-patung", 52, 30), ("taman-kolam", 39, 31),
                         ("gazebo", 31, 29), ("taman-timur", 62, 25), ("taman-baliho", 61, 48), ("depan-markas", 28, 49),
-                        ("depan-warkop", 37, 49), ("depan-toko", 51, 49), ("depan-aetheria", 44, 49), ("pos-timur", 89, 13),
+                        ("depan-warkop", 37, 49), ("depan-toko", 51, 49), ("depan-aetheria", 44, 49), ("pos-timur", 89, 13), ("pos-timur-2", 86, 13),
                         ("halte", 69, 13), ("gerobak-bakso", 81, 39), ("lapangan-1", 31, 69), ("lapangan-2", 31, 72),
                         ("kebun", 16, 36), ("taman-lapangan", 61, 34),
                         ("patung-1", 44, 25), ("patung-2", 51, 25), ("patung-3", 51, 32), ("patung-4", 44, 32),
