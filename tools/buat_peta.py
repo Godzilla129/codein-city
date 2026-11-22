@@ -597,7 +597,7 @@ def redaksi():
 # =====================================================================================================
 import heapq
 
-PAGAR = (382, 383, 384, 385)        # pagar kayu: ujung kiri, tengah, tengah, ujung kanan
+PAGAR_KIRI, PAGAR_KANAN = 382, 384  # pagar kayu: ujung kiri (tiang di kiri) dan ujung kanan (tiang di kanan)
 SEMAK = (291, 292)                  # semak bulat kecil
 
 
@@ -751,9 +751,8 @@ def perumahan():
         p.door(f"kav-{kode}", f"Kavling {kode}", x0 + 2, y0 + 5, "panel", "kavling", kavling=kode, kiri=x0 * T, bawah=(y0 + 6) * T)
         gaya = acak.random()
         if gaya < .45:                                               # pagar kayu dengan pintu di depan setapak
-            for x in range(x0, x0 + 6):
-                if x not in (x0 + 2, x0 + 3):
-                    p.thing(x, y0 + 7, PAGAR[0] if x == x0 else PAGAR[3] if x == x0 + 5 else PAGAR[1 + x % 2])
+            for x in (x0, x0 + 1, x0 + 4, x0 + 5):                   # dua ruas pagar di kiri-kanan setapak
+                p.thing(x, y0 + 7, PAGAR_KIRI if x in (x0, x0 + 4) else PAGAR_KANAN)
         elif gaya < .8:                                              # pagar tanaman
             for x in (x0, x0 + 1, x0 + 4, x0 + 5):
                 p.thing(x, y0 + 7, 329 if x in (x0, x0 + 4) else 330)
@@ -817,6 +816,9 @@ def rumah_dalam():
     p.perabot("meja-komputer", 8, 7, dx=0)
     p.perabot("tanaman", 1, 7, dx=1)
     p.perabot("lampu-lantai", 10, 7, dx=4)
+    # gantungan kunci di dinding: pemilik mengunci atau membuka pintu rumahnya dari sini (js/perumahan.js)
+    p.perabot("gantungan-kunci", 5, 2, padat=False, datar=True, dx=9, dy=-3)
+    p.door("kunci", "Gantungan kunci", 5, 3, "panel", "kunci-rumah", zone=(5 * T, 4 * T, 2 * T, T), label=False)
     p.tulis("rumah")
 
 

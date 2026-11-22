@@ -708,6 +708,17 @@ def gerbang_perumahan():
     return k
 
 
+def gantungan_kunci():
+    """Gantungan kunci di dinding 14 x 12: papan kayu kecil, dua kait, satu kunci kuning."""
+    k = Kanvas(14, 12)
+    k.panel(0, 0, 13, 5, MEJA_T, hx("ecd2b0"), MEJA_G)
+    for x in (4, 9):
+        k.kotak(x, 5, x, 6, GARIS)
+    k.kotak(8, 7, 10, 8, KUNING); k.p(9, 7, NOL)          # kepala kunci
+    k.kotak(9, 9, 9, 11, KUNING); k.p(10, 10, KUNING)    # batang dan gerigi
+    return k
+
+
 def kasur():
     """Kasur 24 x 32 tampak atas: sandaran kayu, bantal, selimut biru bergaris."""
     k = Kanvas(24, 32)
@@ -739,7 +750,8 @@ def semua():
          "lapak-jamu": lapak((hx("86c264"), PUTIH), "jamu"), "lapak-kue": lapak((hx("f7a8c4"), PUTIH), "kue"),
          "lapak-mainan": lapak((hx("9f8fc4"), PUTIH), "mainan"), "lapak-kelapa": lapak((hx("c4704a"), KREM_T), "kelapa"), "gerobak": gerobak(), "pos-ronda": pos_ronda(), "kolam": kolam(), "beringin": beringin(),
          "palem": palem(), "meja-warkop": meja_warkop(), "net-badminton": net_badminton(), "lampu-merah": lampu_merah(),
-         "kavling-kosong": kavling_kosong(), "papan-kavling": papan_kavling(), "gerbang-perumahan": gerbang_perumahan(), "kasur": kasur()}
+         "kavling-kosong": kavling_kosong(), "papan-kavling": papan_kavling(), "gerbang-perumahan": gerbang_perumahan(), "kasur": kasur(),
+         "gantungan-kunci": gantungan_kunci()}
     for arah in ("kiri", "kanan", "bawah", "atas"):
         g[f"mobil-angkot-{arah}"] = angkot(arah)
         g[f"mobil-motor-{arah}"] = motor(arah)

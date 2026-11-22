@@ -333,7 +333,8 @@ const Kota = (() => {
     if (p.id === "pendiri") return "Baca plakat patung";
     return {kunci: "Periksa gedung", baliho: ruang === "galeri" ? "Lihat karya" : "Baca baliho", videotron: "Lihat kabar ramai",
             rumah: "Ketuk pintu", info: "Baca papan", sapa: `Sapa ${p.penghuni}`, redaksi: `Sapa ${p.penghuni}`,
-            proyek: p.proyek ? `Kunjungi ${p.proyek.judul}` : "Lihat rumah kosong", kavling: Perumahan.teksAksi(p)}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
+            proyek: p.proyek ? `Kunjungi ${p.proyek.judul}` : "Lihat rumah kosong", kavling: Perumahan.teksAksi(p),
+            "kunci-rumah": Perumahan.teksKunci()}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
   }
   function cariTerdekat() {
     let baru = null;
@@ -401,6 +402,7 @@ const Kota = (() => {
       else if (p.id === "toko") toko(p);
       else if (p.tujuan === "proyek") RumahProyek.buka(p);
       else if (p.tujuan === "kavling") Perumahan.buka(p);
+      else if (p.tujuan === "kunci-rumah") Perumahan.aturKunci();
       else if (p.tujuan === "redaksi") Redaksi.buka(p.penghuni);
       else Panel.gedung(KOTA.panel[p.id] ? p.id : p.tujuan, p.nama);
       return;

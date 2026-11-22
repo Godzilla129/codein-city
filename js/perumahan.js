@@ -4,6 +4,7 @@
      GET  /api/perumahan          -> kavling terisi (pemilik: kode warga, nama, karakter; rumah = model 0-5) dan kosong
      POST /api/perumahan/klaim    -> warga menempati satu kavling kosong (satu warga satu kavling), rumah starter langsung jadi
      PUT  /api/perumahan/model    -> ganti model rumah sendiri
+     PUT  /api/perumahan/kunci    -> pemilik mengunci atau membuka pintu rumahnya (lewat gantungan kunci di dalam rumah)
    Kavling terisi digambar dengan rumah dari atlas (rumah-0 .. rumah-5) dan nama pemiliknya; kavling kosong dengan tanah berpatok.
    Semua rumah memakai satu peta dalam "rumah.tmj"; Perumahan.kini() = kode rumah yang sedang dikunjungi. */
 
@@ -65,7 +66,7 @@ const Perumahan = (() => {
     if (!p.labelEl) return;
     const k = data && data[p.kavling], saya = milikku();
     p.nama = k && k.pemilik ? `Rumah ${k.pemilik.nama}` : `Kavling ${p.kavling}`;
-    p.labelEl.textContent = k && k.pemilik ? p.nama : `${p.nama} · kosong`;
+    p.labelEl.textContent = k && k.pemilik ? (k.terkunci ? "🔒 " : "") + p.nama : `${p.nama} · kosong`;
     p.labelEl.classList.toggle("kosong", !(k && k.pemilik));
     p.labelEl.classList.toggle("milikku", !!(saya && saya.kode === p.kavling));
   }
@@ -79,7 +80,8 @@ const Perumahan = (() => {
     const k = data && data[p.kavling], saya = milikku();
     if (!k) return `Lihat kavling ${p.kavling}`;
     if (!k.pemilik) return `Lihat kavling ${p.kavling}`;
-    return saya && saya.kode === p.kavling ? "Masuk rumahku" : `Bertamu ke rumah ${k.pemilik.nama}`;
+    if (saya && saya.kode === p.kavling) return "Masuk rumahku";
+    return k.terkunci ? `Ketuk pintu rumah ${k.pemilik.nama}` : `Bertamu ke rumah ${k.pemilik.nama}`;
   }
   function masukRumah(kode) {
     kini = kode;
@@ -92,7 +94,14 @@ const Perumahan = (() => {
     }
     const k = data[p.kavling];
     if (!k) return;
-    if (k.pemilik) { masukRumah(k.kode); return; }
+    if (k.pemilik) {
+      const saya = milikku();
+      if (k.terkunci && !(saya && saya.kode === k.kode)) {
+        Panel.buka(`Rumah ${k.pemilik.nama}`, [el("p", null, "Tok, tok."), el("p", null, `Pintunya dikunci. ${k.pemilik.nama} sedang tidak menerima tamu.`)], [{teks: "Tutup"}]);
+        return;
+      }
+      masukRumah(k.kode); return;
+    }
     if (!Akun.sudahWarga()) { Akun.pastikan("Menempati rumah di Perumahan CodeIn", () => buka(p)); return; }
     const saya = milikku();
     if (saya) {
@@ -174,6 +183,38 @@ const Perumahan = (() => {
     return b;
   }
 
+  /* ---------- kunci rumah: gantungan kunci di dalam rumah ---------- */
+  const rumahKini = () => data && kini ? data[kini] : null;
+  const pemilikKini = () => { const k = rumahKini(), saya = milikku(); return !!(k && saya && saya.kode === k.kode); };
+  function teksKunci() {
+    if (!pemilikKini()) return "Lihat gantungan kunci";
+    return rumahKini().terkunci ? "Buka kunci pintu" : "Kunci pintu rumah";
+  }
+  function aturKunci() {
+    const k = rumahKini();
+    if (!k || !k.pemilik) return;
+    if (!pemilikKini()) {
+      Panel.buka("Gantungan kunci", [el("p", null, `Kunci rumah ini dipegang ${k.pemilik.nama}. Hanya pemilik yang bisa mengunci atau membuka pintunya.`)], [{teks: "Tutup"}]);
+      return;
+    }
+    const kunci = !k.terkunci;
+    const isi = [el("p", null, k.terkunci
+      ? "Pintu rumahmu sedang terkunci: warga lain dan tamu tidak bisa masuk. Mereka hanya bisa mengetuk pintu."
+      : "Pintu rumahmu sedang terbuka: siapa pun boleh bertamu."),
+      el("p", "redup", "Tamu yang sudah di dalam tetap di dalam sampai mereka keluar.")];
+    Panel.buka("Kunci rumah", isi, [{teks: kunci ? "Kunci pintu" : "Buka kunci", utama: true, aksi: async () => {
+      try {
+        await Akun.kirim("/api/perumahan/kunci", {terkunci: kunci}, "PUT");
+        data[k.kode] = {...k, terkunci: kunci};
+        muat().catch(() => {});
+        Kota.segarkanAksi();
+        Kota.kabar(kunci ? "Pintu rumahmu sudah dikunci." : "Pintu rumahmu terbuka lagi untuk tamu.");
+      } catch (e) {
+        Kota.kabar("Belum berhasil: " + (e instanceof TypeError ? "CodeIn News sedang tidak bisa dihubungi." : e.message));
+      }
+    }}, {teks: "Tutup"}]);
+  }
+
   /* ---------- satpam di gapura: keterangan perumahan ---------- */
   async function satpam() {
     await muat().catch(() => {});
@@ -240,5 +281,5 @@ const Perumahan = (() => {
     Kota.segarkanAksi();
   });
 
-  return {buka, teksAksi, pulang, tombolPulang, satpam, kini: () => kini, data: () => data, muat};
+  return {buka, teksAksi, teksKunci, aturKunci, pulang, tombolPulang, satpam, kini: () => kini, data: () => data, muat};
 })();
