@@ -1,4 +1,4 @@
-/* CodeIn City · layar judul: pilih karakter dan nama panggilan. */
+/* CodeIn City · layar judul: pilih karakter dan nama panggilan, dan masuk sebagai warga (js/akun.js). */
 
 const Judul = (() => {
   let pilih = 0;
@@ -24,6 +24,8 @@ const Judul = (() => {
     pilih = (pilih + geser + KOTA.karakter.length) % KOTA.karakter.length; tandai(); kotak.children[pilih].focus();
   });
 
+  const diJudul = () => !$("judul").hidden;
+
   function masuk(p) {
     Profil.simpan(p);
     $("judul").hidden = true; $("hud").hidden = false;
@@ -32,16 +34,88 @@ const Judul = (() => {
     Kota.mulai(p);
     if (document.activeElement) document.activeElement.blur();
   }
-  function tampil(p) {
+  function isi(p) {
     pilih = p ? p.karakter : Math.floor(Math.random() * KOTA.karakter.length);
-    $("nama").value = p ? p.nama : ""; $("pesan-nama").textContent = "";
-    tandai(); $("hud").hidden = true; $("judul").hidden = false;
+    $("nama").value = p && !(Akun.keadaan() === "warga" && /^Pengunjung \d+$/.test(p.nama)) ? p.nama : "";
+    tandai();
   }
-  $("form-judul").addEventListener("submit", e => {
+  // pesanAwal: misalnya "Pilih nama wargamu dulu" saat warga baru belum punya nama
+  function tampil(p, pesanAwal) {
+    isi(p);
+    $("pesan-nama").textContent = pesanAwal || "";
+    tulisAkun(); $("hud").hidden = true; $("judul").hidden = false;
+    if (pesanAwal) $("nama").focus();
+  }
+
+  /* ---------- bagian akun di layar judul ---------- */
+  let sibuk = false;
+  function tulisAkun() {
+    const k = Akun.keadaan(), w = Akun.warga(), tombol = $("btn-akun");
+    $("akun").hidden = k === "mati";
+    $("akun").dataset.k = k;
+    $("akun-pesan").textContent = k === "warga" && !w.perluNama ? "" : Akun.pesan();
+    tombol.disabled = sibuk || k === "memuat";
+    $("nama").placeholder = k === "warga" ? "Nama wargamu" : "Kosongkan untuk nama acak";
+    if (k === "warga") {
+      $("akun-teks").textContent = w.perluNama ? "Kamu sudah masuk. Pilih nama wargamu, lalu tekan Mulai jelajah."
+        : `Kamu masuk sebagai warga ${w.nama}. Nama dan karaktermu tersimpan di akunmu.`;
+      tombol.textContent = "Keluar dari akun";
+    } else if (k === "memuat") {
+      $("akun-teks").textContent = "Memeriksa akun…"; tombol.textContent = "Masuk dengan Google";
+    } else {
+      $("akun-teks").textContent = "Jadi warga supaya bisa daftar hosting dan memasang baliho. Tanpa masuk pun kamu tetap bisa jalan-jalan dan mengobrol.";
+      tombol.textContent = k === "galat" ? "Coba masuk lagi" : "Masuk dengan Google";
+    }
+  }
+  $("btn-akun").onclick = async () => {
+    if (sibuk) return;
+    sibuk = true; tulisAkun();
+    if (Akun.keadaan() === "warga") {
+      await Akun.keluar();
+    } else {
+      // profil yang sedang diisi dipakai untuk warga baru
+      const cek = Profil.cekNama($("nama").value);
+      if (cek.ok && $("nama").value.trim()) Profil.simpan({karakter: pilih, nama: cek.nama});
+      const salah = await Akun.masuk();
+      const w = Akun.warga();
+      if (Akun.keadaan() === "warga" && !w.perluNama) isi({nama: w.nama, karakter: w.karakter});
+      if (salah) $("akun-pesan").textContent = salah;
+    }
+    sibuk = false; tulisAkun();
+    if (Akun.keadaan() === "warga" && Akun.warga().perluNama) $("nama").focus();
+  };
+
+  // Akun berubah (login dipulihkan saat halaman dibuka, masuk, keluar): layar judul dan bilah atas ikut diperbarui
+  Akun.saatBerubah((k, w) => {
+    $("btn-profil").classList.toggle("warga", k === "warga");
+    $("btn-profil").title = k === "warga" ? "Profil warga: ganti karakter, nama, atau keluar" : "Ganti karakter atau nama, atau masuk sebagai warga";
+    if (diJudul()) {
+      tulisAkun();
+      if (k === "warga" && !w.perluNama && !sibuk) isi({nama: w.nama, karakter: w.karakter});
+      return;
+    }
+    const p = Kota.profil();
+    if (k === "warga" && w.perluNama) tampil(Profil.muat(), "Pilih nama wargamu dulu. " + Akun.pesan());
+    else if (k === "warga" && p && (p.nama !== w.nama || p.karakter !== w.karakter)) masuk({nama: w.nama, karakter: w.karakter});
+  });
+
+  $("form-judul").addEventListener("submit", async e => {
     e.preventDefault();
+    if (sibuk) return;
+    const warga = Akun.keadaan() === "warga", w = Akun.warga();
+    if (warga && !$("nama").value.trim()) { $("pesan-nama").textContent = "Isi nama wargamu dulu."; $("nama").focus(); return; }
     const cek = Profil.cekNama($("nama").value);
     if (!cek.ok) { $("pesan-nama").textContent = cek.alasan; $("nama").focus(); return; }
-    masuk({karakter: pilih, nama: cek.nama});
+    const p = {karakter: pilih, nama: cek.nama};
+    if (warga && (w.perluNama || w.nama !== p.nama || w.karakter !== p.karakter)) {
+      sibuk = true; $("btn-mulai").disabled = true; $("pesan-nama").textContent = "Menyimpan ke akunmu…";
+      try { await Akun.simpanProfil(p); $("pesan-nama").textContent = ""; }
+      catch (err) {
+        $("pesan-nama").textContent = err instanceof TypeError ? "Belum tersimpan: CodeIn News sedang tidak bisa dihubungi." : err.message;
+        $("nama").focus(); return;
+      } finally { sibuk = false; $("btn-mulai").disabled = false; }
+    }
+    masuk(p);
   });
   $("nama").addEventListener("input", () => { $("pesan-nama").textContent = ""; });
   $("btn-profil").onclick = () => tampil(Profil.muat());

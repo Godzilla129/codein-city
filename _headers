@@ -1,9 +1,10 @@
 # Kepala keamanan untuk semua halaman CodeIn City (dibaca Cloudflare, tidak ikut tayang sebagai file).
-# CSP: skrip hanya dari situs ini; data hanya dari CodeIn News (baliho, videotron, rumah proyek) dan layanan ramai (obrolan).
+# CSP: skrip hanya dari situs ini (plus apis.google.com, pemuat jendela login Google); data hanya dari CodeIn News (baliho, videotron,
+# rumah proyek, akun warga), layanan ramai (obrolan), dan layanan login Firebase (identitytoolkit, securetoken).
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
   Strict-Transport-Security: max-age=15552000
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://news.codeinhub.my.id wss://live.codeinhub.my.id; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://news.codeinhub.my.id wss://live.codeinhub.my.id https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; frame-src https://*.firebaseapp.com https://accounts.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'

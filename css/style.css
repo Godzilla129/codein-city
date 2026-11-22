@@ -178,7 +178,7 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 .isian .utama{min-height:48px;font-size:17px}
 .isian .utama:disabled{opacity:.6;cursor:progress}
 @media (max-width:480px){
-  .karakter{grid-template-columns:repeat(3,1fr)} .kar .muka{--s:4}
+  .karakter{grid-template-columns:repeat(4,1fr)} .kar .muka{--s:3}
   .merek{padding:3px 10px;white-space:nowrap} .merek b{font-size:15px} .merek span{font-size:11px}
   .tombol-hud{flex-wrap:nowrap} .tombol-hud .tbl{padding:0 10px}
   #hud-nama{display:none}
@@ -186,3 +186,11 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 }
 @media (prefers-reduced-motion:reduce){ .tbl:active{transform:none} .layar.ganti .pw-judul,.layar.ganti .pw-kaki{animation:none} #obrol-log li{transition:none} }
 #panel-isi a{color:#1F5E57;font-weight:600;text-underline-offset:3px}
+/* akun warga di layar judul */
+.akun{margin-top:14px;padding-top:12px;border-top:2px dashed #D2BFA3}
+.akun p{font-size:14.5px;margin-bottom:8px!important}
+.akun .pesan{min-height:0}
+.akun .tbl{width:100%}
+.akun[data-k="warga"] .tbl{min-height:40px;font-size:15px;color:var(--redup)}
+.akun .tbl:disabled{opacity:.6;cursor:progress}
+#btn-profil.warga{background:#E6F1E2}

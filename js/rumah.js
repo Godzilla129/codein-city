@@ -3,7 +3,8 @@
    Semua situs yang tayang tercantum di Direktori Proyek. Empat rumah di peta (pintu dengan tujuan "proyek": proyek-1
    sampai proyek-4) adalah hadiah untuk proyek unggulan yang dipilih admin, bukan syarat untuk dihosting.
      GET  /api/rumah          -> semua proyek yang sudah tayang; yang dapat rumah membawa id rumahnya
-     POST /api/rumah/ajukan   -> pendaftaran hosting (admin menyetujui di /admin, lalu mengirim kunci upload)
+     POST /api/rumah/ajukan   -> pendaftaran hosting, khusus warga yang login (js/akun.js); admin menyetujui di /admin,
+                                 lalu mengirim kunci upload
    Situs proyeknya sendiri disajikan oleh layanan CodeIn Rumah di https://<nama>.codeinhub.my.id. */
 
 const RumahProyek = (() => {
@@ -77,7 +78,6 @@ const RumahProyek = (() => {
     if (daftar.some(d => d.nama === f.nama)) return ["nama", "Subdomain itu sudah dipakai proyek lain."];
     if (f.deskripsi.trim().length < 5) return ["deskripsi", "Deskripsi minimal 5 huruf."];
     if (f.pemilik.trim().length < 2) return ["pemilik", "Nama kamu atau timmu wajib diisi."];
-    if (!f.email.trim() && !f.wa.trim()) return ["email", "Isi email atau nomor WhatsApp supaya admin bisa mengirim kunci upload."];
     if (f.email.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim())) return ["email", "Format email belum benar."];
     const wa = f.wa.replace(/\D/g, "").length;
     if (f.wa.trim() && (wa < 9 || wa > 15)) return ["wa", "Nomor WhatsApp belum benar."];
@@ -86,8 +86,10 @@ const RumahProyek = (() => {
   }
 
   function formulir() {
+    if (!Akun.sudahWarga()) { Akun.pastikan("Daftar hosting proyek", formulir); return; }
+    const FITUR = "Daftar hosting proyek", ULANG = formulir;
     if (!isian) {
-      const pf = Profil.muat(), nama = pf && !/^Pengunjung \d+$/.test(pf.nama) ? pf.nama : "";
+      const nama = Akun.warga().nama;
       isian = {judul: "", nama: "", deskripsi: "", pemilik: nama, email: "", wa: "", website: "", setuju: false, namaDiubah: false};
     }
     const f = isian;
@@ -121,9 +123,9 @@ const RumahProyek = (() => {
     form.append(kolomJudul, kolomNama, alamat,
       kolom("Deskripsi singkat", "deskripsi", 120, "text", "Maksimal 120 huruf"),
       kolom("Nama kamu atau tim", "pemilik", 40, "text"),
-      kolom("Email", "email", 80, "email", "nama@email.com"),
-      kolom("Nomor WhatsApp", "wa", 20, "tel", "08…"),
-      el("p", "redup", "Isi email atau WhatsApp, salah satu cukup. Kunci upload dikirim ke situ. Hanya admin CodeIn yang bisa melihatnya."));
+      kolom("Email (boleh kosong)", "email", 80, "email", "nama@email.com"),
+      kolom("Nomor WhatsApp (boleh kosong)", "wa", 20, "tel", "08…"),
+      el("p", "redup", "Kunci upload dikirim ke email atau WhatsApp yang kamu isi. Kalau dua-duanya kosong, admin memakai email akun Google-mu. Hanya admin CodeIn yang bisa melihatnya."));
     form.append(setuju, jebakan, pesan, kirim);
     form.onsubmit = async e => {
       e.preventDefault();
@@ -132,15 +134,14 @@ const RumahProyek = (() => {
       kirim.disabled = true; pesan.textContent = "Mengirim…";
       try {
         const {namaDiubah, ...kirimkan} = f;
-        const r = await fetch(API + "/api/rumah/ajukan", {method: "POST", headers: {"Content-Type": "application/json", "X-NA": "1"}, body: JSON.stringify(kirimkan)});
-        const d = await r.json().catch(() => ({}));
-        if (!r.ok) throw new Error(d.error || `Server menolak pengajuan (kode ${r.status}).`);
+        await Akun.kirim("/api/rumah/ajukan", kirimkan);
         const alamatnya = `${f.nama}.${DOMAIN}`;
         isian = null;
-        Panel.buka("Pendaftaran terkirim", [paragraf("Terima kasih. Admin CodeIn akan meninjau pendaftaranmu dan mengirim kunci upload lewat email atau WhatsApp yang kamu isi."),
+        Panel.buka("Pendaftaran terkirim", [paragraf("Terima kasih. Admin CodeIn akan meninjau pendaftaranmu dan mengirim kunci upload lewat kontak yang kamu isi, atau ke email akun Google-mu."),
           paragraf(`Setelah unggahanmu diterbitkan, situsnya tayang di ${alamatnya} dan masuk Direktori Proyek. Proyek yang bagus bisa dipilih admin untuk dapat rumah di kota.`)], [{teks: "Tutup"}]);
       } catch (err) {
         kirim.disabled = false;
+        if (err.status === 401) { Akun.pastikan(FITUR, ULANG); return; }
         pesan.textContent = err instanceof TypeError ? "Belum terkirim: CodeIn News sedang tidak bisa dihubungi. Isianmu masih ada, coba lagi sebentar." : "Belum terkirim: " + err.message;
       }
     };

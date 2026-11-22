@@ -13,6 +13,10 @@ const KOTA = {
   domain: "codeinhub.my.id",
   // Alamat layanan "ramai" (pengunjung lain dan obrolan, lihat js/ramai.js dan bagian "Layanan ramai" di README). Kosongkan untuk mematikan.
   live: "wss://live.codeinhub.my.id",
+  // Login warga (Firebase Authentication, hanya login Google). Isinya disalin dari Firebase Console > Project settings > Your apps.
+  // Nilai ini memang publik (ikut tayang di JavaScript); yang menjaga adalah daftar Authorized domains di Firebase dan
+  // pemeriksaan token di server CodeIn News. Kosongkan apiKey untuk mematikan login: kota tetap jalan, hanya tanpa fitur warga.
+  firebase: {apiKey: "", authDomain: "", projectId: "", appId: ""},
   // Pilihan warna pita baliho. Harus sama dengan SWATCHES di server CodeIn News (dashboard/services/billboards.py).
   warna: ["#E9A23B", "#2A9D8F", "#E06D53", "#5466D1", "#3E9E5A", "#C94F7C"],
 

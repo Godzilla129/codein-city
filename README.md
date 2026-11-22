@@ -2,10 +2,11 @@
 
 Kota kecil bergaya RPG piksel sebagai halaman depan komunitas CodeIn (`codeinhub.my.id`). Pengunjung memilih karakter, berjalan-jalan di kota, dan masuk ke gedung. Setiap gedung mewakili satu proyek komunitas. Gedung pertama adalah **CodeIn News** (`news.codeinhub.my.id`).
 
-Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses build. Satu-satunya data dari luar adalah isi baliho dan videotron, yang diambil dari API publik CodeIn News.
+Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses build. Data dari luar diambil dari API CodeIn News (baliho, videotron, rumah proyek, akun warga), layanan ramai (pengunjung lain dan obrolan), dan Firebase Authentication (hanya untuk login Google).
 
 ## Fitur
 
+- **Warga dan tamu**: siapa pun bisa jalan-jalan dan mengobrol sebagai tamu. Anggota yang masuk dengan akun Google jadi **warga**: nama wargamu unik, nama dan karakter tersimpan di akun (ikut ke perangkat lain), dan hanya warga yang bisa daftar hosting dan mengajukan baliho. Login lewat Firebase Authentication; profil warga disimpan di server CodeIn News, yang juga memeriksa token loginnya. Email akun hanya terlihat oleh admin.
 - Layar judul: dua belas pilihan karakter (enam karakter Kenney dan enam dari paket CodeIn City Retro: pemuda berhoodie, mahasiswi, bocil bertopi, ibu warung, kakek bertongkat, nenek) dan nama panggilan dengan penyaring kata kasar.
 - Jalan dengan WASD atau tombol panah. Di ponsel, sentuh layar lalu geser.
 - Kota 80 x 64 petak: jalan utama dengan tiga gerbang, alun-alun dengan air mancur dan Patung Si Pemula, pojok pasar, dan kampung warga di selatan.
@@ -36,6 +37,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `css/style.css` | Tampilan antarmuka |
 | `js/config.js` | **Isi yang paling sering diubah**: teks gedung, papan pengumuman, papan Markas, daftar warga dan ucapannya |
 | `js/profil.js` | Karakter dan nama pengunjung (disimpan di browser pengunjung), penyaring nama |
+| `js/akun.js` | Akun warga: login Google (Firebase), profil warga di server CodeIn News, ajakan masuk untuk fitur khusus warga |
 | `js/panel.js` | Dialog dan daftar tempat |
 | `js/papan.js` | Papan HTML: baliho, videotron, Papan Pengumuman, papan Markas, dialog Galeri, dan formulir pengajuan baliho |
 | `js/kendali.js` | Kendali sentuh |
@@ -58,6 +60,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `assets/musik/*.mp3` | Musik latar (96 kbps) |
 | `tools/buat_gambar.py` | Menyusun semua gambar di atas (jalankan sebelum `buat_peta.py`). Bagian-bagiannya: `kanvas.py` (palet dan alat gambar Kenney), `gambar_benda.py` (perabot, properti kota, kendaraan, ubin ruangan), `gambar_orang.py` (karakter). Semuanya digambar piksel demi piksel dengan palet Kenney, bentuknya mengacu ke paket CodeIn City Retro dan Top-Down Retro Interior |
 | `vendor/phaser.min.js` | Phaser 3.90.0 (lisensi MIT) |
+| `vendor/firebase-app-compat.js`, `firebase-auth-compat.js` | Firebase JavaScript SDK 13.2.0, versi compat, hanya bagian login (lisensi Apache 2.0) |
 | `tools/buat_peta.py` | Pembuat keempat peta (jalankan sesudah `buat_gambar.py`). Sampai versi ini peta masih sama persis dengan hasil skrip. Jangan dijalankan lagi setelah peta diubah di Tiled |
 
 Berkas JavaScript dimuat berurutan dari `index.html`, dan setiap berkas memakai isi berkas sebelumnya.
@@ -146,3 +149,12 @@ Situs diterbitkan lewat Cloudflare (Workers dengan aset statis) yang terhubung k
 - Gedung ikonik dan rumah warga: digambar untuk CodeIn City dengan palet RPG Urban Pack, mengacu ke paket aset "CodeIn City Retro" milik CodeIn.
 - Musik: [High Quality 16-bit RPG Music](https://hydrogene.itch.io/high-quality-16-bit-music) karya Hydrogene, CC0 1.0 (Lively City, Peaceful Village, East Town, Ancient Library), diubah ke MP3 96 kbps.
 - Phaser: lisensi MIT. Lihat `vendor/PHASER-LICENSE.md`.
+
+## Login warga (Firebase)
+
+1. Firebase Console (akun Google pribadi pengurus) > project CodeIn City > Authentication > Sign-in method: hanya **Google** yang dinyalakan.
+2. Authentication > Settings > Authorized domains: `codeinhub.my.id` (dan `localhost` untuk uji).
+3. Project settings > Your apps > aplikasi web: salin `apiKey`, `authDomain`, `projectId`, `appId` ke `KOTA.firebase` di `js/config.js`.
+   Nilai ini memang publik. Kosongkan `apiKey` untuk mematikan login; kota tetap jalan, hanya tanpa fitur warga.
+4. Server CodeIn News butuh `FIREBASE_PROJECT_ID` (= `projectId`) di `~/newsagent/.env` untuk memeriksa token (dipasang oleh `pasang-v23.sh`).
+5. `_headers` (CSP) sudah mengizinkan `apis.google.com`, `identitytoolkit.googleapis.com`, `securetoken.googleapis.com`, dan bingkai `*.firebaseapp.com`.

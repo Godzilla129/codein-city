@@ -70,7 +70,13 @@
     <label for="nama">Nama panggilan</label>
     <input id="nama" name="nama" type="text" maxlength="16" autocomplete="nickname" placeholder="Kosongkan untuk nama acak" spellcheck="false">
     <p class="pesan" id="pesan-nama" role="status"></p>
-    <button type="submit" class="tbl utama">Mulai jelajah</button>
+    <button type="submit" class="tbl utama" id="btn-mulai">Mulai jelajah</button>
+    <!-- akun warga (js/akun.js): tidak tampil kalau login belum disiapkan di config.js -->
+    <div class="akun" id="akun" hidden>
+      <p id="akun-teks"></p>
+      <p class="pesan" id="akun-pesan" role="status"></p>
+      <button type="button" class="tbl" id="btn-akun"></button>
+    </div>
   </form>
 </div>
 
@@ -78,9 +84,12 @@
 
 <!-- Urutan berkas penting: setiap berkas memakai isi berkas sebelumnya -->
 <script src="vendor/phaser.min.js"></script>
+<script src="vendor/firebase-app-compat.js"></script>
+<script src="vendor/firebase-auth-compat.js"></script>
 <script src="js/config.js"></script>
 <script src="js/profil.js"></script>
 <script src="js/panel.js"></script>
+<script src="js/akun.js"></script>
 <script src="js/papan.js"></script>
 <script src="js/kendali.js"></script>
 <script src="js/kota.js"></script>

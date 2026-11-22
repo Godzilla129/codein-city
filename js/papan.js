@@ -2,7 +2,7 @@
    Isinya diambil dari API publik CodeIn News (KOTA.news) dan disegarkan tiap 2 menit:
      GET  /api/billboards            -> isi 6 slot baliho
      GET  /api/clusters?hours=24&top=5 -> kabar paling ramai untuk videotron
-     POST /api/billboards/ajukan     -> pengajuan baliho dari formulir di kota
+     POST /api/billboards/ajukan     -> pengajuan baliho dari formulir di kota, khusus warga yang login (js/akun.js)
    Letak papan diatur di peta (layer objek "papan"); kota.js yang menempelkannya ke dunia.
    Semua teks dari server ditulis lewat textContent, jadi tidak bisa menyisipkan HTML. */
 
@@ -210,14 +210,15 @@ const Papan = (() => {
     if (d < 5) return ["sub", "Deskripsi minimal 5 huruf."];
     if (f.link.trim() && !tautan(f.link.trim())) return ["link", "Tautan harus diawali http:// atau https://"];
     if (n < 2) return ["name", "Nama kamu wajib diisi."];
-    if (!f.email.trim() && !f.wa.trim()) return ["email", "Isi email atau nomor WhatsApp supaya admin bisa menghubungi kamu."];
     if (f.email.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim())) return ["email", "Format email belum benar."];
     if (f.wa.trim() && (wa < 9 || wa > 15)) return ["wa", "Nomor WhatsApp belum benar."];
     return null;
   }
   function formulir(n) {
+    if (!Akun.sudahWarga()) { Akun.pastikan("Mengajukan baliho", () => formulir(n)); return; }
+    const FITUR = "Mengajukan baliho", ULANG = () => formulir(n);
     if (!isian) {
-      const p = Profil.muat(), nama = p && !/^Pengunjung \d+$/.test(p.nama) ? p.nama : "";
+      const nama = Akun.warga().nama;
       isian = {title: "", sub: "", link: "", name: nama, email: "", wa: "", theme: KOTA.warna[0], slot: 0, website: ""};
     }
     const f = isian; if (n) f.slot = n;
@@ -259,9 +260,9 @@ const Papan = (() => {
       kolom("Deskripsi singkat", "sub", 90, "text", "Maksimal 90 huruf"),
       kolom("Tautan (opsional)", "link", 200, "url", "https://…"),
       kolom("Nama kamu", "name", 40, "text"),
-      kolom("Email", "email", 80, "email", "nama@email.com"),
-      kolom("Nomor WhatsApp", "wa", 20, "tel", "08…"),
-      el("p", "redup", "Isi email atau nomor WhatsApp, salah satu cukup. Hanya admin CodeIn yang bisa melihatnya."),
+      kolom("Email (boleh kosong)", "email", 80, "email", "nama@email.com"),
+      kolom("Nomor WhatsApp (boleh kosong)", "wa", 20, "tel", "08…"),
+      el("p", "redup", "Kalau email dan WhatsApp kosong, admin menghubungimu lewat email akun Google-mu. Hanya admin CodeIn yang bisa melihatnya."),
       labelPilih, el("span", "label", "Warna pita"), warnaBaris, jebakan, pesan, kirim);
 
     form.onsubmit = async e => {
@@ -270,14 +271,13 @@ const Papan = (() => {
       if (salah) { pesan.textContent = salah[1]; medan[salah[0]].focus(); return; }
       kirim.disabled = true; pesan.textContent = "Mengirim…";
       try {
-        const r = await fetch(API + "/api/billboards/ajukan", {method: "POST", headers: {"Content-Type": "application/json", "X-NA": "1"}, body: JSON.stringify(f)});
-        const d = await r.json().catch(() => ({}));
-        if (!r.ok) throw new Error(d.error || `Server menolak pengajuan (kode ${r.status}).`);
+        await Akun.kirim("/api/billboards/ajukan", f);
         isian = null;
-        Panel.buka("Pengajuan terkirim", [paragraf("Terima kasih. Admin CodeIn akan menghubungi kamu lewat email atau WhatsApp yang kamu isi."),
+        Panel.buka("Pengajuan terkirim", [paragraf("Terima kasih. Admin CodeIn akan menghubungi kamu lewat kontak yang kamu isi, atau lewat email akun Google-mu."),
           paragraf("Balihonya tayang setelah disetujui admin.")], [{teks: "Tutup"}]);
       } catch (err) {
         kirim.disabled = false;
+        if (err.status === 401) { Akun.pastikan(FITUR, ULANG); return; }
         pesan.textContent = err instanceof TypeError ? "Belum terkirim: CodeIn News sedang tidak bisa dihubungi. Isianmu masih ada, coba lagi sebentar." : "Belum terkirim: " + err.message;
       }
     };

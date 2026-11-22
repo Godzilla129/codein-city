@@ -223,6 +223,7 @@ const Warga = (() => {
     ul.append(el("li", null, "Hosting proyek: situs, game web, atau portofolio tayang gratis di namaproyek." + KOTA.domain + " dan masuk Direktori Proyek."),
       el("li", null, "Baliho: pajang proyek, acara, atau portofoliomu di baliho kota."));
     isi.push(ul);
+    if (Akun.nyala() && !Akun.sudahWarga()) isi.push(el("p", null, "Pendaftaran khusus warga, yaitu anggota yang sudah masuk dengan akun Google. Belum masuk? Nanti aku bantu."));
     if (p.length) isi.push(el("p", "redup", "Pengumuman terbaru: " + p[0]));
     isi.push(el("p", "redup", "Mau ikut membangun kota atau membuka Warkop CodeIn? Sampaikan ke Jull lewat grup WhatsApp CodeIn."));
     Panel.buka("Kak Rani · Resepsionis", isi, [
