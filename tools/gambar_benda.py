@@ -655,24 +655,24 @@ TANAH, TANAH_G, TANAH_T = hx("b98a5e"), hx("9c714b"), hx("cfa074")
 
 
 def kavling_kosong():
-    """Kavling kosong 88 x 60 (datar, di bawah karakter): tanah gembur berpatok dengan tali rafia di keliling."""
+    """Kavling kosong 88 x 60 (datar, di bawah karakter): lahan berumput yang ditandai patok kayu kecil di keempat sudutnya
+    dan garis kapur putih putus-putus, dengan rumput sedikit lebih terang di dalamnya."""
     k = Kanvas(88, 60)
-    k.kotak(4, 4, 83, 55, TANAH)
-    for y in range(8, 54, 6):                               # alur tanah
-        for x in range(8, 80):
-            if (x + y // 6) % 9:
-                k.p(x, y, TANAH_G)
-            if (x * 7 + y) % 23 == 0:
-                k.p(x, y - 2, TANAH_T)
-    for (x, y) in ((20, 14), (55, 26), (33, 40), (68, 46), (12, 33)):    # rumput liar
-        k.p(x, y, HIJAU); k.p(x + 1, y - 1, HIJAU); k.p(x + 2, y, hx("6ea64f"))
-    tali = hx("e26c62")
+    for y in range(4, 56):                                  # rumput terpangkas: sedikit lebih terang, bertekstur halus
+        for x in range(4, 84):
+            if (x * 5 + y * 3) % 11 == 0:
+                k.p(x, y, (255, 255, 230, 40))
+    kapur = (250, 248, 236, 170)
     for x in range(4, 84):
-        k.p(x, 3, tali); k.p(x, 56, tali)
+        if x % 4 < 2:
+            k.p(x, 3, kapur); k.p(x, 56, kapur)
     for y in range(3, 57):
-        k.p(3, y, tali); k.p(84, y, tali)
+        if y % 4 < 2:
+            k.p(3, y, kapur); k.p(84, y, kapur)
     for (x, y) in ((2, 1), (83, 1), (2, 54), (83, 54)):     # patok kayu
-        k.panel(x, y, x + 2, y + 5, MEJA, MEJA_T, MEJA_G)
+        k.panel(x, y, x + 2, y + 4, MEJA, MEJA_T, MEJA_G)
+    for (x, y, c) in ((20, 18, hx("fcaf5f")), (58, 40, hx("f7a8c4")), (40, 12, PUTIH), (70, 24, hx("fcaf5f"))):   # bunga liar
+        k.p(x, y, c); k.p(x + 1, y + 1, HIJAU_TUA)
     return k
 
 

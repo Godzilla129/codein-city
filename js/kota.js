@@ -196,7 +196,7 @@ const Kota = (() => {
 
       // pemain: muncul di depan pintu yang baru dilewati, di posisi terakhir (sepulang dari CodeIn News), atau di titik mulai
       const asal = this.dariPintu && pintu.find(p => p.id === this.dariPintu);
-      let pos = asal ? {x: asal.x + asal.w / 2, y: asal.y + asal.h / 2} : (!dalam && Profil.muatPosisi()) || mulai;
+      let pos = asal ? {x: asal.x + asal.w / 2, y: asal.y + asal.h / 2} : (ruang === "kota" && Profil.muatPosisi()) || mulai;   // posisi tersimpan hanya untuk peta kota
       if (pos.x < 0 || pos.y < 0 || pos.x > lebar || pos.y > tinggi || tabrakan.getTileAtWorldXY(pos.x, pos.y)) pos = mulai;
       arah = dalam ? "atas" : "bawah";
       pemain = this.physics.add.sprite(pos.x, pos.y, "orang", frame(0, arah, 0)).setOrigin(.5, .8);

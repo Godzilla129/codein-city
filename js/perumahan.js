@@ -55,7 +55,7 @@ const Perumahan = (() => {
       if (baru) { r.setAlpha(0).setScale(1, .6).setY(p.bawah); adegan.tweens.add({targets: r, alpha: 1, scaleY: 1, duration: 650, ease: "Back.easeOut"}); }
     } else {
       g.benda.push(adegan.add.image(p.kiri + 4, p.bawah - 2, "benda", "kavling-kosong").setOrigin(0, 1).setDepth(4));
-      const px = p.kiri + 66, pb = p.bawah - 4;
+      const px = p.kiri + 4 * T + 1, pb = p.bawah + 13;          // papan kecil di halaman depan, di kanan jalan setapak
       g.benda.push(adegan.add.image(px, pb, "benda", "papan-kavling").setOrigin(0, 1).setDepth(10 + pb));
       g.padat.push(Kota.padatkan(px + 5, pb - 4, 4, 4));
     }

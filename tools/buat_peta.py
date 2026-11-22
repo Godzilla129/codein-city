@@ -588,35 +588,46 @@ def redaksi():
 
 
 # =====================================================================================================
-#  PERUMAHAN CODEIN (68 x 48), lewat Gerbang Selatan kota
-#  Blok A: 24 kavling dalam tiga baris (A01-A08, A09-A16, A17-A24), empat di kiri dan empat di kanan jalan masuk.
+#  PERUMAHAN CODEIN (60 x 63), lewat Gerbang Selatan kota
+#  Kompleks asri: jalan utama beraspal dari gapura ke selatan, gang conblock di depan tiap baris rumah,
+#  taman di tengah. Blok A = 24 kavling dalam empat baris (A01-A06, A07-A12, taman, A13-A18, A19-A24),
+#  tiga kavling di kiri dan tiga di kanan jalan utama. Tiap kavling: halaman belakang berpohon, rumah 6 x 6 ubin,
+#  halaman depan berpagar kayu dengan jalan setapak ke gang.
 #  Rumahnya tidak digambar di peta: js/perumahan.js menaruh rumah starter (atau tanda kavling kosong) menurut data
 #  CodeIn News. Peta hanya menyimpan letak tiap kavling di pintu "kav-<kode>" (properti kiri, bawah = pojok kiri bawah rumah).
 # =====================================================================================================
+PAGAR = (382, 383, 384, 385)        # pagar kayu: ujung kiri, tengah, tengah, ujung kanan
+SEMAK = (291, 292)                  # semak bulat kecil
+
+
 def perumahan():
-    p = Peta(68, 48, seed=23)
+    p = Peta(60, 63, seed=23)
     p.urut_aspal = True
     W, H = p.W, p.H
     for y in range(H):
         for x in range(W):
             p.put("tanah", x, y, RUMPUT)
-    BARIS = (5, 16, 27)                                   # y0 rumah tiap baris; trotoar di y0+6, jalan di y0+7..y0+9
-    KIRI, KANAN = (4, 11, 18, 25), (38, 45, 52, 59)
-    roads = [(33, 0, 35, 36, "v")] + [(4, y0 + 7, 64, y0 + 9, "h") for y0 in BARIS]
-    asphalt = aspal(p, roads)
-    trotoar = set()
-    for y0 in BARIS:
-        trotoar |= cells(4, y0 + 6, 30, y0 + 6) | cells(38, y0 + 6, 64, y0 + 6)
-    trotoar |= cells(32, 0, 32, 36) | cells(36, 0, 36, 36) | cells(4, 37, 64, 37)
-    trotoar -= asphalt
-    p.ubin(trotoar, BATU)
+    acak = random.Random(31)
+    BARIS = (6, 18, 38, 50)                      # y0 rumah; halaman depan y0+6..y0+7, gang y0+8..y0+9
+    KIRI, KANAN = (3, 11, 19), (33, 41, 49)
 
-    # gapura di ujung utara jalan masuk; pintunya kembali ke Gerbang Selatan kota
-    p.sprite("gerbang-perumahan", 31 * T, 5 * T)
-    p.halangi(31 * T + 1, 5 * T - 8, 12, 8)
-    p.halangi(31 * T + 83, 5 * T - 8, 12, 8)
-    p.door("gerbang-kota", "Ke CodeIn City", 34, 0, "keluar", "kota", zone=(33 * T, 0, 3 * T, 2 * T), label_y=2 * T, ke="gerbang-selatan")
-    p.obj(p.points, "mulai", 34 * T + 8, 6 * T + 8)
+    # jalan utama beraspal dari gapura sampai gang terakhir, trotoar di kiri-kanannya
+    aspal(p, [(28, 0, 30, H - 4, "v")])
+    jalan_kaki = cells(27, 4, 27, H - 4) | cells(31, 4, 31, H - 4)
+    for y0 in BARIS:                             # gang conblock di depan tiap baris
+        jalan_kaki |= cells(2, y0 + 8, 26, y0 + 9) | cells(32, y0 + 8, 57, y0 + 9)
+    # taman tengah: rumput dengan setapak krem, pelataran kecil di sekeliling kolam, lapangan badminton
+    p.ubin(jalan_kaki - p.lantai, BATU)
+    p.ubin(cells(3, 31, 26, 32) | cells(32, 31, 56, 32) | cells(9, 28, 17, 30), KREM)
+    p.ubin(cells(40, 33, 49, 35), BATU)
+
+    # gapura dan pos satpam di ujung utara
+    p.sprite("gerbang-perumahan", 26 * T, 4 * T)
+    p.halangi(26 * T + 1, 4 * T - 8, 12, 8)
+    p.halangi(26 * T + 83, 4 * T - 8, 12, 8)
+    p.perabot("pos-ronda", 33, 3)
+    p.door("gerbang-kota", "Ke CodeIn City", 29, 0, "keluar", "kota", zone=(28 * T, 0, 3 * T, 2 * T), label_y=2 * T, ke="gerbang-selatan")
+    p.obj(p.points, "mulai", 29 * T + 8, 5 * T + 8)
 
     # kavling
     n = 0
@@ -626,41 +637,84 @@ def perumahan():
             kode = f"A{n:02d}"
             p.tapak.append((x0, y0, 6))
             p.door(f"kav-{kode}", f"Kavling {kode}", x0 + 2, y0 + 5, "panel", "kavling", kavling=kode, kiri=x0 * T, bawah=(y0 + 6) * T)
-            p.thing(x0 + 5, y0 + 6, 305 if n % 2 else 306)            # kotak surat di trotoar
-        for x in (10, 17, 24, 44, 51, 58):                              # pagar kayu di sela rumah
-            p.thing(x, y0 + 5, 383)
-        for x in (18, 30, 38, 52):                                      # lampu trotoar depan rumah
-            p.lamp(x, y0 + 6)
-    for (x, y) in ((32, 6), (36, 6), (32, 18), (36, 18), (32, 29), (36, 29)):
-        p.lamp(x, y)
+            # jalan setapak dari pintu ke gang
+            p.ubin(cells(x0 + 2, y0 + 6, x0 + 3, y0 + 7), KREM)
+            # pagar kayu di tepi halaman depan, terbuka di depan setapak; kotak surat di ujung kanan
+            for x in range(x0, x0 + 6):
+                if x in (x0 + 2, x0 + 3):
+                    continue
+                if x == x0 + 5:
+                    p.thing(x, y0 + 7, 305 if n % 2 else 306)
+                else:
+                    p.thing(x, y0 + 7, PAGAR[0] if x == x0 else PAGAR[3] if x == x0 + 4 else PAGAR[1 + x % 2])
+            # semak di kedua sudut halaman depan
+            p.thing(x0, y0 + 6, SEMAK[n % 2])
+            p.thing(x0 + 5, y0 + 6, SEMAK[(n + 1) % 2])
+            # sela antar kavling: pagar tanaman menyambung garis pagar, pohon kecil di sampingnya
+            for gx in (x0 + 6, x0 + 7):
+                if gx < 57 and gx not in range(26, 33):
+                    p.thing(gx, y0 + 7, 329 if gx == x0 + 6 else 330)
+                    if gx == x0 + 6:
+                        p.halangi(gx * T + 5, (y0 + 5) * T + 10, 6, 6)
+                        p.pohon(gx * T + 16, (y0 + 5) * T + 15, "pohon-kecil")
+        # halaman belakang: pepohonan dan semak, tidak terlalu rapat
+        for x in list(range(2, 26)) + list(range(32, 57)):
+            for y in (y0 - 2, y0 - 1):
+                if (x, y) in p.lantai or (x, y) in p.keras:
+                    continue
+                r = acak.random()
+                if r < .22:
+                    p.halangi(x * T + 5, y * T + 10, 6, 6)
+                    p.pohon(x * T + 8 + acak.randint(-3, 3), y * T + 15, acak.choice(("pohon-a", "pohon-b", "pohon-kecil", "pohon-a")))
+                elif r < .3:
+                    p.thing(x, y, SEMAK[acak.randint(0, 1)])
 
-    # taman di selatan: lapangan rumput, bangku, papan informasi perumahan
-    p.ubin(cells(28, 39, 40, 43), KREM)
-    p.board("info", "info-perumahan", 31, 39, 7, 2, 42, name="Papan Perumahan CodeIn")
-    for (x, y) in ((28, 43), (40, 43), (30, 43), (38, 43)):
-        p.thing(x, y, 250)                                              # bangku
-    p.perabot("beringin", 18, 43, dx=4)
-    p.perabot("net-badminton", 47, 41)
-    for (x, y) in ((28, 39), (40, 39)):
-        p.lamp(x, y)
+    # lampu: di trotoar jalan utama dan di mulut tiap gang
+    for y in (6, 14, 22, 30, 38, 46, 54):
+        p.lamp(27, y)
+        p.lamp(31, y)
+    for y0 in BARIS:
+        for x in (2, 57):
+            p.lamp(x, y0 + 8)
 
-    # hutan tepi dan pohon pengisi di belakang tiap baris rumah
-    acak = random.Random(29)
-    gerbang = cells(31, 0, 37, 4)
+    # taman tengah (baris 28-35)
+    # kiri: kolam teratai di pelataran kecil, bangku menghadap kolam, papan informasi di tepi setapak, beringin
+    p.perabot("kolam", 11, 29, padat=False, datar=True, dy=-4)
+    p.halangi(11 * T + 4, 30 * T - 34, 40, 26)                         # seluruh kolam tidak bisa dimasuki
+    for (x, y) in ((9, 29), (16, 29)):
+        p.thing(x, y, 250)
+    p.board("info", "info-perumahan", 19, 28, 4, 2, 31, name="Papan Perumahan CodeIn")
+    p.perabot("beringin", 4, 35, dx=4)
+    # kanan: lapangan badminton berpelataran, palem, bangku penonton
+    p.perabot("net-badminton", 43, 34, dx=8)
+    for (x, y) in ((38, 34), (51, 34), (44, 29), (46, 29)):
+        p.thing(x, y, 250)
+    p.perabot("palem", 35, 30, dx=-8)
+    p.perabot("palem", 54, 30, dx=-8)
+    for (x, y) in ((8, 31), (18, 32), (36, 31), (53, 32)):
+        p.lamp(x, y)
+    # rumpun bunga dan pohon di rumput taman
+    for (x, y) in sorted(cells(3, 28, 25, 35) | cells(33, 28, 56, 35), key=lambda c: (c[1], c[0])):
+        if (x, y) in p.lantai or (x, y) in p.keras or (x, y + 1) in p.lantai or (x, y - 1) in p.lantai:
+            continue
+        r = acak.random()
+        if r < .16:
+            p.halangi(x * T + 5, y * T + 10, 6, 6)
+            p.pohon(x * T + 8 + acak.randint(-3, 3), y * T + 15, acak.choice(("pohon-a", "pohon-b", "pohon-gugur-b")))
+        elif r < .28:
+            p.thing(x, y, SEMAK[acak.randint(0, 1)])
+
+    # hutan tepi
+    gerbang = cells(25, 0, 32, 3)
     hutan = set()
     for x in range(W):
-        hutan |= {(x, y) for y in range(0, 2 + (x * 7 % 5 == 0))} | {(x, y) for y in range(H - 3 - (x * 3 % 4 == 0), H)}
+        hutan |= {(x, y) for y in range(0, 2 + (x * 7 % 5 == 0))} | {(x, y) for y in range(H - 3, H)}
     for y in range(H):
-        hutan |= {(x, y) for x in range(0, 3)} | {(x, y) for x in range(W - 3, W)}
+        hutan |= {(x, y) for x in range(0, 2)} | {(x, y) for x in range(W - 2, W)}
     hutan = {c for c in hutan if c not in gerbang and c not in p.lantai and c not in p.keras and (c[0], c[1] - 1) not in p.lantai}
     for (x, y) in sorted(hutan, key=lambda c: (c[1], c[0])):
         p.block(x, y)
-        nama = acak.choice(("pohon-a", "pohon-b", "pohon-a", "rumpun", "pohon-kecil"))
-        p.pohon(x * T + 8 + acak.randint(-4, 4), y * T + 15 + acak.randint(-3, 2), nama)
-    for (x, y) in sorted(cells(3, 2, 30, 4) | cells(38, 2, 64, 4) | cells(3, 44, 64, 44), key=lambda c: (c[1], c[0])):
-        if (x, y) not in p.keras and (x, y) not in p.lantai and (x, y) not in hutan and acak.random() < .3:
-            p.halangi(x * T + 5, y * T + 10, 6, 6)
-            p.pohon(x * T + 8 + acak.randint(-3, 3), y * T + 15, acak.choice(("pohon-a", "pohon-b", "pohon-kecil")))
+        p.pohon(x * T + 8 + acak.randint(-4, 4), y * T + 15 + acak.randint(-3, 2), acak.choice(("pohon-a", "pohon-b", "pohon-a", "rumpun", "pohon-kecil")))
     p.tulis("perumahan")
 
 

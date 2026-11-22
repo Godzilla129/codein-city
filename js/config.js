@@ -115,7 +115,7 @@ const KOTA = {
     },
     "info-perumahan": {
       judul: "Perumahan CodeIn",
-      baris: ["Blok A: 24 kavling.", "Khusus warga CodeIn.", "Rumah starter gratis."],
+      baris: ["Blok A: 24 kavling.", "Khusus warga.", "Rumah gratis."],
       isi: ["Perumahan CodeIn adalah tempat tinggal warga, yaitu anggota yang sudah masuk dengan akun Google.",
             "Pilih kavling yang masih kosong (bertanda papan kecil), lalu tempati. Rumah starter langsung berdiri dengan nama dan model pilihanmu. Satu warga satu kavling.",
             "Siapa pun boleh bertamu ke rumah warga. Dari menu Tempat, tombol Pulang ke rumahku mengantarmu langsung ke depan rumah."],
@@ -217,7 +217,7 @@ const KOTA = {
       malam: {rute: [[26, 18], [53, 18], [53, 23], [26, 23]], laju: 18, ket: "jalan santai di alun-alun",
               ucapan: ["Malam-malam jalan santai di bawah lampu alun-alun. Tenang rasanya.", "Warga lain sudah pulang. Tinggal aku dan Pak Harun yang masih di luar."]}}},
     // Satpam di gapura Perumahan CodeIn: keterangan perumahan, antar pulang, ganti warna rumah (dialognya di js/perumahan.js)
-    {nama: "Pak Darto", karakter: 4, ruang: "perumahan", di: [37, 6], hadap: "bawah", peran: "satpam", ket: "jaga di gapura Perumahan CodeIn"},
+    {nama: "Pak Darto", karakter: 4, ruang: "perumahan", di: [32, 5], hadap: "kiri", peran: "satpam", ket: "jaga di gapura Perumahan CodeIn"},
     // Resepsionis Markas: semua pendaftaran (hosting proyek, baliho) lewat dia; dialognya dibuat di js/warga.js
     {nama: "Kak Rani", karakter: 7, ruang: "markas", di: [16, 8], hadap: "bawah", peran: "resepsionis", ket: "di meja resepsionis Markas CodeIn",
      salam: {pagi: "Selamat pagi, selamat datang di Markas CodeIn!", siang: "Selamat siang, selamat datang di Markas CodeIn!",
