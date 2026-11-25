@@ -8,6 +8,11 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 
 - **Warga dan tamu**: siapa pun bisa jalan-jalan dan mengobrol sebagai tamu. Anggota yang masuk dengan akun Google jadi **warga**: nama wargamu unik, nama dan karakter tersimpan di akun (ikut ke perangkat lain), dan hanya warga yang bisa daftar hosting dan mengajukan baliho. Login lewat Firebase Authentication; profil warga disimpan di server CodeIn News, yang juga memeriksa token loginnya. Email akun hanya terlihat oleh admin.
 - **Perumahan CodeIn** (lewat Gerbang Selatan): desa yang sengaja tidak rapi, dengan satu jalan aspal ke lapangan desa, jalan setapak tanah yang berkelok, hutan, danau, kolam taman, dan sawah. Ada 24 kavling Blok A yang tersebar acak untuk warga. Warga memilih kavling kosong, memilih satu dari enam model rumah, dan rumah starternya langsung berdiri dengan nama pemiliknya. Satu warga satu kavling. Siapa pun boleh bertamu; pengunjung yang berada di rumah yang sama saling terlihat. Tombol **Pulang ke rumahku** di menu Tempat, dan Pak Darto si satpam di gapura (keterangan perumahan, ganti model rumah).
+- **Koin dan tas**: warga baru mendapat 50 koin dan perabot rumah starter. Tombol tas di bilah atas menampilkan koin, isi tas, dan juara mancing hari ini. Semua perubahan koin tercatat di server (admin bisa memberi koin sebagai hadiah lomba).
+- **Mancing**: berdiri di tepi kolam Taman Kota atau danau Perumahan, menghadap ke air, lalu tekan Mancing. Tunggu umpan dimakan, tarik tepat waktu, lalu adu tarik (tekan saat jarum di zona hijau). Server yang memilih ikan dan waktunya; 40 tangkapan per hari. Ikan dijual ke Pak Ikan di Pasar CodeIn.
+- **Kebun halaman**: tiap rumah warga punya 3 petak kebun di halaman depan. Beli bibit (kangkung, cabai, tomat, jagung, semangka), tanaman tumbuh menurut jam asli, panennya dijual ke Bu Sayur.
+- **Tata rumah**: pemilik menata perabot di dalam rumahnya (tombol Tata rumah): pilih perabot dari tas, ketuk lantai untuk menaruh, ketuk perabot untuk memindahkan atau menyimpannya. Perabot baru dibeli di **Toko Mbak Tika** (26 perabot).
+- **Desain rumah sendiri** (lewat Pak Darto): editor piksel 96 x 106 dengan garis bantu pintu dan dinding, atau impor PNG. Desain tampil di Perumahan setelah disetujui admin.
 - Layar judul: dua belas pilihan karakter (enam karakter Kenney dan enam dari paket CodeIn City Retro: pemuda berhoodie, mahasiswi, bocil bertopi, ibu warung, kakek bertongkat, nenek) dan nama panggilan dengan penyaring kata kasar.
 - Jalan dengan WASD atau tombol panah. Di ponsel, sentuh layar lalu geser.
 - Kota 96 x 80 petak bergaya campuran: pusat kota rapi, makin ke selatan makin seperti kampung. Jalan raya barat-timur dengan gedung-gedung utama, **Taman Kota** (ruang terbuka hijau) dengan plaza air mancur dan Patung Si Pemula, jalan taman melingkar, kolam teratai, gazebo, dan lapangan badminton; **Kebun Kota** di barat; **Pasar CodeIn** di timur; Markas, Warkop, menara Aetheria, dan Toko Mbak Tika di selatan taman; lalu kampung warga dengan jalan setapak tanah sampai Gerbang Selatan (ke Perumahan CodeIn).
@@ -46,6 +51,13 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/kota.js` | Adegan (Phaser) untuk semua peta: pemain, pintu, masuk dan keluar gedung, patung, siang dan malam |
 | `js/redaksi.js` | Kantor Redaksi: Eko, Tekno, dan Rina; keadaannya dihitung dari API publik CodeIn News, dialog tiap redaktur |
 | `js/perumahan.js` | Perumahan CodeIn: rumah atau kavling kosong per kavling (data dari CodeIn News), menempati kavling, bertamu, pulang, satpam |
+| `js/barang.js` | Ikon piksel barang di tas (ikan dan hasil kebun), digambar dari pola di berkas itu |
+| `js/ekonomi.js` | Koin dan tas warga, jual hasil tangkapan dan panen ke pedagang pasar |
+| `js/mancing.js` | Mancing: deteksi tepi air, joran dan pelampung, minigame tarik |
+| `js/tata.js` | Isi rumah warga (perabot dari data) dan mode Tata rumah; aturan letak sama dengan `services/rumahku.py` di CodeIn News |
+| `js/toko.js` | Toko Mbak Tika (perabot) |
+| `js/kebun.js` | Kebun halaman: petak, tahap tumbuh, tanam, panen, cabut |
+| `js/desain.js` | Editor desain rumah dan gambar rumah berdesain di Perumahan |
 | `js/rumah.js` | Hosting proyek anggota: formulir pendaftaran, Direktori Proyek, dan nama proyek unggulan di pintu rumahnya (data dari CodeIn News) |
 | `js/warga.js` | Warga dan jadwal hariannya: pencarian jalur, jalan-jalan kecil, pulang ke rumah, ucapan per waktu |
 | `js/lalulintas.js` | Kendaraan yang mengikuti jalur di peta dan berhenti untuk pejalan kaki |
@@ -145,6 +157,9 @@ Situs diterbitkan lewat Cloudflare (Workers dengan aset statis) yang terhubung k
 | 7 | Tahap 2: rumah proyek anggota dengan hosting situs statis (unggah zip) | Selesai |
 | - | Lahan kosong untuk rumah proyek berikutnya, akun anggota, poin | Rencana |
 | 8 | Kantor Redaksi CodeIn News jadi ruangan piksel di dalam kota | Selesai |
+| 9 | Login warga, Perumahan CodeIn, kunci rumah, pendaftaran acara | Selesai |
+| 10 | Koin, mancing, kebun halaman, Toko Mbak Tika, tata rumah, desain rumah sendiri | Selesai |
+| - | Lahan kebun tambahan (beli atau buka lahan, pajak ke Markas), minigame desa | Rencana |
 | - | Warkop CodeIn: dibuka bersama anggota yang mau ikut membangun | Menunggu kontributor |
 
 ## Lisensi aset

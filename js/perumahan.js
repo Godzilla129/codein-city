@@ -53,7 +53,10 @@ const Perumahan = (() => {
     if (!k || !adegan) return;
     const g = gambar[p.kavling] = {benda: [], padat: []};
     if (k.pemilik) {
-      const r = adegan.add.image(p.kiri, p.bawah, "benda", `rumah-${k.rumah || 0}`).setOrigin(0, 1).setDepth(10 + p.bawah);
+      // desain buatan pemilik (sudah disetujui admin) kalau ada dan gambarnya sudah terunduh; selain itu model rumah biasa
+      const sendiri = k.desain ? Desain.tekstur(adegan, k.kode, k.desain, () => { if (Kota.ruang() === "perumahan") gambarKavling(p); }) : null;
+      const r = sendiri ? adegan.add.image(p.kiri, p.bawah, sendiri).setOrigin(0, 1).setDepth(10 + p.bawah)
+                        : adegan.add.image(p.kiri, p.bawah, "benda", `rumah-${k.rumah || 0}`).setOrigin(0, 1).setDepth(10 + p.bawah);
       g.benda.push(r);
       g.padat.push(Kota.padatkan(p.kiri + 4, p.bawah - DINDING + 8, 6 * T - 8, DINDING - 8));
       if (baru) { r.setAlpha(0).setScale(1, .6).setY(p.bawah); adegan.tweens.add({targets: r, alpha: 1, scaleY: 1, duration: 650, ease: "Back.easeOut"}); }
@@ -230,7 +233,8 @@ const Perumahan = (() => {
     const saya = milikku();
     if (saya) {
       isi.push(el("p", null, `Rumahmu di kavling ${saya.kode}, model ${MODEL[saya.rumah || 0].toLowerCase()}.`));
-      tombol.push({teks: "Antar ke rumahku", utama: true, aksi: pulang}, {teks: "Ganti model rumah", aksi: () => gantiModel(saya)});
+      tombol.push({teks: "Antar ke rumahku", utama: true, aksi: pulang}, {teks: "Ganti model rumah", aksi: () => gantiModel(saya)},
+                  {teks: "🎨 Desain rumah sendiri", aksi: () => Desain.buka()});
     } else if (Akun.sudahWarga()) {
       isi.push(el("p", null, "Kamu belum punya rumah. Datangi kavling yang bertanda papan kecil, lalu tempati. Rumah starternya gratis."));
     } else {
@@ -286,5 +290,5 @@ const Perumahan = (() => {
   });
 
   return {buka, teksAksi, teksKunci, aturKunci, pulang, tombolPulang, satpam, kini: () => kini, data: () => data, muat, pemilikKini, milikku,
-    jamServer: () => Date.now() / 1000 + selisihJam, saatTata: f => saatTataList.push(f)};
+    jamServer: () => Date.now() / 1000 + selisihJam, saatTata: f => saatTataList.push(f), tataUlang: () => tataSemua()};
 })();

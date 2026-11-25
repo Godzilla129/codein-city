@@ -205,6 +205,20 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 .barang-toko{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:10px;border-top:2px dashed #D2BFA3;padding:6px 0;margin:0}
 .barang-toko b{display:block;font-weight:600}
 .barang-toko .tbl{min-width:84px}
+/* desain rumah (js/desain.js) */
+.bingkai-desain{position:relative;width:min(288px,100%);aspect-ratio:96/106;margin:0 auto 10px;border:3px solid var(--tinta);border-radius:6px;
+  background:repeating-conic-gradient(#E8DCC8 0 25%, #F6EFE3 0 50%) 0 0/12px 12px}
+.bingkai-desain canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+.kanvas-desain{touch-action:none;cursor:crosshair}
+.bantu-desain{pointer-events:none}
+.palet{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.palet button{width:30px;height:30px;padding:0;border:2px solid var(--tinta);border-radius:6px;cursor:pointer}
+.palet button[aria-checked="true"]{box-shadow:0 0 0 2px var(--kertas),0 0 0 4px var(--tinta)}
+.palet input[type=color]{width:44px;height:30px;padding:0;border:2px solid var(--tinta);border-radius:6px;background:none}
+.alat-desain{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.alat-desain .tbl{min-height:40px;padding:0 10px;font-size:14px}
+.alat-desain [aria-pressed="true"]{background:var(--emas)}
+.alat-desain select{min-height:40px;border:2px solid var(--tinta);border-radius:10px;background:var(--kertas);padding:0 8px;font:inherit;font-size:14px}
 /* tata rumah (js/tata.js) */
 #btn-tata{position:fixed;right:12px;bottom:calc(26px + env(safe-area-inset-bottom));min-height:48px;background:var(--emas)}
 #tata{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;width:min(560px, calc(100vw - 16px));
