@@ -499,14 +499,16 @@ def kota():
         p.lamp(x, 53)
 
     # ---------- titik tempat untuk jadwal warga dan redaktur ----------
+    # Setiap titik harus di petak yang bisa diinjak (bukan lampu, bangku, palem, atau air): warga yang tujuannya terhalang
+    # tidak bisa mencari jalan. Pojok jalan lingkar dan pojok plaza ada lampunya, jadi titiknya satu petak ke dalam.
     for ident, x, y in (("depan-news", 21, 13), ("depan-videotron", 31, 13), ("zebra-news", 29, 13), ("depan-galeri", 39, 13),
-                        ("depan-papan", 34, 23), ("alun-alun", 44, 34), ("dekat-patung", 52, 30), ("taman-kolam", 39, 31),
+                        ("depan-papan", 34, 23), ("alun-alun", 45, 33), ("dekat-patung", 52, 30), ("taman-kolam", 40, 31),
                         ("gazebo", 31, 29), ("taman-timur", 62, 25), ("taman-baliho", 66, 49), ("depan-markas", 28, 49),
-                        ("depan-warkop", 39, 49), ("depan-toko", 83, 50), ("depan-aetheria", 54, 49), ("pos-timur", 89, 13), ("pos-timur-2", 86, 13),
+                        ("depan-warkop", 39, 49), ("depan-toko", 83, 50), ("depan-aetheria", 54, 49), ("pos-timur", 89, 13), ("pos-timur-2", 87, 13),
                         ("halte", 69, 13), ("gerobak-bakso", 81, 39), ("lapangan-1", 31, 69), ("lapangan-2", 31, 72),
                         ("kebun", 16, 36), ("taman-lapangan", 61, 34),
-                        ("patung-1", 44, 25), ("patung-2", 51, 25), ("patung-3", 51, 32), ("patung-4", 44, 32),
-                        ("cincin-1", 27, 22), ("cincin-2", 68, 22), ("cincin-3", 68, 35), ("cincin-4", 27, 35),
+                        ("patung-1", 45, 25), ("patung-2", 50, 25), ("patung-3", 51, 32), ("patung-4", 44, 32),
+                        ("cincin-1", 28, 22), ("cincin-2", 67, 22), ("cincin-3", 67, 35), ("cincin-4", 28, 35),
                         ("trotoar-utara-1", 50, 13), ("trotoar-utara-2", 72, 13), ("kampung-1", 47, 55), ("kampung-2", 45, 74),
                         ("gang-barat-1", 10, 64), ("gang-barat-2", 26, 63),
                         ("pasar-1", 80, 26), ("pasar-2", 91, 27), ("pasar-3", 91, 33), ("pasar-4", 80, 34), ("pasar-5", 86, 25), ("pasar-6", 86, 33)):

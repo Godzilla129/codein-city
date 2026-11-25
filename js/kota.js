@@ -537,6 +537,8 @@ const Kota = (() => {
     // nama ruangan untuk layanan obrolan: tiap rumah warga punya ruangannya sendiri (rumah-A07), jadi tamu di rumah yang sama saling terlihat
     kamar: () => ruang === "rumah" && Perumahan.kini() ? "rumah-" + Perumahan.kini() : ruang,
     posisi: () => pemain ? {x: pemain.x, y: pemain.y, arah, jalan} : null,
+    // titik dunia (x, y) ada di layar, dengan tepi 48 piksel supaya yang baru akan masuk layar juga dihitung terlihat
+    terlihat: (x, y) => { if (!adegan) return false; const v = adegan.cameras.main.worldView; return x > v.x - 48 && x < v.right + 48 && y > v.y - 48 && y < v.bottom + 48; },
     orang: () => pemain ? [pemain, ...Warga.sprites()] : [],                // semua yang perlu dihindari kendaraan
     saatSiap: f => saatSiapList.push(f), tiapBingkai: f => tiapBingkaiList.push(f),
   };

@@ -9,7 +9,7 @@ const Warga = (() => {
   const ASPAL = new Set([441, 468, 406, 460, 433, 461, 463, 462]), ZEBRA = new Set([405, 432, 459]), RUMPUT = 28;
   const ARAH4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
-  let daftar = [], adegan = null, ruang = "kota", grid = null, W = 0, H = 0, waktuKini = null, cekWaktu = 0;
+  let daftar = [], adegan = null, ruang = "kota", grid = null, komp = null, W = 0, H = 0, waktuKini = null, cekWaktu = 0;
   let rumah = {};          // nama penghuni -> tile di depan pintu rumahnya
   let tempat = {};         // id titik "tempat" di peta kota -> tile; jadwal di config.js menyebut tempat dengan id-nya
   let tamu = [];           // warga tambahan dari berkas lain (redaktur CodeIn News yang sedang keliling kota), lihat aturTamu
@@ -30,12 +30,46 @@ const Warga = (() => {
       const t = dasar ? dasar.index - 1 : -1;
       grid[y * W + x] = ASPAL.has(t) ? 6 : ZEBRA.has(t) ? 1 : t === RUMPUT ? 2 : 1;
     }
+    // nomor wilayah: petak yang saling tersambung punya nomor sama (untuk tahu tujuan mana yang bisa dicapai)
+    komp = new Int32Array(W * H).fill(-1);
+    for (let i = 0, n = 0; i < W * H; i++) if (grid[i] && komp[i] < 0) {
+      const tumpuk = [i]; komp[i] = n;
+      while (tumpuk.length) {
+        const c = tumpuk.pop(), cx = c % W, cy = (c / W) | 0;
+        for (const [dx, dy] of ARAH4) {
+          const nx = cx + dx, ny = cy + dy, k = ny * W + nx;
+          if (biaya(nx, ny) && komp[k] < 0) { komp[k] = n; tumpuk.push(k); }
+        }
+      }
+      n++;
+    }
   }
   const biaya = (x, y) => x < 0 || y < 0 || x >= W || y >= H ? 0 : grid[y * W + x];
 
+  // petak terdekat dari p yang bisa diinjak dan masuk wilayah nomor k (k < 0: wilayah mana saja). null kalau tidak ada.
+  function terdekat([x0, y0], k, maks = 8) {
+    const cocok = (x, y) => biaya(x, y) && (k < 0 || komp[y * W + x] === k);
+    if (cocok(x0, y0)) return [x0, y0];
+    for (let r = 1; r <= maks; r++) {
+      let hasil = null, jarak = Infinity;
+      for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r || !cocok(x0 + dx, y0 + dy)) continue;
+        const j = Math.abs(dx) + Math.abs(dy);
+        if (j < jarak) { jarak = j; hasil = [x0 + dx, y0 + dy]; }
+      }
+      if (hasil) return hasil;
+    }
+    return null;
+  }
   // A* empat arah. Mengembalikan daftar tile [x, y] dari sesudah titik awal sampai tujuan, atau null.
+  // Tujuan yang terhalang (lampu, bangku, air) atau tidak tersambung diganti petak terdekat yang bisa dicapai.
   function jalur(a, b) {
-    if (!grid || !biaya(b[0], b[1])) return null;
+    if (!grid) return null;
+    if (a[0] === b[0] && a[1] === b[1]) return [];
+    const awal = terdekat(a, -1, 2);
+    if (!awal) return null;
+    b = terdekat(b, komp[awal[1] * W + awal[0]]);
+    if (!b) return null;
     const kunci = (x, y) => y * W + x, mulai = kunci(a[0], a[1]), akhir = kunci(b[0], b[1]);
     if (mulai === akhir) return [];
     const g = new Map([[mulai, 0]]), asal = new Map(), antre = [[0, mulai]];
@@ -155,8 +189,10 @@ const Warga = (() => {
         }
         const tujuan = tujuanBerikut(w), dari = tileDari(s);
         w.jalur = tujuan ? jalur(dari, tujuan) : [];
-        if (w.jalur === null) {               // tidak ada jalan (mestinya tidak terjadi): pindah diam-diam ke tujuan
-          const [x, y] = tengah(...tujuan); s.setPosition(x, y); w.jalur = [];
+        if (w.jalur === null) {               // tidak ada jalan (mestinya tidak terjadi)
+          w.jalur = [];
+          // pindah diam-diam hanya kalau warga ini sedang tidak terlihat; kalau terlihat, diam dulu lalu coba tujuan lain
+          if (!Kota.terlihat(s.x, s.y) && !Kota.terlihat(...tengah(...tujuan))) { const [x, y] = tengah(...tujuan); s.setPosition(x, y); }
         }
         w.sampai = true;
         if (!w.jalur.length) { w.tunggu = w.tungguAwal = acak(1500, 4000); w.toleh = false; }
