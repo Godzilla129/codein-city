@@ -17,6 +17,8 @@ const Perumahan = (() => {
 
   let data = null, dimuat = 0, memuat = null;      // data = {kode: kavling}
   let adegan = null, ruang = null, kini = null, gambar = {}, jedaMuat = 0;
+  let selisihJam = 0;                    // jam server - jam perangkat (detik), untuk umur tanaman kebun
+  const saatTataList = [];               // dipanggil setelah kavling digambar ulang (js/kebun.js)
 
   async function muat() {
     if (memuat) return memuat;
@@ -26,6 +28,7 @@ const Perumahan = (() => {
         if (!r.ok) throw new Error("kode " + r.status);
         const d = await r.json();
         data = Object.fromEntries(d.kavling.map(k => [k.kode, k])); dimuat = Date.now();
+        if (typeof d.kini === "number") selisihJam = d.kini - Date.now() / 1000;
       } finally { memuat = null; }
       return data;
     })();
@@ -72,6 +75,7 @@ const Perumahan = (() => {
   }
   function tataSemua(baru) {
     for (const p of Kota.pintu()) if (p.tujuan === "kavling") gambarKavling(p, baru === p.kavling);
+    saatTataList.forEach(f => { try { f(); } catch (e) { console.error(e); } });
     Kota.segarkanAksi();
   }
 
@@ -281,5 +285,6 @@ const Perumahan = (() => {
     Kota.segarkanAksi();
   });
 
-  return {buka, teksAksi, teksKunci, aturKunci, pulang, tombolPulang, satpam, kini: () => kini, data: () => data, muat, pemilikKini, milikku};
+  return {buka, teksAksi, teksKunci, aturKunci, pulang, tombolPulang, satpam, kini: () => kini, data: () => data, muat, pemilikKini, milikku,
+    jamServer: () => Date.now() / 1000 + selisihJam, saatTata: f => saatTataList.push(f)};
 })();

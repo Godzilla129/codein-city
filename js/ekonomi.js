@@ -36,9 +36,13 @@ const Ekonomi = (() => {
   const koin = n => `${n.toLocaleString("id-ID")} koin`;
   function barisBarang(b) {
     const li = el("li", "barang");
-    li.append(Barang.ikon(b.barang), el("span", null, `${b.nama} × ${b.jumlah}`), el("span", "redup", b.harga ? koin(b.harga * b.jumlah) : "tidak laku"));
+    const gambar = b.jenis === "perabot" ? Tata.ikon(b.barang, 32) : Barang.ikon(b.barang);
+    const nilai = b.jenis === "perabot" ? "perabot" : b.harga ? koin(b.harga * b.jumlah) : "tidak laku";
+    li.append(gambar, el("span", null, `${b.nama} × ${b.jumlah}`), el("span", "redup", nilai));
     return li;
   }
+  const KATA = {ikan: {barang: "ikan", cara: "Mancing dulu di kolam Taman Kota atau danau Perumahan CodeIn, nanti kubeli."},
+                panen: {barang: "hasil kebun", cara: "Tanam sayur dan buah di kebun halaman rumahmu di Perumahan CodeIn, nanti panennya kubeli."}};
   async function juara() {
     try {
       const r = await fetch(API + "/api/mancing/juara", {headers: {Accept: "application/json"}});
@@ -59,10 +63,17 @@ const Ekonomi = (() => {
     await muat();
     if (!data) { Akun.pastikan("Tas dan koin", tas); return; }
     const isi = [el("p", "koin-besar", koin(data.koin))];
-    if (data.tas.length) {
-      const ul = el("ul", "tas"); data.tas.forEach(b => ul.append(barisBarang(b))); isi.push(ul);
-      if (data.tas.some(b => b.jenis === "ikan")) isi.push(el("p", "redup", "Ikan bisa dijual ke Pak Ikan di Pasar CodeIn, timur Taman Kota."));
-    } else isi.push(el("p", "redup", "Tasmu masih kosong. Cari tepi kolam di Taman Kota atau danau di Perumahan CodeIn, lalu tekan Mancing."));
+    const jual = data.tas.filter(b => b.jenis !== "perabot"), perabot = data.tas.filter(b => b.jenis === "perabot");
+    if (jual.length) {
+      const ul = el("ul", "tas"); jual.forEach(b => ul.append(barisBarang(b))); isi.push(ul);
+      if (jual.some(b => b.jenis === "ikan")) isi.push(el("p", "redup", "Ikan dijual ke Pak Ikan di Pasar CodeIn, timur Taman Kota."));
+      if (jual.some(b => b.jenis === "panen")) isi.push(el("p", "redup", "Hasil kebun dijual ke Bu Sayur di Pasar CodeIn."));
+    } else isi.push(el("p", "redup", "Belum ada tangkapan atau panen. Cari tepi kolam di Taman Kota atau danau di Perumahan CodeIn, lalu tekan Mancing."));
+    if (perabot.length) {
+      isi.push(el("h3", null, "Perabot"));
+      const ul = el("ul", "tas"); perabot.forEach(b => ul.append(barisBarang(b))); isi.push(ul);
+      isi.push(el("p", "redup", "Perabot dipasang lewat tombol Tata rumah di dalam rumahmu. Perabot baru dijual di Toko Mbak Tika."));
+    }
     isi.push(el("h3", null, "Juara mancing hari ini"), ...isiJuara(await juara()));
     Panel.buka("Tas", isi, [{teks: "Tutup"}]);
   }
@@ -71,19 +82,19 @@ const Ekonomi = (() => {
   async function pedagang(def, ucapan) {
     const salam = el("p", null, ucapan || `Aku ${def.nama}.`);
     if (!Akun.sudahWarga()) {
-      Panel.buka(def.nama, [salam, el("p", null, "Mau jual hasil mancing? Masuk dulu sebagai warga supaya punya tas dan koin.")],
-        [{teks: "Masuk sebagai warga", utama: true, aksi: () => Akun.pastikan("Jual ikan", () => pedagang(def, ucapan))}, {teks: "Nanti saja"}]);
+      Panel.buka(def.nama, [salam, el("p", null, `Mau jual ${KATA[def.beli].barang}? Masuk dulu sebagai warga supaya punya tas dan koin.`)],
+        [{teks: "Masuk sebagai warga", utama: true, aksi: () => Akun.pastikan(`Jual ${KATA[def.beli].barang}`, () => pedagang(def, ucapan))}, {teks: "Nanti saja"}]);
       return;
     }
     await muat();
     const barang = (data ? data.tas : []).filter(b => b.jenis === def.beli);
     if (!barang.length) {
-      Panel.buka(def.nama, [salam, el("p", null, "Kamu belum bawa ikan. Mancing dulu di kolam Taman Kota atau danau Perumahan CodeIn, nanti kubeli.")], [{teks: "Siap"}]);
+      Panel.buka(def.nama, [salam, el("p", null, `Kamu belum bawa ${KATA[def.beli].barang}. ${KATA[def.beli].cara}`)], [{teks: "Siap"}]);
       return;
     }
     const total = barang.reduce((n, b) => n + b.harga * b.jumlah, 0), ul = el("ul", "tas");
     barang.forEach(b => ul.append(barisBarang(b)));
-    Panel.buka(def.nama, [salam, el("p", null, "Coba kulihat tangkapanmu…"), ul, el("p", null, `Semuanya kubeli ${koin(total)}.`)], [
+    Panel.buka(def.nama, [salam, el("p", null, def.beli === "ikan" ? "Coba kulihat tangkapanmu…" : "Coba kulihat hasil kebunmu…"), ul, el("p", null, `Semuanya kubeli ${koin(total)}.`)], [
       {teks: `Jual semua (${koin(total)})`, utama: true, aksi: () => jual(def)}, {teks: "Nanti dulu"}]);
   }
   async function jual(def) {

@@ -144,7 +144,7 @@ const KOTA = {
                "Hosting proyek: anggota mendaftar lewat Kak Rani, unggah zip, situsnya tayang. Proyek unggulan dapat rumah di kota.",
                "Kantor Redaksi CodeIn News: Eko, Tekno, dan Rina bekerja sesuai kabar yang benar-benar masuk.",
                "Perumahan CodeIn lewat Gerbang Selatan: warga yang masuk dengan akun Google bisa menempati kavling dan mendapat rumah starter.",
-               "Mancing dan koin: pancing ikan di kolam Taman Kota atau danau Perumahan, jual ke Pak Ikan di Pasar CodeIn. Koinnya nanti dipakai di Toko Mbak Tika."],
+               "Mancing dan koin: pancing ikan di kolam Taman Kota atau danau Perumahan, jual ke Pak Ikan di Pasar CodeIn. Koinnya dipakai belanja perabot di Toko Mbak Tika."],
     },
   },
 
@@ -177,7 +177,7 @@ const KOTA = {
       pagi:  {di: "taman-baliho", r: 1, ket: "duduk-duduk di taman baliho",
               ucapan: ["Pagi. Peregangan dulu di taman sambil baca baliho."]},
       siang: {di: "depan-toko", r: 2, ket: "di depan Toko Mbak Tika",
-              ucapan: ["Nunggu Mbak Tika. Katanya tokonya sebentar lagi ada isinya.", "Kalau ada pengunjung lain, kamu bisa lihat mereka jalan-jalan di sini."]},
+              ucapan: ["Toko Mbak Tika sekarang jual perabot. Aku lagi nabung koin buat beli sofa.", "Kalau ada pengunjung lain, kamu bisa lihat mereka jalan-jalan di sini."]},
       sore:  {di: "alun-alun", r: 2, ket: "di taman kota",
               ucapan: ["Mau ngobrol sama pengunjung lain? Tekan Enter, ketik, lalu Enter lagi.", "Sore ini taman kota ramai, ya."]},
       malam: {pulang: true}}},
@@ -192,11 +192,11 @@ const KOTA = {
               ucapan: ["Malam begini aku jaga gerbang. Warga lain sudah pulang.", "Kalau lewat taman kota, lampunya sudah nyala semua."]}}},
     {nama: "Mbak Tika", karakter: 9, jadwal: {
       pagi:  {di: "depan-toko", r: 1, ket: "membuka tokonya di samping Pasar CodeIn",
-              ucapan: ["Pagi! Lagi buka toko. Isinya belum ada, sabar, ya.", "Baliho di kota ini boleh dipakai anggota, gratis."]},
+              ucapan: ["Pagi! Tokoku jual perabot untuk rumahmu di Perumahan CodeIn. Masuk lewat pintu toko, ya.", "Baliho di kota ini boleh dipakai anggota, gratis."]},
       siang: {di: "depan-toko", r: 1, ket: "di depan tokonya",
-              ucapan: ["Tokoku memang belum bisa dimasuki. Nanti, kalau kotanya makin ramai."]},
+              ucapan: ["Kasur, sofa, karpet, lukisan, semua ada di tokoku. Bayar pakai koin.", "Belum punya koin? Mancing dulu, ikannya jual ke Pak Ikan."]},
       sore:  {di: "pasar-2", r: 1, ket: "membantu di Pasar CodeIn",
-              ucapan: ["Sore aku bantu-bantu di Pasar CodeIn.", "Punya proyek? Daftar baliho lewat Kak Rani di Markas."]},
+              ucapan: ["Sore aku bantu-bantu di Pasar CodeIn. Tokoku tetap buka, bayar di kotak kasir.", "Punya proyek? Daftar baliho lewat Kak Rani di Markas."]},
       malam: {pulang: true}}},
     {nama: "Nek Ijah", karakter: 11, jadwal: {
       pagi:  {rute: ["gang-barat-1", "gang-barat-2"], laju: 16, ket: "jalan pagi di gang kampung",
@@ -240,7 +240,8 @@ const KOTA = {
              sore: "Selamat sore, selamat datang di Markas CodeIn!", malam: "Malam-malam mampir? Markas tetap buka, aku piket malam."}},
     // Pasar CodeIn di timur taman kota. Pedagang berdiri di bawah tenda lapaknya; namanya muncul kalau didekati (pedagang: true).
     // Mereka tidak tinggal di kampung: malam hari pasar tutup dan mereka pulang (tidak terlihat).
-    ...[["Bu Sayur", 9, "lapak-sayur", ["Sayurnya baru dipetik subuh tadi, masih segar!", "Kangkung tiga ikat sepuluh ribu, Nak."]],
+    // Bu Sayur juga membeli hasil kebun warga (beli: "panen")
+    ...[["Bu Sayur", 9, "lapak-sayur", ["Panen dari kebun rumahmu? Bawa ke sini, kubeli.", "Sayurnya baru dipetik subuh tadi, masih segar!"], {beli: "panen", malam: "sayur"}],
         ["Pak Buah", 4, "lapak-buah", ["Jeruk manis, pisang, mangga. Mau dicicip dulu?", "Kalau beli sekilo, kukasih bonus satu."]],
         // Pak Ikan juga membeli hasil mancing warga (beli: "ikan", lihat js/ekonomi.js) dan tetap buka sampai malam
         ["Pak Ikan", 3, "lapak-ikan", ["Dapat ikan dari kolam? Jual ke aku, kubeli harga pas.", "Ikan laut Bengkulu, tadi pagi baru turun dari kapal.",

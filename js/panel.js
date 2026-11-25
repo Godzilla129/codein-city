@@ -46,6 +46,7 @@ const Panel = (() => {
   function tempat() {
     const ul = el("ul", "tempat"), sudah = new Set();
     for (const p of Kota.pintu()) {
+      if (p.tujuan === "petak") continue;          // petak kebun halaman (js/kebun.js)
       // baliho dan rumah proyek yang kosong cukup muncul sekali; rumah warga, gerbang, dan rumah proyek berpenghuni punya baris sendiri
       const kunci = p.aksi === "pindah" || p.tujuan === "rumah" || p.tujuan === "gerbang" || (p.tujuan === "proyek" && p.proyek) ? p.id : (p.tujuan || p.id);
       if (sudah.has(kunci)) continue; sudah.add(kunci);

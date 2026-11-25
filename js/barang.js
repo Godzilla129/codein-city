@@ -29,6 +29,31 @@ const Barang = (() => {
       "....offfffbo....", "....obbbbbbo....", "....offfffbo....", "....obbbbbbo....",
       "....obbbbbbo....", "....ossssssoo...", ".....oooooo.....", "................",
       "................", "................", "................", "................"],
+    kangkung: [
+      "................", ".......ff.......", "....f.fbbf.f....", "...fbfbbbfbf....",
+      "...fbbbdbbbf....", "....fbbdbbf.f...", "..f..fbdbf.fbf..", ".fbf..fdf.fbbf..",
+      ".fbbf.fdffbbf...", "..fbbffdfbbf....", "...fbbbdbbf.....", "....ffodoff.....",
+      "......ooo.......", "......oso.......", "......ooo.......", "................"],
+    cabai: [
+      "................", "..........ff....", ".........ff.....", "........fbf.....",
+      ".......obbo.....", "......obbbo.....", ".....obbsbo.....", "....obbsbo......",
+      "...obbbbo.......", "..obbbbo........", ".obbbbo.........", ".obbbo..........",
+      "..ooo...........", "................", "................", "................"],
+    tomat: [
+      "................", "................", "......f..f......", ".....ffffff.....",
+      "....ooffffoo....", "...obbbffbbbo...", "..obsbbbbbbbbo..", "..obsbbbbbbbbo..",
+      "..obbbbbbbbbbo..", "..obbbbbbbbbbo..", "...obbbbbbbbo...", "....obbbbbbo....",
+      ".....oooooo.....", "................", "................", "................"],
+    jagung: [
+      "................", "........o.......", ".......obo......", "......obdbo.....",
+      ".....obdbdbo....", ".....obbdbbo....", "....fobdbdbof...", "....fobbdbbof...",
+      "...ffobdbdbo.f..", "...f.fobdbof.f..", "..f..ffobof..f..", "..f...ffoff..f..",
+      "......fffff.....", ".......fff......", "........f.......", "................"],
+    semangka: [
+      "................", "................", "................", ".oooooooooooooo.",
+      ".obbbkbbbbkbbbo.", ".obbbbbbkbbbbbo.", "..obkbbbbbbkbo..", "..obbbbbkbbbbo..",
+      "...obbkbbbkbo...", "...osssssssso...", "....offfffffo...", ".....ooooooo....",
+      "................", "................", "................", "................"],
   };
   // [pola, badan, perut, sirip]
   const WARNA = {
@@ -44,6 +69,12 @@ const Barang = (() => {
     belut:  ["belut", "#6A5A3C", "#B9A77E", "#4A3E28"],
     sandal: ["sandal", "#3E7CC9", "#3E7CC9", "#F2F2F2"],
     kaleng: ["kaleng", "#C9473D", "#C9473D", "#F2F2F2"],
+    // hasil kebun: [pola, warna utama, warna kedua, daun]
+    kangkung: ["kangkung", "#5FAE4E", "#C7E3A4", "#2F6B2A"],
+    cabai:    ["cabai", "#D9342B", "#D9342B", "#3E8E3A"],
+    tomat:    ["tomat", "#E04A3A", "#E04A3A", "#3E8E3A"],
+    jagung:   ["jagung", "#F2C94C", "#D9A21E", "#5FAE4E"],
+    semangka: ["semangka", "#E8504A", "#E8504A", "#3E8E3A"],
   };
   const tembolok = {};
 
@@ -54,7 +85,7 @@ const Barang = (() => {
       const peta = {o: "#2A211B", b: badan, d: perut, f: sirip, e: "#FFFFFF", k: "#1A1410", s: "#E8E2D6"};
       const c = document.createElement("canvas"); c.width = c.height = 16;
       const g = c.getContext("2d");
-      POLA[pola].forEach((baris, y) => [...baris].forEach((h, x) => { if (peta[h]) { g.fillStyle = peta[h]; g.fillRect(x, y, 1, 1); } }));
+      POLA[pola].forEach((baris, y) => [...baris.padEnd(16, ".").slice(0, 16)].forEach((h, x) => { if (peta[h]) { g.fillStyle = peta[h]; g.fillRect(x, y, 1, 1); } }));
       tembolok[kode] = c.toDataURL();
     }
     const img = new Image(16, 16); img.src = tembolok[kode]; img.alt = ""; img.className = kelas;

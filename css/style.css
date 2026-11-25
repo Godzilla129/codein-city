@@ -200,6 +200,11 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 #mancing-nyawa{min-height:1.2em;margin:0 0 8px}
 #mancing .baris-tombol{margin:0}
 #mancing-tarik{min-height:52px;flex:1;font-size:18px}
+/* Toko Mbak Tika (js/toko.js) */
+.kotak ul.toko{list-style:none;padding:0;margin:0 0 12px}
+.barang-toko{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:10px;border-top:2px dashed #D2BFA3;padding:6px 0;margin:0}
+.barang-toko b{display:block;font-weight:600}
+.barang-toko .tbl{min-width:84px}
 /* tata rumah (js/tata.js) */
 #btn-tata{position:fixed;right:12px;bottom:calc(26px + env(safe-area-inset-bottom));min-height:48px;background:var(--emas)}
 #tata{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;width:min(560px, calc(100vw - 16px));

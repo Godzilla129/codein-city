@@ -338,14 +338,20 @@ const Kota = (() => {
     if (p.id === "pendiri") return "Baca plakat patung";
     return {kunci: "Periksa gedung", baliho: ruang === "galeri" ? "Lihat karya" : "Baca baliho", videotron: "Lihat kabar ramai",
             rumah: "Ketuk pintu", info: "Baca papan", sapa: `Sapa ${p.penghuni}`, redaksi: `Sapa ${p.penghuni}`,
-            proyek: p.proyek ? `Kunjungi ${p.proyek.judul}` : "Lihat rumah kosong", kavling: Perumahan.teksAksi(p),
+            proyek: p.proyek ? `Kunjungi ${p.proyek.judul}` : "Lihat rumah kosong", kavling: Perumahan.teksAksi(p), petak: Kebun.teksAksi(p),
             "kunci-rumah": Perumahan.teksKunci()}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
   }
   function cariTerdekat() {
     let baru = null;
     if (profil && !pindah && !ditahan()) {
       const fx = pemain.x, fy = pemain.body.bottom - 2;
-      const p = pintu.find(p => fx >= p.x && fx <= p.x + p.w && fy >= p.y - 2 && fy <= p.y + p.h + 2);
+      // zona yang bertumpuk (pintu rumah dan petak kebun di sebelahnya): pilih yang tengahnya paling dekat dengan kaki pemain
+      let p = null, jarak = Infinity;
+      for (const q of pintu) {
+        if (!(fx >= q.x && fx <= q.x + q.w && fy >= q.y - 2 && fy <= q.y + q.h + 2)) continue;
+        const j = Math.abs(fx - (q.x + q.w / 2));
+        if (j < jarak) { jarak = j; p = q; }
+      }
       if (p) baru = {kunci: "p:" + p.id, pintu: p, teks: teksAksi(p)};
       else {
         const w = Warga.terdekat(pemain.x, pemain.y);
@@ -390,11 +396,8 @@ const Kota = (() => {
     }
     Panel.buka(p.nama, isi, [{teks: "Tutup"}]);
   }
-  function toko(p) {
-    const d = Warga.dimana("Mbak Tika"), isi = [el("p", null, "Toko ini belum bisa dimasuki. Isinya masih disiapkan.")];
-    if (d) isi.push(el("p", null, d.diRumah ? "Mbak Tika sudah pulang. Tokonya buka lagi besok pagi." : `Mbak Tika sedang ${d.ket}.`));
-    Panel.buka(p.nama, isi, [{teks: "Tutup"}]);
-  }
+  // Toko Mbak Tika: toko perabot (js/toko.js)
+  function toko() { Toko.buka(); }
   function lewat(p) {
     if (p.aksi === "masuk" || p.aksi === "keluar") {
       // posisi di kota disimpan supaya kalau halaman dimuat ulang di dalam gedung, pengunjung muncul di depan gedung itu
@@ -408,6 +411,7 @@ const Kota = (() => {
       else if (p.id === "toko") toko(p);
       else if (p.tujuan === "proyek") RumahProyek.buka(p);
       else if (p.tujuan === "kavling") Perumahan.buka(p);
+      else if (p.tujuan === "petak") Kebun.buka(p);
       else if (p.tujuan === "kunci-rumah") Perumahan.aturKunci();
       else if (p.tujuan === "redaksi") Redaksi.buka(p.penghuni);
       else Panel.gedung(KOTA.panel[p.id] ? p.id : p.tujuan, p.nama);
