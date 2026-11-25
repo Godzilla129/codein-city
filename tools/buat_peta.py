@@ -228,7 +228,9 @@ class Peta:
                "nextlayerid": len(LAYERS) + len(groups) + 1, "nextobjectid": self.oid + 1, "layers": tile_layers + obj_layers,
                "tilesets": [{"firstgid": 1, "name": "urban", "image": "../tiles/urban.png", "imagewidth": 486, "imageheight": 324,
                              "tilewidth": T, "tileheight": T, "margin": 1, "spacing": 2, "columns": COLS, "tilecount": 486}, {"firstgid": R0 + 1, "name": "ruang", "image": "../tiles/ruang.png", "imagewidth": 144, "imageheight": 18 * ((len(RUANG) + 7) // 8),
-                             "tilewidth": T, "tileheight": T, "margin": 1, "spacing": 2, "columns": 8, "tilecount": 8 * ((len(RUANG) + 7) // 8)}]}
+                             "tilewidth": T, "tileheight": T, "margin": 1, "spacing": 2, "columns": 8, "tilecount": 8 * ((len(RUANG) + 7) // 8),
+                             # petak air danau dan kolam: bisa dipancing (js/mancing.js). Kolam air mancur memakai ubin urban, jadi tidak termasuk.
+                             "tiles": [{"id": i, "properties": [{"name": "air", "type": "bool", "value": True}]} for n, i in sorted(RUANG.items(), key=lambda x: x[1]) if n.startswith("danau-")]}]}
         out = Path(__file__).resolve().parent.parent / "assets" / "maps" / f"{nama}.tmj"
         out.write_text(json.dumps(tmj, separators=(",", ":")))
         print(f"{out.name}: {self.W}x{self.H} tile, {len(self.doors)} pintu, {len(self.boards)} papan, {len(self.routes)} rute, {len(self.lamps)} lampu")

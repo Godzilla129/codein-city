@@ -177,11 +177,36 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 .warna button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--kertas),0 0 0 6px var(--tinta)}
 .isian .utama{min-height:48px;font-size:17px}
 .isian .utama:disabled{opacity:.6;cursor:progress}
+/* tas dan koin (js/ekonomi.js) */
+#btn-tas{font-variant-numeric:tabular-nums}
+.ikon-barang{width:32px;height:32px;flex:none;image-rendering:pixelated}
+.ikon-barang.besar{width:48px;height:48px}
+.kotak ul.tas{list-style:none;padding:0;margin:0 0 12px}
+.tas .barang{display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:10px;border-top:2px dashed #D2BFA3;padding:4px 0;margin:0}
+.koin-besar{font:600 22px var(--judul)}
+.kotak h3{margin:8px 0 6px;font:600 18px var(--judul)}
+.kotak ol.juara{margin:0 0 10px;padding-left:22px}
+
+/* mancing (js/mancing.js): kotak di bawah layar, permainan tetap terlihat di atasnya */
+#mancing{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;width:min(420px, calc(100vw - 24px));
+  padding:12px 14px 14px;border-width:3px;box-shadow:0 4px 0 var(--tinta)}
+.seru-ikan{font:700 18px var(--judul);color:#B3261E;background:var(--kertas);border:2px solid var(--tinta);border-radius:8px;padding:0 7px;box-shadow:0 2px 0 var(--tinta)}
+#mancing-teks{font-weight:600;min-height:1.45em;margin:0 0 8px}
+#mancing-teks.seru{color:#B3261E}
+#mancing .tangkapan{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;font-weight:500}
+#mancing-bar{position:relative;height:22px;border:3px solid var(--tinta);border-radius:8px;background:#9CC7D6;margin:0 0 6px;overflow:hidden}
+#mancing-bar .zona{position:absolute;top:0;bottom:0;background:#4CAF6A;border-left:2px solid #2E7D46;border-right:2px solid #2E7D46}
+#mancing-bar .jarum{position:absolute;top:-2px;bottom:-2px;width:4px;margin-left:-2px;background:var(--tinta)}
+#mancing-nyawa{min-height:1.2em;margin:0 0 8px}
+#mancing .baris-tombol{margin:0}
+#mancing-tarik{min-height:52px;flex:1;font-size:18px}
 @media (max-width:480px){
   .karakter{grid-template-columns:repeat(4,1fr)} .kar .muka{--s:3}
   .merek{padding:3px 10px;white-space:nowrap} .merek b{font-size:15px} .merek span{font-size:11px}
   .tombol-hud{flex-wrap:nowrap} .tombol-hud .tbl{padding:0 10px}
   #hud-nama{display:none}
+  #btn-tempat{min-width:44px} #btn-tempat .teks{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  #btn-tas{padding:0 8px}
   #btn-musik{min-width:44px} #btn-musik span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 }
 @media (prefers-reduced-motion:reduce){ .tbl:active{transform:none} .layar.ganti .pw-judul,.layar.ganti .pw-kaki{animation:none} #obrol-log li{transition:none} }

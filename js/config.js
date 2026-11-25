@@ -131,7 +131,8 @@ const KOTA = {
       baris: ["Blok A: 24 kavling.", "Khusus warga.", "Rumah gratis."],
       isi: ["Perumahan CodeIn adalah tempat tinggal warga, yaitu anggota yang sudah masuk dengan akun Google.",
             "Pilih kavling yang masih kosong (bertanda papan kecil), lalu tempati. Rumah starter langsung berdiri dengan nama dan model pilihanmu. Satu warga satu kavling.",
-            "Siapa pun boleh bertamu ke rumah warga. Dari menu Tempat, tombol Pulang ke rumahku mengantarmu langsung ke depan rumah."],
+            "Siapa pun boleh bertamu ke rumah warga. Dari menu Tempat, tombol Pulang ke rumahku mengantarmu langsung ke depan rumah.",
+            "Mancing: berdiri di tepi danau atau kolam, menghadap ke air, lalu tekan Mancing. Danau Perumahan punya ikan yang lebih beragam daripada kolam Taman Kota, katanya ada arwana. Hasilnya dijual ke Pak Ikan di Pasar CodeIn."],
       daftar: ["Segera: menata isi rumah dengan perabot, buku tamu, dan komputer yang membuka situs hosting pemiliknya."],
     },
     rencana: {
@@ -142,7 +143,8 @@ const KOTA = {
                "Warkop CodeIn sengaja dikunci sampai ada anggota yang mau ikut membangun kota ini.",
                "Hosting proyek: anggota mendaftar lewat Kak Rani, unggah zip, situsnya tayang. Proyek unggulan dapat rumah di kota.",
                "Kantor Redaksi CodeIn News: Eko, Tekno, dan Rina bekerja sesuai kabar yang benar-benar masuk.",
-               "Perumahan CodeIn lewat Gerbang Selatan: warga yang masuk dengan akun Google bisa menempati kavling dan mendapat rumah starter."],
+               "Perumahan CodeIn lewat Gerbang Selatan: warga yang masuk dengan akun Google bisa menempati kavling dan mendapat rumah starter.",
+               "Mancing dan koin: pancing ikan di kolam Taman Kota atau danau Perumahan, jual ke Pak Ikan di Pasar CodeIn. Koinnya nanti dipakai di Toko Mbak Tika."],
     },
   },
 
@@ -202,7 +204,8 @@ const KOTA = {
       siang: {di: "gazebo", r: 1, ket: "istirahat di gazebo taman kota",
               ucapan: ["Nenek istirahat dulu di gazebo. Adem di sini."]},
       sore:  {di: "taman-kolam", r: 1, ket: "di tepi kolam taman kota",
-              ucapan: ["Sore begini Nenek suka lihat ikan di kolam taman.", "Dulu tempat ini masih sawah semua, Nak."]},
+              ucapan: ["Sore begini Nenek suka lihat ikan di kolam taman.", "Mau mancing? Berdiri di tepi kolam, menghadap ke air. Ikannya jual ke Pak Ikan di pasar.",
+                       "Dulu tempat ini masih sawah semua, Nak."]},
       malam: {pulang: true}}},
     {nama: "Rafi", karakter: 8, jadwal: {
       pagi:  {di: "depan-news", r: 2, ket: "di depan CodeIn News",
@@ -239,7 +242,9 @@ const KOTA = {
     // Mereka tidak tinggal di kampung: malam hari pasar tutup dan mereka pulang (tidak terlihat).
     ...[["Bu Sayur", 9, "lapak-sayur", ["Sayurnya baru dipetik subuh tadi, masih segar!", "Kangkung tiga ikat sepuluh ribu, Nak."]],
         ["Pak Buah", 4, "lapak-buah", ["Jeruk manis, pisang, mangga. Mau dicicip dulu?", "Kalau beli sekilo, kukasih bonus satu."]],
-        ["Pak Ikan", 3, "lapak-ikan", ["Ikan laut Bengkulu, tadi pagi baru turun dari kapal.", "Mau dibersihkan sekalian? Gratis."]],
+        // Pak Ikan juga membeli hasil mancing warga (beli: "ikan", lihat js/ekonomi.js) dan tetap buka sampai malam
+        ["Pak Ikan", 3, "lapak-ikan", ["Dapat ikan dari kolam? Jual ke aku, kubeli harga pas.", "Ikan laut Bengkulu, tadi pagi baru turun dari kapal.",
+          "Arwana dari danau Perumahan? Kalau dapat, kubeli mahal!"], {beli: "ikan", malam: "ikan bakar"}],
         ["Mbak Kain", 5, "lapak-kain", ["Kain batik besurek, khas Bengkulu. Motifnya kaligrafi.", "Cocok buat seragam komunitas, lho."]],
         ["Nek Jamu", 11, "lapak-jamu", ["Jamu kunyit asam, beras kencur. Biar kuat ngoding sampai malam.", "Sudah empat puluh tahun Nenek jualan jamu di sini."]],
         ["Bu Kue", 1, "lapak-kue", ["Kue lapis, klepon, onde-onde. Masih hangat!", "Pesanan untuk acara Markas juga bisa."]],
@@ -248,9 +253,10 @@ const KOTA = {
         ["Pak Tahu", 0, "lapak-tahu", ["Tahu dan tempe goreng, baru diangkat. Masih kriuk!", "Tempenya bikinan sendiri, kedelainya pilihan."]],
         ["Bu Rempah", 9, "lapak-rempah", ["Kunyit, jahe, lengkuas, kayu manis. Mau masak apa hari ini?", "Rempah Bengkulu terkenal sampai luar negeri, lho."]],
         ["Mbak Bunga", 7, "lapak-bunga", ["Bunga melati dan mawar, buat hiasan rumah di Perumahan.", "Rumah baru? Kasih bunga di teras biar segar."]]]
-      .map(([nama, karakter, di, ucapan]) => {
+      .map(([nama, karakter, di, ucapan, lain = {}]) => {
         const buka = {di, r: 0, hadap: "bawah", ket: "berjualan di pasar", ucapan};
-        return {nama, karakter, pedagang: true, angkat: 8, jadwal: {pagi: buka, siang: buka, sore: buka, malam: {pulang: true}}};
+        const malam = lain.malam ? {...buka, ket: `jualan ${lain.malam} di pasar`} : {pulang: true};
+        return {nama, karakter, pedagang: true, angkat: 8, beli: lain.beli, jadwal: {pagi: buka, siang: buka, sore: buka, malam}};
       }),
     // pembeli yang berkeliling pasar dari pagi sampai sore
     ...[["Bu Ani", 7, ["pasar-1", "pasar-5", "pasar-2", "pasar-3", "pasar-6", "pasar-4"], "Belanja buat masak siang. Sayur di Bu Sayur paling murah."],

@@ -143,6 +143,7 @@ const Kota = (() => {
       document.body.dataset.ruang = ruang;
 
       const peta = this.make.tilemap({key: ruang});
+      this.peta = peta;                    // js/mancing.js membaca petak air dari sini
       const ubin = [peta.addTilesetImage("urban", "ubin", T, T, 1, 2), peta.addTilesetImage("ruang", "ruang", T, T, 1, 2)];
       ["tanah", "jalan", "bangunan", "hiasan"].forEach((n, i) => peta.createLayer(n, ubin).setDepth(i));
       peta.createLayer("atas", ubin).setDepth(5000);
@@ -303,7 +304,7 @@ const Kota = (() => {
     update(_, dt) {
       // gerak pemain
       let vx = 0, vy = 0;
-      if (profil && !pindah && !Panel.terbuka()) {
+      if (profil && !pindah && !Panel.terbuka() && !Mancing.aktif()) {
         const j = Kendali.arah(), ada = k => tekan.has(k) ? 1 : 0;
         vx = (ada("KeyD") || ada("ArrowRight")) - (ada("KeyA") || ada("ArrowLeft")) || j.x;
         vy = (ada("KeyS") || ada("ArrowDown")) - (ada("KeyW") || ada("ArrowUp")) || j.y;
@@ -338,13 +339,14 @@ const Kota = (() => {
   }
   function cariTerdekat() {
     let baru = null;
-    if (profil && !pindah) {
+    if (profil && !pindah && !Mancing.aktif()) {
       const fx = pemain.x, fy = pemain.body.bottom - 2;
       const p = pintu.find(p => fx >= p.x && fx <= p.x + p.w && fy >= p.y - 2 && fy <= p.y + p.h + 2);
       if (p) baru = {kunci: "p:" + p.id, pintu: p, teks: teksAksi(p)};
       else {
         const w = Warga.terdekat(pemain.x, pemain.y);
         if (w) baru = {kunci: "w:" + w.def.nama, warga: w, teks: `Sapa ${w.def.nama}`};
+        else if (Mancing.bisa()) baru = {kunci: "m:" + arah, mancing: true, teks: "🎣 Mancing"};
         else if (ruang === "redaksi") {
           const a = Redaksi.terdekat(pemain.x, pemain.y);
           if (a) baru = {kunci: "r:" + a.def.nama, redaksi: a.def.nama, teks: `Sapa ${a.def.nama}`};
@@ -358,7 +360,7 @@ const Kota = (() => {
   }
   function aksi() {
     if (!dekat || pindah || Panel.terbuka()) return false;
-    if (dekat.warga) Warga.sapa(dekat.warga); else if (dekat.redaksi) Redaksi.buka(dekat.redaksi); else lewat(dekat.pintu);
+    if (dekat.mancing) Mancing.mulai(); else if (dekat.warga) Warga.sapa(dekat.warga); else if (dekat.redaksi) Redaksi.buka(dekat.redaksi); else lewat(dekat.pintu);
     return true;
   }
   // Ganti peta seketika; peta baru muncul dengan fade-in dari gelap. Tidak menunggu animasi fade-out selesai,
@@ -519,7 +521,7 @@ const Kota = (() => {
   }
   // buka halaman CodeIn News (jalur = "/", "/buku/12", ...) dengan sapaan dari kota
   function bukaNews(jalur) { if (pemain) pergi(KOTA.news.replace(/\/+$/, "") + (jalur || "/"), pemain.x, pemain.y); }
-  function ucap(teks) { if (!pemain) return; if (balonSaya) balonSaya(); balonSaya = balon(pemain, teks, 6000); }
+  function ucap(teks) { if (!pemain) return null; if (balonSaya) balonSaya(); balonSaya = balon(pemain, teks, 6000); return balonSaya; }
 
   function nyalakan() {
     return new Phaser.Game({

@@ -285,6 +285,7 @@ const Warga = (() => {
     if (w.def.redaksi) { Redaksi.buka(w.def.redaksi); return; }
     if (w.def.buka) { Papan.tangani({id: w.def.buka, tujuan: ""}); return; }
     const j = jadwalKini(w), daftarUcapan = ((j && j.ucapan) || []).map(isiUcapan).filter(Boolean);
+    if (w.def.beli) { Ekonomi.pedagang(w.def, daftarUcapan[w.giliran++ % (daftarUcapan.length || 1)]); return; }      // pedagang yang membeli hasil tangkapan
     if (!daftarUcapan.length) return;
     if (w.hapusBalon) w.hapusBalon();
     w.hapusBalon = Kota.balon(w.s, daftarUcapan[w.giliran++ % daftarUcapan.length]);

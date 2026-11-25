@@ -27,7 +27,8 @@
   <div class="merek"><b>CodeIn City</b><span id="jam"></span><span id="ramai" hidden><i class="titik"></i><span id="ramai-teks"></span></span></div>
   <div class="tombol-hud">
     <button type="button" class="tbl" id="btn-musik" aria-pressed="true"><span>Musik</span></button>
-    <button type="button" class="tbl" id="btn-tempat">📍 Tempat</button>
+    <button type="button" class="tbl" id="btn-tas" hidden><span aria-hidden="true">🎒</span> <span id="hud-koin"></span><span class="sr"> koin, buka tas</span></button>
+    <button type="button" class="tbl" id="btn-tempat"><span aria-hidden="true">📍</span><span class="teks"> Tempat</span></button>
     <button type="button" class="tbl" id="btn-profil" title="Ganti karakter atau nama"><span class="muka" id="hud-muka"></span><span id="hud-nama"></span></button>
   </div>
 </header>
@@ -36,6 +37,14 @@
 <button type="button" class="tbl aksi" id="aksi" hidden></button>
 <p id="petunjuk" hidden>Jalan: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> atau panah · Aksi: <kbd>E</kbd><span id="petunjuk-obrol" hidden> · Obrol: <kbd>Enter</kbd></span></p>
 <p id="kabar-kota" role="status" hidden></p>
+
+<!-- Mancing (js/mancing.js): muncul di bawah layar selama mancing -->
+<section id="mancing" class="kotak" hidden aria-label="Mancing">
+  <p id="mancing-teks" aria-live="polite"></p>
+  <div id="mancing-bar" hidden><i class="zona"></i><i class="jarum"></i></div>
+  <p id="mancing-nyawa" class="redup"></p>
+  <div class="baris-tombol"><button type="button" class="tbl utama" id="mancing-tarik">Tarik</button><button type="button" class="tbl" id="mancing-selesai">Selesai</button></div>
+</section>
 <div id="joy" hidden><i></i></div>
 
 <!-- Obrolan: muncul hanya saat tersambung ke layanan ramai -->
@@ -97,6 +106,9 @@
 <script src="js/warga.js"></script>
 <script src="js/rumah.js"></script>
 <script src="js/perumahan.js"></script>
+<script src="js/barang.js"></script>
+<script src="js/ekonomi.js"></script>
+<script src="js/mancing.js"></script>
 <script src="js/redaksi.js"></script>
 <script src="js/lalulintas.js"></script>
 <script src="js/ramai.js"></script>
