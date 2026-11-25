@@ -230,6 +230,7 @@ const Perumahan = (() => {
       const terisi = Object.values(data).filter(k => k.pemilik).length, jumlah = Object.keys(data).length;
       isi.push(el("p", null, `Selamat datang di Perumahan CodeIn. Blok A punya ${jumlah} kavling; ${terisi ? terisi + " sudah ditempati warga" : "belum ada yang menempati"}.`));
     } else isi.push(el("p", null, "Selamat datang di Perumahan CodeIn."));
+    isi.push(el("p", "redup", "Mau mancing? Danau besar di timur desa dan kolam di taman desa bisa dipancing. Berdiri di tepinya, menghadap ke air. Ikan di sini lebih beragam daripada di kota, katanya ada arwana."));
     const saya = milikku();
     if (saya) {
       isi.push(el("p", null, `Rumahmu di kavling ${saya.kode}, model ${MODEL[saya.rumah || 0].toLowerCase()}.`));
