@@ -16,7 +16,7 @@ const Kota = (() => {
   const T = KOTA.ubin;
   const KOLOM = {kiri: 0, bawah: 1, atas: 2, kanan: 3};          // kolom arah di orang.png (susunan karakter Kenney)
   const ARAH = ["bawah", "kiri", "kanan", "atas"];               // nomor arah yang dikirim lewat jaringan
-  const PETA = ["kota", "markas", "galeri", "redaksi", "perumahan", "rumah"];
+  const PETA = ["kota", "markas", "galeri", "redaksi", "perumahan", "rumah", "toko"];
   const LUAR = ["kota", "perumahan"];                            // peta di luar ruangan: ada langit malam dan lampu jalan
   // assets/sprites/orang.png (tools/gambar_orang.py): tiap karakter 4 kolom arah x 3 baris langkah, k = urutan karakter
   const frame = (k, arah, langkah) => (k * 3 + langkah) * 4 + KOLOM[arah];
@@ -396,8 +396,6 @@ const Kota = (() => {
     }
     Panel.buka(p.nama, isi, [{teks: "Tutup"}]);
   }
-  // Toko Mbak Tika: toko perabot (js/toko.js)
-  function toko() { Toko.buka(); }
   function lewat(p) {
     if (p.aksi === "masuk" || p.aksi === "keluar") {
       // posisi di kota disimpan supaya kalau halaman dimuat ulang di dalam gedung, pengunjung muncul di depan gedung itu
@@ -408,7 +406,6 @@ const Kota = (() => {
       if (Papan.tangani(p)) return;
       if (p.tujuan === "rumah") rumah(p);
       else if (p.tujuan === "sapa") Warga.sapaNama(p.penghuni);
-      else if (p.id === "toko") toko(p);
       else if (p.tujuan === "proyek") RumahProyek.buka(p);
       else if (p.tujuan === "kavling") Perumahan.buka(p);
       else if (p.tujuan === "petak") Kebun.buka(p);

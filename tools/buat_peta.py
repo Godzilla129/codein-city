@@ -330,7 +330,7 @@ def kota():
         p.pohon(x * T + 8, y * T + 15, "pohon-a" if x % 2 else "pohon-b")
     # Toko Mbak Tika pindah ke samping Pasar CodeIn, menghadap pelataran depan parkir
     p.landmark("gedung-toko", 80, 43, 7)
-    p.door("toko", "Toko Mbak Tika", 83, 48, "panel")
+    p.door("toko", "Toko Mbak Tika", 83, 48, "masuk", "toko")
 
     # ---------- Taman Kota (x 23-72, y 18-48) ----------
     cincin = cells(27, 22, 68, 22) | cells(27, 35, 68, 35) | cells(27, 22, 27, 35) | cells(68, 22, 68, 35)
@@ -874,6 +874,36 @@ def perumahan():
     p.tulis("perumahan")
 
 
+def toko_dalam():
+    """Toko Mbak Tika: toko perabot. Ruang pamer di kiri dan kanan, meja kasir di tengah belakang dengan Mbak Tika di
+    belakangnya (baris 4). Pembeli menyapa dari depan meja (baris 6): beli perabot, atau jual perabot yang tidak terpasang."""
+    p = ruangan(14, 8, "zaitun", "ubin", 3, 7, "toko")
+    for (nama, x, y) in (("lukisan", 2, 2), ("jendela-dinding", 5, 2), ("lukisan-hijau", 10, 2), ("jendela-dinding", 12, 2)):
+        p.perabot(nama, x, y, padat=False, datar=True, dx=2)
+    # meja kasir; Mbak Tika berdiri di belakangnya (js/config.js, ruang "toko")
+    p.perabot("meja-resepsionis", 6, 5)
+    p.door("kasir", "Kasir", 7, 5, "panel", "sapa", zone=(6 * T, 6 * T, 3 * T, T), label=False, penghuni="Mbak Tika")
+    p.perabot("tanaman-besar", 9, 4, dx=1)
+    # ruang pamer kiri: rak dan lemari di dinding, sofa dan meja, kasir contoh di depan
+    p.perabot("rak-buku-lebar", 1, 4, dx=6)
+    p.perabot("lemari", 4, 4, dx=4)
+    p.perabot("sofa", 1, 6)
+    p.perabot("meja-bundar", 3, 6)
+    p.perabot("kasur", 1, 8, dx=4)
+    p.perabot("karpet", 3, 8, padat=False, datar=True)
+    # ruang pamer kanan
+    p.perabot("kulkas", 10, 4, dx=1)
+    p.perabot("jam-besar", 11, 4, dx=2)
+    p.perabot("rak-buku", 12, 4, dx=4)
+    p.perabot("meja-kerja", 10, 6)
+    p.perabot("kursi", 12, 6, dx=2)
+    p.perabot("lampu-lantai", 14, 6, dx=4)
+    p.perabot("konter-kopi", 11, 8)
+    p.perabot("dispenser", 13, 8, dx=3)
+    p.perabot("tanaman", 14, 8, dx=2)
+    p.tulis("toko")
+
+
 def rumah_dalam():
     """Dalam rumah warga (satu peta untuk semua rumah; pemilik dan perabotnya diatur js/perumahan.js dan js/tata.js).
     Perabot tidak digambar di peta: pemilik menatanya sendiri dan datanya disimpan di CodeIn News (services/rumahku.py).
@@ -892,3 +922,4 @@ galeri()
 redaksi()
 perumahan()
 rumah_dalam()
+toko_dalam()

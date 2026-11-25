@@ -190,14 +190,8 @@ const KOTA = {
               ucapan: ["Sebentar lagi giliran jaga malam. Eh, yang jaga aku juga."]},
       malam: {di: "pos-timur", r: 1, ket: "berjaga malam di Gerbang Timur",
               ucapan: ["Malam begini aku jaga gerbang. Warga lain sudah pulang.", "Kalau lewat taman kota, lampunya sudah nyala semua."]}}},
-    {nama: "Mbak Tika", karakter: 9, jadwal: {
-      pagi:  {di: "depan-toko", r: 1, ket: "membuka tokonya di samping Pasar CodeIn",
-              ucapan: ["Pagi! Tokoku jual perabot untuk rumahmu di Perumahan CodeIn. Masuk lewat pintu toko, ya.", "Baliho di kota ini boleh dipakai anggota, gratis."]},
-      siang: {di: "depan-toko", r: 1, ket: "di depan tokonya",
-              ucapan: ["Kasur, sofa, karpet, lukisan, semua ada di tokoku. Bayar pakai koin.", "Belum punya koin? Mancing dulu, ikannya jual ke Pak Ikan."]},
-      sore:  {di: "pasar-2", r: 1, ket: "membantu di Pasar CodeIn",
-              ucapan: ["Sore aku bantu-bantu di Pasar CodeIn. Tokoku tetap buka, bayar di kotak kasir.", "Punya proyek? Daftar baliho lewat Kak Rani di Markas."]},
-      malam: {pulang: true}}},
+    // Mbak Tika menjaga kasir di dalam tokonya (ruang "toko"): beli perabot dan jual perabot yang tidak terpasang (js/toko.js)
+    {nama: "Mbak Tika", karakter: 9, ruang: "toko", di: [7, 4], hadap: "bawah", peran: "kasir", ket: "menjaga kasir di Toko Mbak Tika"},
     {nama: "Nek Ijah", karakter: 11, jadwal: {
       pagi:  {rute: ["gang-barat-1", "gang-barat-2"], laju: 16, ket: "jalan pagi di gang kampung",
               ucapan: ["Pagi, Nak. Nenek jalan pagi dulu.", "Pelan-pelan saja jalannya."]},

@@ -11,7 +11,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 - **Koin dan tas**: warga baru mendapat 50 koin dan perabot rumah starter. Tombol tas di bilah atas menampilkan koin, isi tas, dan juara mancing hari ini. Semua perubahan koin tercatat di server (admin bisa memberi koin sebagai hadiah lomba).
 - **Mancing**: berdiri di tepi kolam Taman Kota atau danau Perumahan, menghadap ke air, lalu tekan Mancing. Tunggu umpan dimakan, tarik tepat waktu, lalu adu tarik (tekan saat jarum di zona hijau). Server yang memilih ikan dan waktunya; 40 tangkapan per hari. Ikan dijual ke Pak Ikan di Pasar CodeIn.
 - **Kebun halaman**: tiap rumah warga punya 3 petak kebun di halaman depan. Beli bibit (kangkung, cabai, tomat, jagung, semangka), tanaman tumbuh menurut jam asli, panennya dijual ke Bu Sayur.
-- **Tata rumah**: pemilik menata perabot di dalam rumahnya (tombol Tata rumah): pilih perabot dari tas, ketuk lantai untuk menaruh, ketuk perabot untuk memindahkan atau menyimpannya. Perabot baru dibeli di **Toko Mbak Tika** (26 perabot).
+- **Tata rumah**: pemilik menata perabot di dalam rumahnya (tombol Tata rumah): pilih perabot dari tas, ketuk lantai untuk menaruh, ketuk perabot untuk memindahkan atau menyimpannya. Perabot baru dibeli di **Toko Mbak Tika** (26 perabot). Toko bisa dimasuki: Mbak Tika menjaga kasir, menjual perabot dan membeli kembali perabot yang tidak terpasang setengah harga. Kasur menempati dua baris lantai dan seluruhnya padat.
 - **Desain rumah sendiri** (lewat Pak Darto): editor piksel 96 x 106 dengan garis bantu pintu dan dinding, atau impor PNG. Desain tampil di Perumahan setelah disetujui admin.
 - Layar judul: dua belas pilihan karakter (enam karakter Kenney dan enam dari paket CodeIn City Retro: pemuda berhoodie, mahasiswi, bocil bertopi, ibu warung, kakek bertongkat, nenek) dan nama panggilan dengan penyaring kata kasar.
 - Jalan dengan WASD atau tombol panah. Di ponsel, sentuh layar lalu geser.
@@ -55,7 +55,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/ekonomi.js` | Koin dan tas warga, jual hasil tangkapan dan panen ke pedagang pasar |
 | `js/mancing.js` | Mancing: deteksi tepi air, joran dan pelampung, minigame tarik |
 | `js/tata.js` | Isi rumah warga (perabot dari data) dan mode Tata rumah; aturan letak sama dengan `services/rumahku.py` di CodeIn News |
-| `js/toko.js` | Toko Mbak Tika (perabot) |
+| `js/toko.js` | Toko Mbak Tika: kasir, beli perabot, jual perabot bekas |
 | `js/kebun.js` | Kebun halaman: petak, tahap tumbuh, tanam, panen, cabut |
 | `js/desain.js` | Editor desain rumah dan gambar rumah berdesain di Perumahan |
 | `js/rumah.js` | Hosting proyek anggota: formulir pendaftaran, Direktori Proyek, dan nama proyek unggulan di pintu rumahnya (data dari CodeIn News) |
@@ -67,6 +67,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/main.js` | Titik mulai |
 | `assets/maps/kota.tmj` | Peta kota, dibuka dan diubah dengan Tiled |
 | `assets/maps/markas.tmj`, `galeri.tmj`, `redaksi.tmj` | Peta ruangan Markas CodeIn, Galeri Showcase, dan Kantor Redaksi |
+| `assets/maps/toko.tmj` | Dalam Toko Mbak Tika: ruang pamer perabot dan meja kasir |
 | `assets/maps/perumahan.tmj`, `rumah.tmj` | Perumahan CodeIn (pintu `kav-A01` .. `kav-A24` menyimpan letak kavling) dan dalam rumah warga (satu peta untuk semua rumah) |
 | `assets/tiles/urban.png` | Tileset dan karakter (Kenney, CC0) |
 | `assets/sprites/gedung.png`, `gedung.json` | Atlas gambar bergaya Kenney: gedung ikonik, rumah warga, bendera, pohon hutan, perabot ruangan, properti kota (halte, gerobak bakso, pos ronda, kolam, beringin, palem), angkot dan motor |

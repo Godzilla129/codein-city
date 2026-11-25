@@ -16,11 +16,12 @@ const Tata = (() => {
   const API = ((lokal && new URLSearchParams(location.search).get("api")) || KOTA.news).replace(/\/+$/, "");
   const LANTAI_X = [1, 12], LANTAI_Y = [4, 8], DINDING_Y = 2, KUNCI_X = [9, 10];
   const CADANGAN = new Set(["6,8", "7,8", "9,4", "10,4"]);
-  // [nama, letak, lebar, tinggi] sama dengan PERABOT di services/ekonomi.py
+  // [nama, letak, lebar, tinggi] sama dengan PERABOT di services/ekonomi.py. tinggi = baris lantai yang ditempati
+  // (karpet, dan kasur yang terbaring sepanjang dua petak); perabot lain berdiri di satu baris.
   const PERABOT = {
     "kursi": ["Kursi kayu", "lantai", 1, 1], "tanaman": ["Tanaman pot", "lantai", 1, 1], "tanaman-besar": ["Tanaman besar", "lantai", 1, 1],
     "dispenser": ["Dispenser air", "lantai", 1, 1], "meja-bundar": ["Meja bundar", "lantai", 1, 1], "lampu-lantai": ["Lampu berdiri", "lantai", 1, 1],
-    "jam-besar": ["Jam lemari", "lantai", 1, 1], "kulkas": ["Kulkas", "lantai", 1, 1], "kasur": ["Kasur", "lantai", 2, 1],
+    "jam-besar": ["Jam lemari", "lantai", 1, 1], "kulkas": ["Kulkas", "lantai", 1, 1], "kasur": ["Kasur", "lantai", 2, 2],
     "lemari": ["Lemari pakaian", "lantai", 2, 1], "rak-buku": ["Rak buku", "lantai", 2, 1], "sofa-kecil": ["Sofa kecil", "lantai", 2, 1],
     "sofa": ["Sofa panjang", "lantai", 2, 1], "meja-kerja": ["Meja kerja", "lantai", 2, 1], "meja-komputer": ["Meja komputer", "lantai", 2, 1],
     "papan-tulis": ["Papan tulis", "lantai", 2, 1], "bangku-galeri": ["Bangku panjang", "lantai", 2, 1], "konter-kopi": ["Konter kopi", "lantai", 2, 1],
@@ -53,7 +54,8 @@ const Tata = (() => {
       return null;
     }
     if (y - tinggi + 1 < LANTAI_Y[0] || y > LANTAI_Y[1]) return `${nama} harus di atas lantai.`;
-    if (letak === "lantai") for (let i = 0; i < lebar; i++) if (CADANGAN.has(`${x + i},${y}`)) return `${nama} menghalangi pintu atau gantungan kunci.`;
+    if (letak === "lantai") for (let i = 0; i < lebar; i++) for (let j = 0; j < tinggi; j++)
+      if (CADANGAN.has(`${x + i},${y - j}`)) return `${nama} menghalangi pintu atau gantungan kunci.`;
     return null;
   }
   // tile yang ditunjuk -> letak (x, y) perabot: perabot dinding selalu di baris dinding
@@ -64,12 +66,17 @@ const Tata = (() => {
   function gambarSatu(it, i) {
     const p = info(it.barang);
     if (!p || !adegan.textures.get("benda").has(it.barang)) return null;
-    const [, letak, lebar] = p, f = adegan.textures.getFrame("benda", it.barang);
+    const [, letak, lebar, tinggiPetak] = p, f = adegan.textures.getFrame("benda", it.barang);
     const x = it.x * T + Math.round((lebar * T - f.cutWidth) / 2), bawah = (it.y + 1) * T;
     const img = adegan.add.image(x, bawah, "benda", it.barang).setOrigin(0, 1);
     img.setDepth(letak === "dinding" ? 3.6 : letak === "karpet" ? 3.5 : 10 + bawah);
     let padat = null;
-    if (letak === "lantai") { const tinggi = Math.min(f.cutHeight, 8); padat = Kota.padatkan(x + 2, bawah - tinggi, f.cutWidth - 4, tinggi); }
+    // kotak padat = bagian perabot yang menapak lantai: kasur seluruh panjangnya, perabot berdiri bagian kakinya (12 piksel);
+    // bagian atas perabot tinggi (lemari, rak) bisa dilewati di belakangnya
+    if (letak === "lantai") {
+      const tinggi = Math.min(f.cutHeight, tinggiPetak > 1 ? tinggiPetak * T - 4 : 12);
+      padat = Kota.padatkan(x + 1, bawah - tinggi, f.cutWidth - 2, tinggi);
+    }
     return {img, padat, i, x, bawah, w: f.cutWidth, h: f.cutHeight};
   }
   // gambar ulang semua perabot: isi rumah, atau draf saat menata (perabot yang sedang dipegang tidak digambar di tempat lamanya)
@@ -81,7 +88,8 @@ const Tata = (() => {
       if (aktifkah && pegang && pegang.dari === i) return;
       const g = gambarSatu(it, i); if (g) gambar.push(g);
     });
-    if (aktifkah) gambar.forEach(g => g.img.setAlpha(g.i === pilih ? .55 : 1));
+    if (aktifkah) gambar.forEach(g => g.img.setAlpha(g.i === pilih ? .8 : 1));
+    gambarKursor();
   }
   async function muat(k) {
     let d = null;
@@ -229,9 +237,19 @@ const Tata = (() => {
   function gambarKursor() {
     if (!kotakKursor) return;
     kotakKursor.clear();
-    let [x, y] = kursor, lebar = 1, tinggi = 1, ok = true;
-    if (pegang) { [x, y] = letakDari(pegang.barang, ...kursor); lebar = info(pegang.barang)[2]; tinggi = info(pegang.barang)[1] === "karpet" ? info(pegang.barang)[3] : 1; ok = !salahLetak(pegang.barang, x, y); }
-    kotakKursor.lineStyle(2, ok ? 0x4CAF6A : 0xE5483B, 1).strokeRect(x * T + 1, (y - tinggi + 1) * T + 1, lebar * T - 2, tinggi * T - 2);
+    // kotak mengikuti gambar perabot sebenarnya: yang sedang dipegang (hijau = boleh, merah = tidak) atau yang dipilih (kuning)
+    const bingkai = (barang, x, y) => {
+      const f = adegan.textures.getFrame("benda", barang), kiri = x * T + Math.round((info(barang)[2] * T - f.cutWidth) / 2);
+      return [kiri - 1, (y + 1) * T - f.cutHeight - 1, f.cutWidth + 2, f.cutHeight + 2];
+    };
+    if (pegang) {
+      const [x, y] = letakDari(pegang.barang, ...kursor), ok = !salahLetak(pegang.barang, x, y);
+      kotakKursor.lineStyle(2, ok ? 0x4CAF6A : 0xE5483B, 1).strokeRect(...bingkai(pegang.barang, x, y));
+    } else if (pilih >= 0 && draf[pilih]) {
+      kotakKursor.lineStyle(2, 0xE9A23B, 1).strokeRect(...bingkai(draf[pilih].barang, draf[pilih].x, draf[pilih].y));
+    } else {
+      kotakKursor.lineStyle(2, 0xffffff, .8).strokeRect(kursor[0] * T + 1, kursor[1] * T + 1, T - 2, T - 2);
+    }
   }
   function geser(dx, dy) {
     kursor = [Phaser.Math.Clamp(kursor[0] + dx, LANTAI_X[0], LANTAI_X[1]), Phaser.Math.Clamp(kursor[1] + dy, DINDING_Y, LANTAI_Y[1])];
