@@ -13,7 +13,8 @@ const Ekonomi = (() => {
   function tampil() {
     const b = $("btn-tas");
     b.hidden = !data;
-    if (data) { $("hud-koin").textContent = data.koin.toLocaleString("id-ID"); b.title = `Tas dan koin: ${data.koin} koin`; }
+    // di bilah atas: ringkas mulai 10 ribu (12rb) supaya tombol lain tetap muat di HP
+    if (data) { $("hud-koin").textContent = data.koin >= 10000 ? Math.floor(data.koin / 1000) + "rb" : data.koin.toLocaleString("id-ID"); b.title = `Tas: ${data.koin} koin (tombol I)`; }
   }
   async function muat() {
     if (!Akun.sudahWarga()) { data = null; tampil(); return null; }
@@ -58,24 +59,95 @@ const Ekonomi = (() => {
     return isi;
   }
 
-  // dialog tas: koin, isi tas, papan juara mancing hari ini
+  /* ---------- tas: inventaris bergaya game ----------
+     Grid slot berisi ikon dan jumlah, bingkai berwarna menurut kelangkaan, tab kategori, dan rincian barang yang dipilih.
+     Tombol I membuka tas (warga). Di grid, panah = pindah slot, Enter = lihat rincian. */
+  const TAB = [["semua", "Semua"], ["ikan", "Ikan"], ["panen", "Kebun"], ["perabot", "Perabot"], ["juara", "Juara"]];
+  const JUAL_KE = {ikan: "Pak Ikan", panen: "Bu Sayur"};
+  let tabKini = "semua", pilihKini = null;
+  const ikonBarang = (b, besar) => b.jenis === "perabot" ? Tata.ikon(b.barang, besar ? 56 : 36) : Barang.ikon(b.barang, besar ? "ikon-barang besar" : "ikon-barang");
+  const kelangkaan = b => b.jenis === "ikan" ? b.langka : "umum";
+
+  function rincian(b) {
+    const kotak = el("div", "rincian-barang");
+    if (!b) { kotak.append(el("p", "redup", "Pilih slot untuk melihat rinciannya.")); return kotak; }
+    const kepala = el("div", "rincian-kepala"), teks = el("div");
+    teks.append(el("b", null, b.nama), el("span", `lencana-langka ${kelangkaan(b)}`, b.jenis === "perabot" ? "perabot" : b.jenis === "panen" ? "hasil kebun" : Barang.langka(b.langka)));
+    kepala.append(ikonBarang(b, true), teks);
+    kotak.append(kepala, el("p", null, `Dimiliki × ${b.jumlah}`));
+    const tombol = [];
+    if (b.jenis === "perabot") {
+      kotak.append(el("p", "redup", "Perabot dipasang lewat Tata rumah di dalam rumahmu. Jumlah ini termasuk yang sudah terpasang."));
+      if (Kota.ruang() === "rumah" && Perumahan.pemilikKini()) tombol.push(["🛋️ Tata rumah", () => { Panel.tutup(); Tata.mulai(); }]);
+    } else {
+      kotak.append(el("p", null, b.harga ? `Harga jual ${koin(b.harga)} · semuanya ${koin(b.harga * b.jumlah)}` : "Tidak laku dijual. Tapi kalau dibawa ke pasar, pedagangnya mau membuangkan."));
+      kotak.append(el("p", "redup", `Dijual ke ${JUAL_KE[b.jenis]} di Pasar CodeIn, timur Taman Kota.`));
+      tombol.push(["Ke Pasar CodeIn", () => { Panel.tutup(); Kota.keTempat("kota", "toko"); Kota.kabar(`${JUAL_KE[b.jenis]} ada di lapak pasar, sebelah kanan toko ini.`); }]);
+    }
+    if (tombol.length) {
+      const baris = el("div", "baris-tombol");
+      for (const [label, fn] of tombol) { const t = el("button", "tbl", label); t.type = "button"; t.onclick = fn; baris.append(t); }
+      kotak.append(baris);
+    }
+    return kotak;
+  }
+  function grid(barang) {
+    const g = el("div", "inventaris"); g.setAttribute("role", "group"); g.setAttribute("aria-label", "Isi tas");
+    const kolom = innerWidth > 480 ? 6 : 5, slot = Math.max(kolom * 4, Math.ceil(barang.length / kolom) * kolom);
+    let fokus = null;
+    barang.forEach(b => {
+      const t = el("button", "slot"); t.type = "button"; t.dataset.langka = kelangkaan(b);
+      t.setAttribute("aria-label", `${b.nama}, ${b.jumlah}`); t.setAttribute("aria-pressed", String(pilihKini === b.barang)); t.title = b.nama;
+      t.append(ikonBarang(b), el("span", "jumlah", b.jumlah > 999 ? "999+" : String(b.jumlah)));
+      t.onclick = () => { pilihKini = b.barang; gambarTas(t.dataset.i); };
+      t.dataset.i = String(g.childElementCount);
+      if (pilihKini === b.barang) fokus = t;
+      g.append(t);
+    });
+    for (let i = barang.length; i < slot; i++) { const k = el("div", "slot kosong"); k.setAttribute("aria-hidden", "true"); g.append(k); }
+    // panah memindah fokus antarslot
+    g.addEventListener("keydown", e => {
+      const geser = {ArrowRight: 1, ArrowLeft: -1, ArrowDown: kolom, ArrowUp: -kolom}[e.key];
+      if (!geser) return;
+      const semua = [...g.querySelectorAll("button.slot")], i = semua.indexOf(document.activeElement);
+      if (i < 0) return;
+      e.preventDefault(); e.stopPropagation();
+      const j = Math.max(0, Math.min(semua.length - 1, i + geser));
+      semua[j].focus();
+    });
+    return [g, fokus];
+  }
+  let juaraKini = null;
+  function gambarTas(fokusSlot) {
+    const tab = el("div", "tab-tas"); tab.setAttribute("role", "tablist"); tab.setAttribute("aria-label", "Kategori tas");
+    let fokus = null;
+    for (const [k, label] of TAB) {
+      const n = k === "semua" ? data.tas.length : k === "juara" ? 0 : data.tas.filter(b => b.jenis === k).length;
+      const t = el("button", "tab", label); t.type = "button"; if (n) t.title = `${n} jenis barang`; t.setAttribute("role", "tab"); t.setAttribute("aria-selected", String(k === tabKini));
+      t.onclick = () => { tabKini = k; gambarTas(); };
+      if (k === tabKini && fokusSlot === undefined) fokus = t;
+      tab.append(t);
+    }
+    const kepala = el("div", "kepala-tas");
+    kepala.append(el("span", "koin-besar", `🪙 ${koin(data.koin)}`));
+    const isi = [kepala, tab];
+    if (tabKini === "juara") isi.push(...isiJuara(juaraKini));
+    else {
+      const barang = data.tas.filter(b => tabKini === "semua" || b.jenis === tabKini);
+      if (!barang.find(b => b.barang === pilihKini)) pilihKini = barang.length ? barang[0].barang : null;
+      const [g, f] = grid(barang);
+      isi.push(g, rincian(barang.find(b => b.barang === pilihKini)));
+      if (!barang.length) isi.push(el("p", "redup", tabKini === "perabot" ? "Perabot dibeli di Toko Mbak Tika." :
+        tabKini === "panen" ? "Tanam bibit di kebun halaman rumahmu di Perumahan CodeIn." : "Cari tepi kolam di Taman Kota atau danau di Perumahan CodeIn, lalu tekan Mancing."));
+      if (fokusSlot !== undefined) fokus = f;
+    }
+    Panel.buka("Tas", isi, [{teks: "Tutup"}], fokus || undefined);
+  }
   async function tas() {
     await muat();
     if (!data) { Akun.pastikan("Tas dan koin", tas); return; }
-    const isi = [el("p", "koin-besar", koin(data.koin))];
-    const jual = data.tas.filter(b => b.jenis !== "perabot"), perabot = data.tas.filter(b => b.jenis === "perabot");
-    if (jual.length) {
-      const ul = el("ul", "tas"); jual.forEach(b => ul.append(barisBarang(b))); isi.push(ul);
-      if (jual.some(b => b.jenis === "ikan")) isi.push(el("p", "redup", "Ikan dijual ke Pak Ikan di Pasar CodeIn, timur Taman Kota."));
-      if (jual.some(b => b.jenis === "panen")) isi.push(el("p", "redup", "Hasil kebun dijual ke Bu Sayur di Pasar CodeIn."));
-    } else isi.push(el("p", "redup", "Belum ada tangkapan atau panen. Cari tepi kolam di Taman Kota atau danau di Perumahan CodeIn, lalu tekan Mancing."));
-    if (perabot.length) {
-      isi.push(el("h3", null, "Perabot"));
-      const ul = el("ul", "tas"); perabot.forEach(b => ul.append(barisBarang(b))); isi.push(ul);
-      isi.push(el("p", "redup", "Perabot dipasang lewat tombol Tata rumah di dalam rumahmu. Perabot baru dijual di Toko Mbak Tika."));
-    }
-    isi.push(el("h3", null, "Juara mancing hari ini"), ...isiJuara(await juara()));
-    Panel.buka("Tas", isi, [{teks: "Tutup"}]);
+    juaraKini = await juara();
+    gambarTas();
   }
 
   // pedagang yang membeli barang (def.beli = jenis barang). Ucapannya diambil dari jadwal (ucapan pertama).
@@ -108,6 +180,13 @@ const Ekonomi = (() => {
   }
 
   $("btn-tas").onclick = () => { $("btn-tas").blur(); tas(); };
+  // tombol I membuka tas, seperti di game
+  addEventListener("keydown", e => {
+    if (e.code !== "KeyI" || e.repeat || e.ctrlKey || e.metaKey || e.altKey || Panel.terbuka() || Kota.ditahan()) return;
+    if (e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (!Akun.sudahWarga()) return;
+    e.preventDefault(); tas();
+  });
   Akun.saatBerubah(k => { if (k !== "memuat") muat(); });
 
   return {muat, tambah, tas, pedagang, koin: () => data && data.koin};

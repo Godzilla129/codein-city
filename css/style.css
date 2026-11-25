@@ -200,6 +200,33 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 #mancing-nyawa{min-height:1.2em;margin:0 0 8px}
 #mancing .baris-tombol{margin:0}
 #mancing-tarik{min-height:52px;flex:1;font-size:18px}
+/* tas bergaya inventaris game (js/ekonomi.js) */
+.kepala-tas{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 8px}
+.tab-tas{display:flex;gap:4px;overflow-x:auto;margin:0 0 10px;border-bottom:3px solid var(--tinta)}
+.tab-tas .tab{flex:none;min-height:40px;padding:0 10px;border:3px solid var(--tinta);border-bottom:0;border-radius:10px 10px 0 0;background:var(--kertas-2);
+  font:600 14px var(--judul);color:var(--redup);cursor:pointer;margin-bottom:-3px}
+.tab-tas .tab[aria-selected="true"]{background:var(--kertas);color:var(--tinta);padding-bottom:3px}
+.inventaris{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:8px;background:#5E4632;border:3px solid var(--tinta);border-radius:12px;
+  box-shadow:inset 0 3px 0 rgba(0,0,0,.25);margin:0 0 10px}
+@media (min-width:481px){ .inventaris{grid-template-columns:repeat(6,1fr)} }
+.slot{position:relative;aspect-ratio:1;display:grid;place-items:center;padding:0;border:3px solid #2A211B;border-radius:8px;background:#E8D9C3;cursor:pointer;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.12)}
+.slot.kosong{background:#7A5E45;border-color:#4A3626;box-shadow:inset 0 2px 0 rgba(0,0,0,.25);cursor:default}
+.slot .ikon-barang,.slot .ikon-perabot{width:36px;height:36px}
+.slot .jumlah{position:absolute;right:3px;bottom:1px;font:700 13px var(--judul);color:#fff;text-shadow:0 1px 0 #000,1px 0 0 #000,-1px 0 0 #000,0 -1px 0 #000}
+.slot[data-langka="sedang"]{border-color:#2E8B57;background:#DDEFD9}
+.slot[data-langka="jarang"]{border-color:#2F6FBF;background:#D9E6F6}
+.slot[data-langka="langka"]{border-color:#B8860B;background:#FFF0B8;box-shadow:0 0 0 2px #F2C94C,inset 0 -3px 0 rgba(0,0,0,.12)}
+.slot[data-langka="sampah"]{background:#D8CBBB}
+.slot[aria-pressed="true"]{outline:3px solid var(--emas);outline-offset:1px}
+.rincian-barang{border:2px dashed #D2BFA3;border-radius:10px;padding:10px;margin:0 0 10px}
+.rincian-barang p{margin:6px 0 0}
+.rincian-kepala{display:flex;align-items:center;gap:12px}
+.rincian-kepala b{display:block;font:600 18px var(--judul)}
+.rincian-kepala .ikon-perabot{width:56px;height:56px}
+.lencana-langka{display:inline-block;margin-top:2px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;background:#E8D9C3;color:var(--tinta)}
+.lencana-langka.sedang{background:#2E8B57;color:#fff} .lencana-langka.jarang{background:#2F6FBF;color:#fff}
+.lencana-langka.langka{background:#8A6508;color:#fff} .lencana-langka.sampah{background:#8A6A4A;color:#fff}
 /* Toko Mbak Tika (js/toko.js) */
 .kotak ul.toko{list-style:none;padding:0;margin:0 0 12px}
 .barang-toko{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:10px;border-top:2px dashed #D2BFA3;padding:6px 0;margin:0}
@@ -235,13 +262,19 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 #tata .baris-tombol .redup{flex-basis:100%;margin:2px 0 0}
 @media (max-width:480px){
   .karakter{grid-template-columns:repeat(4,1fr)} .kar .muka{--s:3}
-  .merek{padding:3px 10px;white-space:nowrap} .merek b{font-size:15px} .merek span{font-size:11px}
+  .merek{padding:3px 10px;white-space:nowrap;min-width:0;flex:0 1 auto;overflow:hidden} .merek b,.merek span{overflow:hidden;text-overflow:ellipsis}
+  .merek b{font-size:15px} .merek span{font-size:11px} .tombol-hud{flex:none} #btn-tas{gap:4px}
   .tombol-hud{flex-wrap:nowrap} .tombol-hud .tbl{padding:0 10px}
   #hud-nama{display:none}
   #btn-tempat{min-width:44px} #btn-tempat .teks{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
   #btn-tas{padding:0 8px}
   #btn-musik{min-width:44px} #btn-musik span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 }
+@media (max-width:400px){
+  #hud{padding-left:8px;padding-right:8px;gap:6px} .tombol-hud{gap:5px} .tombol-hud .tbl{padding:0 7px;min-width:40px} #btn-musik,#btn-tempat{min-width:40px}
+  .merek{padding:3px 7px} .merek b{font-size:14px}
+}
+@media (max-width:374px){ #btn-tas > span[aria-hidden]{display:none} }
 @media (prefers-reduced-motion:reduce){ .tbl:active{transform:none} .layar.ganti .pw-judul,.layar.ganti .pw-kaki{animation:none} #obrol-log li{transition:none} }
 #panel-isi a{color:#1F5E57;font-weight:600;text-underline-offset:3px}
 /* akun warga di layar judul */
