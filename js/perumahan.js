@@ -263,7 +263,7 @@ const Perumahan = (() => {
       if (keluar) keluar.ke = "kav-" + kini;          // keluar rumah: muncul lagi di depan kavlingnya
       const nama = k && k.pemilik ? k.pemilik.nama : "warga";
       const plakat = el("div", "papan rumah", `Rumah ${nama} · ${kini || ""}`);
-      Kota.tempelkan(plakat, () => [6 * T, T + 6]);
+      Kota.tempelkan(plakat, () => [7 * T, T + 6]);
       const saya = milikku();
       Kota.kabar(saya && saya.kode === kini ? "Selamat datang di rumahmu." : `Kamu bertamu ke rumah ${nama}.`);
     } else kini = null;
@@ -281,5 +281,5 @@ const Perumahan = (() => {
     Kota.segarkanAksi();
   });
 
-  return {buka, teksAksi, teksKunci, aturKunci, pulang, tombolPulang, satpam, kini: () => kini, data: () => data, muat};
+  return {buka, teksAksi, teksKunci, aturKunci, pulang, tombolPulang, satpam, kini: () => kini, data: () => data, muat, pemilikKini, milikku};
 })();

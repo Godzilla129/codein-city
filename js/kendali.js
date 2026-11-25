@@ -8,7 +8,7 @@ const Kendali = (() => {
 
   function lepas() { id = null; vx = vy = 0; joy.hidden = true; }
   area.addEventListener("pointerdown", e => {
-    if (e.pointerType === "mouse" || id !== null || Panel.terbuka()) return;
+    if (e.pointerType === "mouse" || id !== null || Panel.terbuka() || (typeof Kota !== "undefined" && Kota.ditahan())) return;
     id = e.pointerId; ox = e.clientX; oy = e.clientY; vx = vy = 0;
     joy.style.left = ox + "px"; joy.style.top = oy + "px"; tuas.style.transform = ""; joy.hidden = false;
   });

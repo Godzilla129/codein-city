@@ -199,6 +199,7 @@ const Mancing = (() => {
       if (kini - lemparan.mulaiAdu > 20000) kirim(false, "Ikannya kelelahan dan lepas sendiri.");
     }
   });
+  Kota.tahan(aktif);
   Kota.saatSiap(() => { keadaan = null; lemparan = null; kotak.hidden = true; gfx = riak = target = seru = null; });
 
   tblTarik.onclick = () => { tekan(); };

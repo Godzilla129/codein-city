@@ -304,7 +304,7 @@ const Kota = (() => {
     update(_, dt) {
       // gerak pemain
       let vx = 0, vy = 0;
-      if (profil && !pindah && !Panel.terbuka() && !Mancing.aktif()) {
+      if (profil && !pindah && !Panel.terbuka() && !ditahan()) {
         const j = Kendali.arah(), ada = k => tekan.has(k) ? 1 : 0;
         vx = (ada("KeyD") || ada("ArrowRight")) - (ada("KeyA") || ada("ArrowLeft")) || j.x;
         vy = (ada("KeyS") || ada("ArrowDown")) - (ada("KeyW") || ada("ArrowUp")) || j.y;
@@ -326,6 +326,10 @@ const Kota = (() => {
     }
   }
 
+  // Mode yang menahan pemain di tempat (mancing, menata rumah): pemain tidak berjalan, tombol aksi dan ketukan peta tidak bekerja.
+  const penahan = [];
+  const ditahan = () => penahan.some(f => f());
+
   /* ---------- interaksi: pintu atau warga terdekat ---------- */
   function teksAksi(p) {
     if (p.aksi === "pindah" && /^Baca /.test(p.nama)) return p.nama;          // terminal di Kantor Redaksi
@@ -339,7 +343,7 @@ const Kota = (() => {
   }
   function cariTerdekat() {
     let baru = null;
-    if (profil && !pindah && !Mancing.aktif()) {
+    if (profil && !pindah && !ditahan()) {
       const fx = pemain.x, fy = pemain.body.bottom - 2;
       const p = pintu.find(p => fx >= p.x && fx <= p.x + p.w && fy >= p.y - 2 && fy <= p.y + p.h + 2);
       if (p) baru = {kunci: "p:" + p.id, pintu: p, teks: teksAksi(p)};
@@ -436,7 +440,7 @@ const Kota = (() => {
   const mengetik = e => e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
   const diTombol = e => e.target instanceof HTMLElement && /^(BUTTON|A)$/.test(e.target.tagName);
   addEventListener("keydown", e => {
-    if (Panel.terbuka() || e.ctrlKey || e.metaKey || e.altKey || mengetik(e)) return;
+    if (Panel.terbuka() || ditahan() || e.ctrlKey || e.metaKey || e.altKey || mengetik(e)) return;
     if (e.code === "KeyE" || ((e.code === "Space" || e.code === "Enter") && !diTombol(e))) {
       // Enter membuka kolom obrolan selama obrolan tersambung (juga di depan pintu, karena orang berkumpul di sana).
       // Kalau obrolan tidak tersambung, Enter menjalankan aksi; tanpa aksi di dekat pemain, muncul kabar singkat.
@@ -459,7 +463,7 @@ const Kota = (() => {
   $("game").addEventListener("pointerdown", e => { tekanAwal = {x: e.clientX, y: e.clientY, t: e.timeStamp}; });
   $("game").addEventListener("pointerup", e => {
     const a = tekanAwal; tekanAwal = null;
-    if (!a || !adegan || !profil || pindah || Panel.terbuka()) return;
+    if (!a || !adegan || !profil || pindah || Panel.terbuka() || ditahan()) return;
     if (Math.hypot(e.clientX - a.x, e.clientY - a.y) > 10 || e.timeStamp - a.t > 500) return;     // geseran = joystick, bukan ketukan
     const kotak = $("game").getBoundingClientRect(), t = adegan.cameras.main.getWorldPoint(e.clientX - kotak.left, e.clientY - kotak.top);
     const b = papan.find(b => t.x >= b.x && t.x <= b.x + b.w && t.y >= b.y && t.y <= b.y + b.h);
@@ -534,6 +538,7 @@ const Kota = (() => {
   }
 
   return {
+    tahan: f => penahan.push(f), ditahan,
     nyalakan, mulai, pindahKe, masuk, keTempat, padatkan, segarkanAksi, keResepsionis, bukaNews, ucap, balon, tempelkan, lepaskan, frame, ARAH, waktu, kabar,
     pintu: () => pintu, ruang: () => ruang, profil: () => profil, adegan: () => adegan, luar: () => LUAR.includes(ruang),
     // nama ruangan untuk layanan obrolan: tiap rumah warga punya ruangannya sendiri (rumah-A07), jadi tamu di rumah yang sama saling terlihat

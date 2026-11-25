@@ -200,6 +200,20 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 #mancing-nyawa{min-height:1.2em;margin:0 0 8px}
 #mancing .baris-tombol{margin:0}
 #mancing-tarik{min-height:52px;flex:1;font-size:18px}
+/* tata rumah (js/tata.js) */
+#btn-tata{position:fixed;right:12px;bottom:calc(26px + env(safe-area-inset-bottom));min-height:48px;background:var(--emas)}
+#tata{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;width:min(560px, calc(100vw - 16px));
+  padding:10px 12px 12px;border-width:3px;box-shadow:0 4px 0 var(--tinta)}
+#tata-teks{font-weight:600;margin:0 0 8px;min-height:1.45em}
+#tata-barang{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;margin:0 0 6px;scrollbar-width:thin}
+.perabot-tas{flex:none;display:grid;justify-items:center;gap:2px;width:78px;padding:6px 4px;border:2px solid var(--tinta);border-radius:10px;background:var(--kertas-2);
+  cursor:pointer;font-size:12px;line-height:1.15;text-align:center}
+.perabot-tas[aria-pressed="true"]{background:var(--emas);box-shadow:inset 0 0 0 2px var(--tinta)}
+.perabot-tas:disabled{opacity:.45;cursor:default}
+.perabot-tas b{font-size:12px}
+.ikon-perabot{width:36px;height:36px;image-rendering:pixelated}
+#tata .baris-tombol{margin:0}
+#tata .baris-tombol .redup{flex-basis:100%;margin:2px 0 0}
 @media (max-width:480px){
   .karakter{grid-template-columns:repeat(4,1fr)} .kar .muka{--s:3}
   .merek{padding:3px 10px;white-space:nowrap} .merek b{font-size:15px} .merek span{font-size:11px}

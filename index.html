@@ -38,6 +38,14 @@
 <p id="petunjuk" hidden>Jalan: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> atau panah · Aksi: <kbd>E</kbd><span id="petunjuk-obrol" hidden> · Obrol: <kbd>Enter</kbd></span></p>
 <p id="kabar-kota" role="status" hidden></p>
 
+<!-- Tata rumah (js/tata.js): hanya pemilik rumah, di dalam rumahnya -->
+<button type="button" class="tbl" id="btn-tata" hidden>🛋️ Tata rumah</button>
+<section id="tata" class="kotak" hidden aria-label="Tata rumah">
+  <p id="tata-teks" aria-live="polite"></p>
+  <div id="tata-barang" aria-label="Perabot di tasmu"></div>
+  <div class="baris-tombol" id="tata-aksi"></div>
+</section>
+
 <!-- Mancing (js/mancing.js): muncul di bawah layar selama mancing -->
 <section id="mancing" class="kotak" hidden aria-label="Mancing">
   <p id="mancing-teks" aria-live="polite"></p>
@@ -109,6 +117,7 @@
 <script src="js/barang.js"></script>
 <script src="js/ekonomi.js"></script>
 <script src="js/mancing.js"></script>
+<script src="js/tata.js"></script>
 <script src="js/redaksi.js"></script>
 <script src="js/lalulintas.js"></script>
 <script src="js/ramai.js"></script>

@@ -875,22 +875,14 @@ def perumahan():
 
 
 def rumah_dalam():
-    """Dalam rumah starter warga (satu peta untuk semua rumah; pemiliknya diatur js/perumahan.js)."""
-    p = ruangan(10, 7, "krem", "kayu", 3, 5, "", keluar_peta="perumahan")
-    p.perabot("jendela-dinding", 2, 2, padat=False, datar=True)
-    p.perabot("lukisan", 7, 2, padat=False, datar=True, dx=2)
-    p.perabot("kasur", 1, 6, dx=2)
-    p.perabot("lemari", 3, 4, dx=6)
-    p.perabot("rak-buku", 9, 4, dx=-4)
-    p.perabot("karpet-biru", 4, 7, padat=False, datar=True, dx=4)
-    p.perabot("sofa-kecil", 5, 6, dx=-2)
-    p.perabot("meja-bundar", 5, 7, dx=0)
-    p.perabot("meja-komputer", 8, 7, dx=0)
-    p.perabot("tanaman", 1, 7, dx=1)
-    p.perabot("lampu-lantai", 10, 7, dx=4)
+    """Dalam rumah warga (satu peta untuk semua rumah; pemilik dan perabotnya diatur js/perumahan.js dan js/tata.js).
+    Perabot tidak digambar di peta: pemilik menatanya sendiri dan datanya disimpan di CodeIn News (services/rumahku.py).
+    Lantai x 1-12, y 4-8; lukisan dan jendela digantung di baris 2. Ukuran dan petak cadangan ini harus sama dengan
+    LANTAI_X, LANTAI_Y, DINDING_Y, CADANGAN di services/rumahku.py."""
+    p = ruangan(12, 8, "krem", "kayu", 3, 6, "", keluar_peta="perumahan")
     # gantungan kunci di dinding: pemilik mengunci atau membuka pintu rumahnya dari sini (js/perumahan.js)
-    p.perabot("gantungan-kunci", 5, 2, padat=False, datar=True, dx=9, dy=-3)
-    p.door("kunci", "Gantungan kunci", 5, 3, "panel", "kunci-rumah", zone=(5 * T, 4 * T, 2 * T, T), label=False)
+    p.perabot("gantungan-kunci", 9, 2, padat=False, datar=True, dx=9, dy=-3)
+    p.door("kunci", "Gantungan kunci", 9, 3, "panel", "kunci-rumah", zone=(9 * T, 4 * T, 2 * T, T), label=False)
     p.tulis("rumah")
 
 
