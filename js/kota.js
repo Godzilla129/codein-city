@@ -64,6 +64,8 @@ const Kota = (() => {
     kunang.forEach(k => k.setVisible(f.nama === "Malam" && cuacaKini.kunang));
   }
   function aturCuaca(c) { cuacaKini = {...cuacaKini, ...c}; terapkanWaktu(); }
+  // nama di atas kepala naik sedikit saat warga berpayung, supaya tidak menimpa payungnya
+  const angkatNama = () => cuacaKini.payung ? 7 : 0;
 
   /* ---------- teks HTML yang menempel pada titik di dunia ---------- */
   function tempelkan(elemen, ambilPosisi) { $("label").append(elemen); const t = {elemen, ambilPosisi}; tempel.push(t); return t; }
@@ -77,7 +79,7 @@ const Kota = (() => {
   }
   // balon ucapan di atas sebuah sprite; hilang sendiri. Mengembalikan fungsi untuk menghapusnya lebih awal.
   function balon(sprite, teks, lama = 5200) {
-    const b = el("div", "balon", teks), t = tempelkan(b, () => [sprite.x, sprite.y - 24]);
+    const b = el("div", "balon", teks), t = tempelkan(b, () => [sprite.x, sprite.y - 24 - angkatNama()]);
     const waktu = setTimeout(() => lepaskan(t), lama);
     return () => { clearTimeout(waktu); lepaskan(t); };
   }
@@ -215,7 +217,7 @@ const Kota = (() => {
       this.physics.add.collider(pemain, padat);
       this.padat = padat;                  // js/perumahan.js menambah kotak tabrakan rumah warga setelah datanya datang
       const papanNama = el("div", "nama saya");
-      tempelkan(papanNama, () => [pemain.x, pemain.y - 14]);
+      tempelkan(papanNama, () => [pemain.x, pemain.y - 14 - angkatNama()]);
       this.papanNama = papanNama;
 
       // papan HTML (baliho, videotron, pengumuman, papan info). Di luar ruangan papan berdiri di atas dua tiang.
@@ -547,7 +549,7 @@ const Kota = (() => {
   }
 
   return {
-    tahan: f => penahan.push(f), ditahan, aturCuaca, fase: () => fase().nama, jam: jamWIB,
+    tahan: f => penahan.push(f), ditahan, aturCuaca, angkatNama, fase: () => fase().nama, jam: jamWIB,
     nyalakan, mulai, pindahKe, masuk, keTempat, padatkan, segarkanAksi, keResepsionis, bukaNews, ucap, balon, tempelkan, lepaskan, frame, ARAH, waktu, kabar,
     pintu: () => pintu, ruang: () => ruang, profil: () => profil, adegan: () => adegan, luar: () => LUAR.includes(ruang),
     // nama ruangan untuk layanan obrolan: tiap rumah warga punya ruangannya sendiri (rumah-A07), jadi tamu di rumah yang sama saling terlihat

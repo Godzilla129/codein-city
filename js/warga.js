@@ -246,7 +246,7 @@ const Warga = (() => {
     // angkat = digambar beberapa piksel lebih tinggi (pedagang yang berdiri di balik meja lapak, supaya kepala dan bahunya terlihat)
     const angkat = def.angkat || 0;
     const s = adegan.add.sprite(0, 0, "orang", Kota.frame(def.karakter, def.hadap || "bawah", 0)).setOrigin(.5, .8 + angkat / 16);
-    const label = Kota.tempelkan(el("div", "nama" + (def.redaksi ? " redaktur" : ""), def.label || def.nama), () => [s.x, s.y - 14 - angkat]);
+    const label = Kota.tempelkan(el("div", "nama" + (def.redaksi ? " redaktur" : ""), def.label || def.nama), () => [s.x, s.y - 14 - angkat - Kota.angkatNama()]);
     const w = {def, s, label, arah: def.hadap || "bawah", jalur: [], tunggu: 0, tungguAwal: 0, giliran: 0, titikRute: 0, diRumah: false, hapusBalon: null};
     tempatkan(w);
     if (keluarDariPintu && def.dari) {         // baru keluar kantor: muncul di depan pintunya lalu berjalan ke rutenya
@@ -293,7 +293,25 @@ const Warga = (() => {
       {teks: "Direktori proyek", aksi: () => RumahProyek.direktori()},
       {teks: "Tutup"}]);
   }
+  // pemandu kota: kenalkan tempat-tempat baru dan antar ke sana (pindah ke depan pintunya)
+  const ANTAR = [["Galeri Komunitas", "galeri-komunitas"], ["Menara Jam", "menara-jam"], ["Pasar CodeIn", "pasar"],
+                 ["Markas CodeIn", "markas"], ["Perumahan", "gerbang-selatan"]];
+  function pemandu() {
+    const sapaan = {pagi: "Selamat pagi!", siang: "Selamat siang!", sore: "Selamat sore!", malam: "Selamat malam!"}[Kota.waktu().kunci] || "Halo!";
+    const isi = [el("p", null, `${sapaan} Aku Nara, pemandu CodeIn City. Mau ke mana? Aku antar sampai depan pintunya.`)];
+    const ul = el("ul");
+    ul.append(el("li", null, "Galeri Komunitas: foto kegiatan CodeIn, di seberang jembatan batu."),
+      el("li", null, "Menara Jam Server: jam kota sekaligus lampu kesehatan server, di alun-alun."),
+      el("li", null, "Pasar CodeIn: jual ikan ke Pak Ikan dan hasil kebun ke Bu Sayur. Mancing bisa di tepi sungai atau kolam taman."),
+      el("li", null, "Markas CodeIn: Kak Rani mengurus hosting, baliho, dan pendaftaran acara."),
+      el("li", null, "Perumahan CodeIn: rumah warga, lewat Gerbang Selatan."));
+    isi.push(ul);
+    Panel.buka("Kak Nara · Pemandu Kota", isi, [
+      ...ANTAR.map(([teks, pintu], i) => ({teks, utama: i === 0, aksi: () => Kota.keTempat("kota", pintu)})),
+      {teks: "Tutup"}]);
+  }
   function sapa(w) {
+    if (w.def.peran === "pemandu") { pemandu(); return; }
     if (w.def.peran === "resepsionis") { resepsionis(w); return; }
     if (w.def.peran === "satpam") { Perumahan.satpam(); return; }
     if (w.def.peran === "kasir") { Toko.kasir(); return; }

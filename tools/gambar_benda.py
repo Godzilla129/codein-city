@@ -545,97 +545,164 @@ def lampu_merah():
 # ======================================================================================================
 #  KENDARAAN kota 2.0: delman dan sepeda (tampak samping, depan, belakang)
 # ======================================================================================================
-def delman(arah):
-    """Delman: kuda cokelat menarik kereta beratap kain. Samping 46 x 30, depan/belakang 22 x 44."""
-    KUDA, KUDA_G, KUDA_T, SURAI = hx("8a5a35"), hx("6b4128"), hx("a8703f"), hx("3b2a20")
-    KAIN_A, KAIN_AG = hx("c0473a"), hx("8f2f27")
-    RODA = hx("4f2f1d")
+def _garis(k, x0, y0, x1, y1, c):
+    """Garis piksel lurus (Bresenham sederhana)."""
+    n = max(abs(x1 - x0), abs(y1 - y0), 1)
+    for t in range(n + 1):
+        k.p(round(x0 + (x1 - x0) * t / n), round(y0 + (y1 - y0) * t / n), c)
+
+
+def _roda(k, cx, cy, r, langkah, ban=hx("3b2a20"), jari=hx("c98a58")):
+    """Roda tampak samping: ban, as, dan jari-jari yang berputar (langkah 0: tegak-datar, 1: miring)."""
+    for y in range(int(cy - r - 1), int(cy + r + 2)):
+        for x in range(int(cx - r - 1), int(cx + r + 2)):
+            d = ((x - cx) ** 2 + (y - cy) ** 2) ** .5
+            if r - 1.1 < d <= r + .2:
+                k.p(x, y, ban)
+    arah = ((1, 0), (0, 1)) if langkah == 0 else ((1, 1), (1, -1))
+    for dx, dy in arah:
+        for t in range(-int(r) + 1, int(r)):
+            f = t / (2 ** .5) if langkah else t
+            k.p(round(cx + dx * f), round(cy + dy * f), jari)
+    k.p(round(cx), round(cy), ban)
+
+
+def delman(arah, langkah=0):
+    """Delman: kuda cokelat menarik kereta beratap kain merah, kusir bercaping memegang tali kekang.
+    Dua langkah animasi: kaki kuda bergantian dan jari-jari roda berputar. Samping 48 x 30, depan/belakang 22 x 44."""
+    KUDA, KUDA_G, KUDA_T, SURAI, KUKU = hx("8a5a35"), hx("6b4128"), hx("a8703f"), hx("3b2a20"), hx("2a1d16")
+    KAIN, KAIN_G, KAIN_T = hx("c0473a"), hx("8f2f27"), hx("de6a56")
+    BAJU, KULIT, CAPING, CAPING_G = hx("5b8cc7"), hx("ffcb9e"), hx("e9c46a"), hx("c49a3c")
     if arah in ("kiri", "kanan"):
-        k = Kanvas(46, 30)
-        k.kotak(2, 2, 22, 6, KAIN_A); k.garis_h(2, 22, 6, KAIN_AG)               # atap kain
-        for x in (3, 21):
-            k.garis_v(x, 6, 16, BALOK)
-        k.panel(1, 13, 23, 21, KAYU, KAYU_T, KAYU_G)                            # bak kereta
-        k.kotak(14, 8, 18, 13, hx("5b8cc7")); k.kotak(14, 5, 18, 8, hx("ffcb9e")); k.kotak(13, 4, 19, 5, hx("e9c46a"))   # kusir bercaping
-        for y in range(18, 30):                                                 # roda besar
-            for x in range(4, 17):
-                d = ((x - 10) ** 2 + (y - 23.5) ** 2) ** .5
-                if d <= 5.8:
-                    k.p(x, y, RODA if d > 4.6 else KAYU_T if d < 1.2 or (x - 10) * (y - 23.5) == 0 else NOL)
-        k.garis_h(22, 30, 17, BALOK)                                            # gagang
-        for y in range(12, 21):                                                 # badan kuda
-            for x in range(26, 41):
-                if ((x - 33) / 7.5) ** 2 + ((y - 16) / 4.2) ** 2 <= 1:
-                    k.p(x, y, KUDA_T if y < 14 else KUDA)
-        for (x0, y0) in ((38, 5), (39, 6), (40, 7), (40, 8), (39, 9), (39, 10), (38, 11)):     # leher dan kepala
-            k.kotak(x0, y0, x0 + 3, y0 + 1, KUDA)
-        k.kotak(41, 4, 44, 7, KUDA); k.p(44, 7, KUDA_G); k.p(42, 5, GARIS)
-        k.garis_v(38, 4, 11, SURAI); k.p(40, 3, KUDA_G)
-        for x in (28, 31, 36, 39):                                              # kaki
-            k.kotak(x, 20, x + 1, 27, KUDA_G); k.p(x, 28, GARIS); k.p(x + 1, 28, GARIS)
-        k.kotak(24, 13, 25, 19, SURAI)                                          # ekor
+        k = Kanvas(48, 30)
+        # kereta: atap kain berumbai di dua tiang, bak kayu, kusir di depan
+        k.kotak(1, 2, 22, 5, KAIN); k.garis_h(1, 22, 2, KAIN_T)
+        for x in range(1, 23, 3):
+            k.p(x, 6, KAIN_G)
+        for x in (2, 21):
+            k.garis_v(x, 6, 13, BALOK)
+        k.kotak(13, 8, 17, 12, BAJU); k.kotak(14, 5, 17, 7, KULIT); k.garis_h(12, 19, 4, CAPING); k.garis_h(14, 17, 3, CAPING_G)
+        k.kotak(17, 10, 18, 10, KULIT)                                       # tangan memegang tali
+        k.panel(0, 13, 23, 20, KAYU, KAYU_T, KAYU_G)
+        k.garis_h(1, 22, 16, KAYU_G)
+        _roda(k, 10, 23, 5.6, langkah)
+        _garis(k, 22, 17, 29, 17, BALOK)                                       # gagang penarik
+        # kuda
+        naik = 1 if langkah else 0
+        for y in range(11, 21):
+            for x in range(25, 42):
+                if ((x - 33) / 8) ** 2 + ((y - 15.5) / 4.6) ** 2 <= 1:
+                    k.p(x, y, KUDA_T if y < 13 else KUDA_G if y > 18 else KUDA)
+        for (x, y) in ((39, 11), (40, 10), (40, 9), (41, 8), (41, 7), (42, 6)):     # leher
+            k.kotak(x - 1, y + naik, x + 1, y + 2 + naik, KUDA)
+        k.kotak(42, 3 + naik, 46, 7 + naik, KUDA); k.kotak(45, 6 + naik, 46, 7 + naik, KUDA_G)    # kepala dan moncong
+        k.p(42, 2 + naik, KUDA_G); k.p(44, 4 + naik, KUKU)
+        for (x, y) in ((39, 9), (40, 8), (40, 7), (41, 6), (41, 5)):         # surai
+            k.p(x - 1, y + naik, SURAI); k.p(x - 2, y + 1 + naik, SURAI)
+        _garis(k, 18, 10, 43, 6 + naik, hx("3b2a20"))                           # tali kekang
+        k.kotak(24, 12, 25, 18, SURAI); k.p(23, 17, SURAI); k.p(23, 18, SURAI)   # ekor
+        langkah_kaki = ((27, 1), (30, -1), (36, 1), (39, -1)) if langkah == 0 else ((27, -1), (30, 1), (36, -1), (39, 1))
+        for i, (x0, ayun) in enumerate(langkah_kaki):
+            warna = KUDA_G if i % 2 else KUDA
+            for y in range(19, 28):
+                x = x0 + round(ayun * (y - 19) / 8)
+                k.p(x, y, warna); k.p(x + 1, y, warna)
+            xb = x0 + ayun
+            k.p(xb, 28, KUKU); k.p(xb + 1, 28, KUKU)
         garis_luar(k)
         if arah == "kiri":
             k.im = k.im.transpose(Image.FLIP_LEFT_RIGHT); k.px = k.im.load()
         return k
     k = Kanvas(22, 44)
-    depan = arah == "bawah"
-    kuda_y, kereta_y = (24, 0) if depan else (0, 20)
-    # kereta
-    k.kotak(3, kereta_y + 2, 18, kereta_y + 8, KAIN_A); k.garis_h(3, 18, kereta_y + 8, KAIN_AG)
-    k.panel(2, kereta_y + 9, 19, kereta_y + 20, KAYU, KAYU_T, KAYU_G)
-    for x in (0, 20):
-        k.kotak(x, kereta_y + 12, x + 1, kereta_y + 21, RODA)
-    if depan:
-        k.kotak(8, kereta_y + 10, 13, kereta_y + 15, hx("5b8cc7")); k.kotak(9, kereta_y + 6, 12, kereta_y + 9, hx("ffcb9e")); k.kotak(7, kereta_y + 5, 14, kereta_y + 6, hx("e9c46a"))
-    # kuda (tampak depan: kepala di bawah; tampak belakang: ekor di bawah dekat kereta, kepala di atas)
-    k.kotak(7, kuda_y + 4, 14, kuda_y + 16, KUDA); k.garis_v(7, kuda_y + 4, kuda_y + 16, KUDA_T)
-    if depan:
-        k.kotak(8, kuda_y + 14, 13, kuda_y + 19, KUDA); k.kotak(9, kuda_y + 18, 12, kuda_y + 19, KUDA_G)
-        k.p(8, kuda_y + 15, GARIS); k.p(13, kuda_y + 15, GARIS); k.garis_v(10, kuda_y + 4, kuda_y + 13, SURAI)
-        for x in (7, 13):
-            k.kotak(x, kuda_y + 10, x + 1, kuda_y + 19, KUDA_G)
-    else:
-        k.kotak(8, kuda_y + 0, 13, kuda_y + 5, KUDA); k.garis_v(10, kuda_y, kuda_y + 8, SURAI)
-        k.kotak(10, kuda_y + 15, 11, kuda_y + 20, SURAI)
-        for x in (7, 13):
-            k.kotak(x, kuda_y + 12, x + 1, kuda_y + 20, KUDA_G)
+    kiri_turun = langkah == 0
+    if arah == "bawah":                    # menuju kamera: kuda di depan (bawah gambar), kereta di belakangnya
+        k.kotak(2, 1, 19, 6, KAIN); k.garis_h(2, 19, 1, KAIN_T)
+        for x in range(2, 20, 3):
+            k.p(x, 7, KAIN_G)
+        k.kotak(8, 9, 13, 13, BAJU); k.kotak(9, 6, 12, 8, KULIT); k.garis_h(6, 15, 5, CAPING); k.garis_h(8, 13, 4, CAPING_G)
+        k.panel(2, 12, 19, 21, KAYU, KAYU_T, KAYU_G)
+        for x in (0, 20):
+            k.kotak(x, 12, x + 1, 22, hx("3b2a20"))
+            for y in range(13 + langkah, 22, 2):
+                k.p(x, y, hx("c98a58"))
+        k.kotak(5, 21, 16, 31, KUDA); k.garis_v(5, 21, 31, KUDA_T); k.garis_v(16, 21, 31, KUDA_G)   # dada dari depan
+        k.kotak(8, 25, 13, 35, KUDA); k.kotak(9, 34, 12, 37, KUDA_G)          # kepala menunduk ke depan
+        k.p(8, 24, KUDA_G); k.p(13, 24, KUDA_G)                               # telinga
+        k.garis_v(10, 25, 29, SURAI); k.garis_v(11, 25, 28, SURAI)
+        k.p(8, 29, KUKU); k.p(13, 29, KUKU)
+        for (x, turun) in ((4, kiri_turun), (16, not kiri_turun)):
+            akhir = 42 if turun else 38
+            k.kotak(x, 31, x + 1, akhir, KUDA_G); k.kotak(x, akhir + 1, x + 1, akhir + 1, KUKU)
+    else:                                  # menjauhi kamera: kuda di depan (atas gambar), kereta di belakang (bawah)
+        k.kotak(9, 0, 12, 5, KUDA); k.p(9, 0, KUDA_G); k.p(12, 0, KUDA_G)    # kepala dan telinga
+        k.garis_v(10, 2, 10, SURAI); k.garis_v(11, 3, 9, SURAI)
+        k.kotak(5, 6, 16, 19, KUDA); k.garis_v(5, 6, 19, KUDA_T); k.garis_v(16, 6, 19, KUDA_G)   # punggung dan pantat
+        k.kotak(10, 13, 11, 21, SURAI)                                        # ekor
+        for (x, turun) in ((5, kiri_turun), (15, not kiri_turun)):
+            akhir = 23 if turun else 20
+            k.kotak(x, 18, x + 1, akhir, KUDA_G); k.kotak(x, akhir + 1, x + 1, akhir + 1, KUKU)
+        k.kotak(2, 22, 19, 27, KAIN); k.garis_h(2, 19, 22, KAIN_T)
+        k.kotak(8, 26, 13, 31, BAJU); k.kotak(9, 24, 12, 26, hx("3b2a20"))   # punggung kusir
+        k.panel(2, 28, 19, 40, KAYU, KAYU_T, KAYU_G)
+        k.garis_h(3, 18, 34, KAYU_G)
+        k.kotak(4, 38, 6, 39, hx("e04a3a")); k.kotak(15, 38, 17, 39, hx("e04a3a"))   # pemantul belakang
+        for x in (0, 20):
+            k.kotak(x, 30, x + 1, 42, hx("3b2a20"))
+            for y in range(31 + langkah, 42, 2):
+                k.p(x, y, hx("c98a58"))
     garis_luar(k)
     return k
 
 
-def sepeda(arah):
-    """Sepeda onthel dengan pengendara bercaping. Samping 22 x 22, depan/belakang 12 x 22."""
-    BAJU, BAJU_T, KULIT, CAPING, CAPING_G = hx("3e9e5a"), hx("62bb7c"), hx("ffcb9e"), hx("e9c46a"), hx("c49a3c")
+def sepeda(arah, langkah=0):
+    """Sepeda onthel merah dengan pengendara bercaping; pedal dan kaki bergantian, roda berputar.
+    Samping 24 x 22, depan/belakang 14 x 24."""
+    BAJU, BAJU_T, CELANA, CELANA_G = hx("3e9e5a"), hx("62bb7c"), hx("4a4e6e"), hx("383b55")
+    KULIT, CAPING, CAPING_G, RANGKA, BAN = hx("ffcb9e"), hx("e9c46a"), hx("c49a3c"), hx("c0473a"), hx("2a2230")
     if arah in ("kiri", "kanan"):
-        k = Kanvas(22, 22)
-        for cx in (5, 16):
-            for y in range(12, 22):
-                for x in range(cx - 5, cx + 6):
-                    d = ((x - cx) ** 2 + (y - 16.5) ** 2) ** .5
-                    if 3.2 < d <= 4.4:
-                        k.p(x, y, GARIS)
-            k.p(cx, 16, BATU_G); k.p(cx, 17, BATU_G)
-        for i in range(7):                                       # rangka
-            k.p(5 + i, 16 - i // 2, MERAH); k.p(10 + i // 2, 13 + i // 3, MERAH)
-        k.garis_h(8, 14, 12, MERAH); k.garis_v(15, 9, 16, MERAH); k.garis_h(14, 17, 9, GARIS)
-        k.kotak(7, 10, 10, 10, GARIS)                             # sadel
-        k.kotak(8, 3, 11, 9, BAJU); k.garis_v(8, 3, 9, BAJU_T); k.kotak(12, 5, 14, 5, BAJU); k.p(15, 6, KULIT)
-        k.kotak(9, 9, 11, 12, hx("4a4e6e")); k.kotak(11, 13, 12, 15, hx("4a4e6e"))
-        k.kotak(9, 1, 11, 3, KULIT)
-        k.garis_h(6, 14, 1, CAPING); k.garis_h(8, 12, 0, CAPING); k.p(10, 0, CAPING_G); k.garis_h(6, 14, 2, CAPING_G)
+        k = Kanvas(24, 22)
+        _roda(k, 5, 16, 4.6, langkah, BAN, hx("b9b2c4"))
+        _roda(k, 18, 16, 4.6, langkah, BAN, hx("b9b2c4"))
+        _garis(k, 5, 16, 9, 10, RANGKA); _garis(k, 9, 10, 11, 16, RANGKA); _garis(k, 11, 16, 16, 10, RANGKA)
+        _garis(k, 9, 10, 16, 10, RANGKA); _garis(k, 16, 8, 18, 16, RANGKA); _garis(k, 5, 16, 11, 16, RANGKA)
+        k.garis_h(15, 18, 7, BAN)                                            # setang
+        k.kotak(8, 9, 10, 9, BAN)                                            # sadel
+        # kaki: pinggul -> lutut -> pedal; dua posisi pedal bergantian
+        depan, belakang = ((13, 18), (9, 14)) if langkah == 0 else ((9, 14), (13, 18))
+        for (px_, py_), warna in ((belakang, CELANA_G), (depan, CELANA)):
+            lutut = (px_ + 2, min(py_ - 3, 12))
+            _garis(k, 10, 9, lutut[0], lutut[1], warna); _garis(k, lutut[0], lutut[1], px_, py_, warna)
+            k.p(px_, py_, BAN); k.p(px_ + 1, py_, BAN)
+        k.kotak(8, 3, 12, 9, BAJU); k.garis_v(8, 3, 9, BAJU_T)             # badan condong ke depan
+        _garis(k, 12, 5, 15, 7, BAJU); k.p(16, 7, KULIT)                    # lengan ke setang
+        k.kotak(9, 0, 12, 2, KULIT); k.p(12, 1, hx("3b2a20"))
+        k.garis_h(6, 15, 0, CAPING); k.garis_h(7, 14, 1, CAPING_G)
         garis_luar(k)
         if arah == "kiri":
             k.im = k.im.transpose(Image.FLIP_LEFT_RIGHT); k.px = k.im.load()
         return k
-    k = Kanvas(12, 22)
-    k.kotak(5, 14, 6, 21, GARIS)
-    k.kotak(1, 9, 10, 9, GARIS)
-    k.kotak(3, 4, 8, 11, BAJU); k.garis_v(3, 4, 11, BAJU_T)
-    k.p(2, 9, KULIT); k.p(9, 9, KULIT)
-    k.kotak(4, 1, 7, 3, KULIT) if arah == "bawah" else k.kotak(4, 1, 7, 3, hx("3b2a20"))
-    k.garis_h(1, 10, 1, CAPING); k.garis_h(3, 8, 0, CAPING); k.garis_h(1, 10, 2, CAPING_G)
-    k.kotak(4, 13, 7, 13, MERAH)
+    k = Kanvas(14, 24)
+    # roda (depan atau belakang) tegak lurus ke kamera: ban gelap dengan kilau jari-jari
+    k.kotak(6, 15, 7, 23, BAN)
+    for y in range(16 + langkah, 23, 2):
+        k.p(6, y, hx("b9b2c4"))
+    if arah == "bawah":
+        k.kotak(5, 13, 8, 14, RANGKA)                                        # spakbor depan
+        k.kotak(4, 5, 9, 11, BAJU); k.garis_v(4, 5, 11, BAJU_T)
+        k.garis_h(1, 12, 10, BAN); k.p(1, 9, KULIT); k.p(12, 9, KULIT)     # setang dan tangan
+        _garis(k, 4, 6, 1, 9, BAJU); _garis(k, 9, 6, 12, 9, BAJU)
+        k.kotak(5, 1, 8, 4, KULIT); k.p(5, 2, hx("3b2a20")); k.p(8, 2, hx("3b2a20"))
+    else:
+        k.kotak(5, 12, 8, 13, BAN); k.kotak(6, 14, 7, 14, hx("e04a3a"))     # sadel dan pemantul merah
+        k.kotak(4, 4, 9, 11, BAJU); k.garis_v(9, 4, 11, hx("2f7a45"))
+        _garis(k, 4, 6, 2, 9, BAJU); _garis(k, 9, 6, 11, 9, BAJU); k.p(2, 9, KULIT); k.p(11, 9, KULIT)
+        k.kotak(5, 1, 8, 3, hx("3b2a20"))                                    # rambut belakang
+    k.garis_h(2, 11, 0, CAPING); k.garis_h(4, 9, 1, CAPING_G)
+    # kaki mengayuh: satu turun (pedal bawah), satu naik
+    kiri_turun = langkah == 0
+    for (x, turun) in ((4, kiri_turun), (8, not kiri_turun)):
+        akhir = 19 if turun else 16
+        k.kotak(x, 12, x + 1, akhir, CELANA); k.kotak(x, akhir + 1, x + 1, akhir + 1, BAN)
     garis_luar(k)
     return k
 
@@ -857,8 +924,9 @@ def semua():
          "kavling-kosong": kavling_kosong(), "papan-kavling": papan_kavling(), "gerbang-perumahan": gerbang_perumahan(), "kasur": kasur(),
          "gantungan-kunci": gantungan_kunci()}
     for arah in ("kiri", "kanan", "bawah", "atas"):
-        g[f"mobil-delman-{arah}"] = delman(arah)
-        g[f"mobil-sepeda-{arah}"] = sepeda(arah)
+        for n, f in (("delman", delman), ("sepeda", sepeda)):
+            g[f"mobil-{n}-{arah}"] = f(arah, 0)          # langkah 0 (juga gambar diam)
+            g[f"mobil-{n}-{arah}-1"] = f(arah, 1)        # langkah 1
     return g
 
 

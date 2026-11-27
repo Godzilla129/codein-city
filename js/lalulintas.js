@@ -12,7 +12,9 @@ const LaluLintas = (() => {
     {atlas: "sepeda", laju: 52, bunyi: "Kring kring!"},
     {atlas: "sepeda", laju: 52, bunyi: "Kring kring!"},
   ];
-  const gambar = (j, arah) => ["benda", `mobil-${JENIS[j].atlas}-${arah}`];
+  // dua gambar per arah: langkah 0 dan langkah 1 (kaki kuda, kayuhan, jari-jari roda), berganti tiap beberapa piksel
+  const gambar = (j, arah, langkah = 0) => ["benda", `mobil-${JENIS[j].atlas}-${arah}${langkah ? "-1" : ""}`];
+  const LANGKAH = {delman: 7, sepeda: 5};       // piksel per pergantian langkah
   const MAKS = 4;
   let adegan = null, rute = [], mobil = [], tunggu = 0;
   Kota.saatSiap(({adegan: sc, ruang, peta}) => {
@@ -29,7 +31,7 @@ const LaluLintas = (() => {
     if (!bebas.length) return;
     const r = bebas[Math.floor(Math.random() * bebas.length)], jenis = Math.floor(Math.random() * JENIS.length);
     const s = adegan.add.image(r[0].x, r[0].y, ...gambar(jenis, "kanan")).setOrigin(.5, 1);
-    mobil.push({s, r, ke: 1, jenis, arah: "", diam: 0, klakson: false});
+    mobil.push({s, r, ke: 1, jenis, arah: "", diam: 0, klakson: false, jarak: 0, langkah: 0});
   }
 
   // ada sesuatu di depan kendaraan? Diukur dari titik tengah bodi, searah laju.
@@ -49,7 +51,8 @@ const LaluLintas = (() => {
     for (const m of mobil.slice()) {
       const t = m.r[m.ke], dx = t.x - m.s.x, dy = t.y - m.s.y, sisa = Math.hypot(dx, dy);
       const arah = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "kiri" : "kanan") : (dy < 0 ? "atas" : "bawah");
-      if (arah !== m.arah) { m.arah = arah; m.s.setTexture(...gambar(m.jenis, arah)); }
+      const langkahKini = Math.floor(m.jarak / LANGKAH[JENIS[m.jenis].atlas]) % 2;
+      if (arah !== m.arah || langkahKini !== m.langkah) { m.arah = arah; m.langkah = langkahKini; m.s.setTexture(...gambar(m.jenis, arah, langkahKini)); }
       m.s.setDepth(10 + m.s.y - 3);
       const ux = sisa ? dx / sisa : 0, uy = sisa ? dy / sisa : 0, halang = terhalang(m, ux, uy);
       // dua kendaraan yang saling menunggu di persimpangan: setelah 6 detik yang satu jalan terus
@@ -60,6 +63,7 @@ const LaluLintas = (() => {
       }
       if (!halang) { m.diam = 0; m.klakson = false; }
       const langkah = JENIS[m.jenis].laju * dt / 1000;
+      m.jarak += langkah;
       if (sisa <= langkah) {
         m.s.setPosition(t.x, t.y);
         if (++m.ke >= m.r.length) { m.s.destroy(); mobil = mobil.filter(x => x !== m); }      // keluar lewat gerbang

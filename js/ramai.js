@@ -73,7 +73,7 @@ const Ramai = (() => {
   function pasang(o) {
     if (!adegan || o.s || o.r !== Kota.kamar()) return;
     o.s = adegan.add.sprite(o.x, o.y, "orang", Kota.frame(o.k, ARAH[o.a], 0)).setOrigin(.5, .8);
-    o.label = Kota.tempelkan(el("div", "nama lain", o.n), () => [o.s.x, o.s.y - 14]);
+    o.label = Kota.tempelkan(el("div", "nama lain", o.n), () => [o.s.x, o.s.y - 14 - Kota.angkatNama()]);
   }
   function buang(o) {
     if (o.hapusBalon) { o.hapusBalon(); o.hapusBalon = null; }

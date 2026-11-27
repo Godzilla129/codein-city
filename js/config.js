@@ -282,15 +282,12 @@ const KOTA = {
               ucapan: ["Sore ramai, banyak yang pulang dari Markas.", "Yang lagi ramai di videotron: {kabar}"]},
       malam: {di: "gerobak-bakso", r: 0, ket: "masih jualan bakso di Pasar CodeIn",
               ucapan: ["Bakso malam paling enak. Tinggal sepuluh mangkuk lagi.", "Kunang-kunang keluar dari pohon dekat sini kalau malam."]}}},
-    {nama: "Bang Ojol", karakter: 6, jadwal: {
-      pagi:  {di: "halte", r: 1, ket: "menunggu penumpang di dekat sumur utara",
-              ucapan: ["Pagi! Lagi nunggu orderan di dekat sumur.", "Sekarang kota pakai delman dan sepeda. Ojekku ganti sepeda onthel, lebih sehat."]},
-      siang: {rute: ["trotoar-utara-1", "trotoar-utara-2"], laju: 30, ket: "mondar-mandir di jalan utama",
-              ucapan: ["Siang panas, orderan sepi. Jalan-jalan dulu."]},
-      sore:  {di: "halte", r: 1, ket: "menunggu penumpang di dekat sumur utara",
-              ucapan: ["Sore ramai orderan. Mau diantar ke Gerbang Timur? Bercanda, gerbangnya belum dibuka."]},
-      malam: {di: "pos-timur-2", r: 0, ket: "ngobrol dengan Pak Harun di pos ronda",
-              ucapan: ["Malam-malam nemenin Pak Harun ronda. Kopinya dari Warkop, eh, Warkop masih tutup ding."]}}},
+    // Kak Nara, pemandu kota: menjelaskan kota 2.0 dan bisa mengantar pengunjung ke tempat penting (js/warga.js pemandu)
+    {nama: "Kak Nara", karakter: 6, peran: "pemandu", jadwal: {
+      pagi:  {di: "halte", r: 1, ket: "menyambut pengunjung di dekat sumur utara"},
+      siang: {di: "depan-menara", r: 1, ket: "di alun-alun, dekat Menara Jam Server"},
+      sore:  {di: "depan-galeri-komunitas", r: 1, ket: "di depan Galeri Komunitas, seberang jembatan batu"},
+      malam: {di: "alun-alun", r: 1, ket: "jalan santai di alun-alun"}}},
     {nama: "Kak Mita", karakter: 1, ruang: "galeri", di: [2, 9], hadap: "bawah", buka: "galeri", ket: "di Galeri Showcase"},
   ],
 };

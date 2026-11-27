@@ -25,6 +25,8 @@ const Cuaca = (() => {
     badai:   {ikon: "⛈️", warna: 0x6a7a9c, alfa: .52, awan: 8, hujan: 3, kilat: true, lampu: true},
   };
   const PAYUNG = [0xc0473a, 0x2f8f8a, 0xe9a23b, 0x7b5ba6, 0x4a7fc1];
+  const PAYUNG_T = [0xde6a56, 0x4fb3ac, 0xf6c46b, 0x9c7fc8, 0x6e9fd8];     // sisi yang kena cahaya
+  const PAYUNG_G = [0x8f2f27, 0x1f6b67, 0xb87a1f, 0x5a3f80, 0x2f5d99];     // rusuk dan tepi bawah
 
   let data = null;             // cuaca terakhir dari server (atau ?cuaca=)
   let efek = null;             // objek Phaser untuk peta luar yang sedang tampil
@@ -91,14 +93,22 @@ const Cuaca = (() => {
       g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(.6, "rgba(255,255,255,.55)"); g.addColorStop(1, "rgba(255,255,255,0)");
       c.save(); c.scale(1, h / w); c.fillStyle = g; c.beginPath(); c.arc(w / 2, w / 2, w / 2, 0, Math.PI * 2); c.fill(); c.restore();
     });
-    // payung: kanopi berwarna bergaris tepi gelap, tangkai kayu. Putih dulu, warnanya dari tint.
-    kanvas("payung", 16, 13, c => {
-      const pola = ["....######....", "..##++++++##..", ".#++++++++++#.", "#++++++++++++#", "##.###..###.##"];
-      pola.forEach((baris, y) => [...baris].forEach((t, x) => {
-        if (t === ".") return;
-        c.fillStyle = t === "#" ? "#5a4a40" : "#ffffff"; c.fillRect(x + 1, y, 1, 1);
-      }));
-      c.fillStyle = "#5a3a22"; c.fillRect(8, 5, 1, 7); c.fillRect(7, 12, 1, 1); c.fillRect(6, 11, 1, 1);
+    // payung: kanopi berwarna (sudah diwarnai, satu tekstur per warna) dan tangkai kayu lurus yang berakhir di genggaman.
+    PAYUNG.forEach((warna, i) => {
+      const css = n => "#" + n.toString(16).padStart(6, "0");
+      const gelap = PAYUNG_G[i];
+      {
+        kanvas(`payung-${i}`, 14, 16, c => {
+          const pola = ["......##......", "....######....", "..##++++++##..", ".#++-+++-+++#.", "#+++-++++-+++#", "#~#~~#~~#~~#~#"];
+          pola.forEach((baris, y) => [...baris].forEach((t, x) => {
+            if (t === ".") return;
+            c.fillStyle = t === "#" ? "#3b2a20" : t === "~" || t === "-" ? css(gelap) : (x < 6 ? css(PAYUNG_T[i]) : css(warna));
+            c.fillRect(x, y, 1, 1);
+          }));
+          c.fillStyle = "#6b4128";
+          c.fillRect(7, 6, 1, 10);
+        });
+      }
     });
   }
 
@@ -112,6 +122,7 @@ const Cuaca = (() => {
   function pasang() {
     const sc = Kota.adegan();
     lepas();
+    Kota.aturCuaca({payung: !!(sc && Kota.luar() && data && basah())});
     if (!sc || !sc.peta || !Kota.luar() || !data) return;
     tekstur(sc);
     const g = gaya(), lebar = sc.peta.widthInPixels, tinggi = sc.peta.heightInPixels;
@@ -197,10 +208,19 @@ const Cuaca = (() => {
       ada.add(s);
       let p = efek.payung.get(s);
       if (!p) {
-        p = sc.add.image(0, 0, "payung").setOrigin(.5, 1).setTint(PAYUNG[efek.payung.size % PAYUNG.length]);
+        p = sc.add.image(0, 0, "payung-0").setOrigin(7.5 / 14, 1);
+        p.warna = efek.payung.size % PAYUNG.length;
         efek.payung.set(s, p); efek.semua.push(p);
       }
-      p.setPosition(Math.round(s.x), Math.round(s.y - 3)).setDepth(s.depth + .5).setVisible(true);
+      // genggaman di tangan sesuai arah hadap (kolom orang.png: 0 kiri, 1 bawah, 2 atas, 3 kanan).
+      // Menghadap depan/belakang: payung di sisi kepala, tangkainya tidak menutupi wajah. Menghadap samping: tangkai
+      // di balik badan, jadi kanopinya tampak tepat di atas kepala.
+      const kolom = Number(s.frame.name) % 4, langkah = Math.floor(Number(s.frame.name) / 4) % 3;
+      const goyang = langkah === 1 ? -1 : 0;
+      const TANGAN = [[-1, -.5], [5, .5], [-5, .5], [1, -.5]];
+      const [dx, lapis] = TANGAN[kolom] || TANGAN[1];
+      if (p.texture.key !== `payung-${p.warna}`) p.setTexture(`payung-${p.warna}`);
+      p.setPosition(Math.round(s.x + dx), Math.round(s.y - 2 + goyang)).setDepth(s.depth + lapis).setVisible(true);
     }
     for (const [s, p] of efek.payung) if (!ada.has(s)) { p.setVisible(false); if (!s.active) { p.destroy(); efek.payung.delete(s); } }
   }
