@@ -79,19 +79,21 @@ const Barang = (() => {
   const tembolok = {};
 
   // kanvas 16 x 16 berisi ikon barang (salinan baru tiap dipanggil, supaya bisa ditaruh di banyak tempat)
+  // kanvas 16 x 16 berisi gambar barang (dipakai juga js/mancing.js untuk ikan yang melompat keluar dari air)
+  function kanvas(kode) {
+    const [pola, badan, perut, sirip] = WARNA[kode] || WARNA.kaleng;
+    const peta = {o: "#2A211B", b: badan, d: perut, f: sirip, e: "#FFFFFF", k: "#1A1410", s: "#E8E2D6"};
+    const c = document.createElement("canvas"); c.width = c.height = 16;
+    const g = c.getContext("2d");
+    POLA[pola].forEach((baris, y) => [...baris.padEnd(16, ".").slice(0, 16)].forEach((h, x) => { if (peta[h]) { g.fillStyle = peta[h]; g.fillRect(x, y, 1, 1); } }));
+    return c;
+  }
   function ikon(kode, kelas = "ikon-barang") {
-    if (!tembolok[kode]) {
-      const [pola, badan, perut, sirip] = WARNA[kode] || WARNA.kaleng;
-      const peta = {o: "#2A211B", b: badan, d: perut, f: sirip, e: "#FFFFFF", k: "#1A1410", s: "#E8E2D6"};
-      const c = document.createElement("canvas"); c.width = c.height = 16;
-      const g = c.getContext("2d");
-      POLA[pola].forEach((baris, y) => [...baris.padEnd(16, ".").slice(0, 16)].forEach((h, x) => { if (peta[h]) { g.fillStyle = peta[h]; g.fillRect(x, y, 1, 1); } }));
-      tembolok[kode] = c.toDataURL();
-    }
+    if (!tembolok[kode]) tembolok[kode] = kanvas(kode).toDataURL();
     const img = new Image(16, 16); img.src = tembolok[kode]; img.alt = ""; img.className = kelas;
     return img;
   }
   const LANGKA = {sampah: "sampah", umum: "umum", sedang: "lumayan", jarang: "jarang", langka: "langka sekali"};
 
-  return {ikon, langka: k => LANGKA[k] || k};
+  return {ikon, kanvas, langka: k => LANGKA[k] || k};
 })();
