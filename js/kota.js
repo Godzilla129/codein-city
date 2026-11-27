@@ -49,16 +49,21 @@ const Kota = (() => {
     if (h < 6.5) return {nama: "Fajar", warna: 0xd9b8e8, alfa: .4, lampu: true};
     return {nama: "Siang", warna: 0xffffff, alfa: 0, lampu: false};
   }
+  // cuaca Bengkulu (js/cuaca.js): label di bilah atas, dan lampu jalan ikut menyala saat mendung atau hujan
+  let cuacaKini = {label: "", judul: "", lampu: false, kunang: true};
   function terapkanWaktu() {
     const f = fase(), h = jamWIB(), jj = String(Math.floor(h)).padStart(2, "0"), mm = String(Math.floor(h % 1 * 60)).padStart(2, "0");
-    $("jam").textContent = `${waktu().nama} · ${jj}.${mm} WIB`;
+    $("jam").textContent = `${waktu().nama} · ${jj}.${mm} WIB` + (cuacaKini.label ? ` · ${cuacaKini.label}` : "");
+    $("jam").title = cuacaKini.judul;
     document.body.dataset.fase = f.nama;          // dipakai CSS: baliho di luar sedikit meredup saat langit gelap
-    if (!adegan || !lapisanMalam || (faseKini && faseKini.nama === f.nama)) return;
-    faseKini = f;
+    const lampu = f.lampu || cuacaKini.lampu, kunci = `${f.nama}|${lampu}|${cuacaKini.kunang}`;
+    if (!adegan || !lapisanMalam || faseKini === kunci) return;
+    faseKini = kunci;
     lapisanMalam.setFillStyle(f.warna, f.alfa);
-    cahaya.forEach(c => c.setVisible(f.lampu));
-    kunang.forEach(k => k.setVisible(f.nama === "Malam"));
+    cahaya.forEach(c => c.setVisible(lampu).setAlpha(f.lampu ? .55 : .28));      // siang yang mendung: cahaya lampu lebih lembut
+    kunang.forEach(k => k.setVisible(f.nama === "Malam" && cuacaKini.kunang));
   }
+  function aturCuaca(c) { cuacaKini = {...cuacaKini, ...c}; terapkanWaktu(); }
 
   /* ---------- teks HTML yang menempel pada titik di dunia ---------- */
   function tempelkan(elemen, ambilPosisi) { $("label").append(elemen); const t = {elemen, ambilPosisi}; tempel.push(t); return t; }
@@ -539,7 +544,7 @@ const Kota = (() => {
   }
 
   return {
-    tahan: f => penahan.push(f), ditahan,
+    tahan: f => penahan.push(f), ditahan, aturCuaca, fase: () => fase().nama,
     nyalakan, mulai, pindahKe, masuk, keTempat, padatkan, segarkanAksi, keResepsionis, bukaNews, ucap, balon, tempelkan, lepaskan, frame, ARAH, waktu, kabar,
     pintu: () => pintu, ruang: () => ruang, profil: () => profil, adegan: () => adegan, luar: () => LUAR.includes(ruang),
     // nama ruangan untuk layanan obrolan: tiap rumah warga punya ruangannya sendiri (rumah-A07), jadi tamu di rumah yang sama saling terlihat
