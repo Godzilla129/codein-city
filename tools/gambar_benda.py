@@ -326,25 +326,6 @@ def lapak(atap, barang):
     return k
 
 
-def halte():
-    """Halte bus 48 x 40: atap hijau toska, dinding kaca belakang, bangku, papan rute."""
-    k = Kanvas(48, 40)
-    k.panel(0, 0, 47, 7, hx("2a9d8f"), hx("5cc0b2"), hx("1f6f66"))
-    k.panel(38, 0, 46, 5, KUNING, hx("ffd08c"), ORANYE)
-    k.kotak(3, 8, 44, 30, KACA); k.bingkai(3, 8, 44, 30, GARIS)
-    for x in range(5, 44, 6):
-        k.p(x, 10 + (x % 4), KACA_T); k.p(x + 1, 11 + (x % 4), KACA_T)
-    k.panel(28, 12, 40, 22, PUTIH, PUTIH, KREM_G)
-    k.garis_h(30, 38, 15, MERAH); k.garis_h(30, 36, 18, BIRU)
-    for x in (2, 45):
-        k.kotak(x, 8, x + 1, 39, GARIS)
-    k.panel(6, 26, 41, 31, MEJA, MEJA_T, MEJA_G)
-    for x in (8, 38):
-        k.kotak(x, 32, x + 1, 37, MEJA_GG)
-    bayangan(k, 2, 45, 39)
-    return k
-
-
 def gerobak():
     """Gerobak bakso 36 x 34: atap seng merah-putih, etalase kaca berisi mangkuk, roda, tulisan BAKSO."""
     k = Kanvas(36, 34)
@@ -406,29 +387,21 @@ def kolam():
 
 
 def beringin():
-    """Pohon beringin besar 56 x 56: tajuk lebar, akar gantung."""
+    """Pohon beringin besar 56 x 56: tajuk lebar bergumpal, akar gantung, batang besar."""
     k = Kanvas(56, 56)
-    for y in range(36, 56):
-        for x in range(21, 35):
-            k.p(x, y, hx("9a6b4c") if x < 28 else hx("7f5a3d"))
-    k.garis_v(20, 36, 55, GARIS); k.garis_v(35, 36, 55, GARIS)
-    for (cx, cy, r) in ((28, 20, 20), (14, 26, 12), (42, 26, 12), (20, 12, 11), (36, 12, 11)):
-        for y in range(cy - r, cy + r):
-            for x in range(cx - r - 4, cx + r + 4):
-                d = ((x - cx) / (r + 4)) ** 2 + ((y - cy) / r) ** 2
-                if d <= 1:
-                    k.p(x, y, hx("a0d671") if d < .35 and y < cy else HIJAU if d < .75 else hx("69ae59"))
-    px = k.im.load()
-    for y in range(56):
-        for x in range(56):
-            if px[x, y][3] and px[x, y][:3] in (hx("69ae59")[:3], HIJAU[:3], hx("a0d671")[:3]):
-                if any(not (0 <= x + dx < 56 and 0 <= y + dy < 56) or not px[x + dx, y + dy][3] for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-                    px[x, y] = HIJAU_TUA
-    for x in (16, 22, 33, 40):
-        for y in range(34, 44 + x % 5):
-            k.p(x, y, hx("7f5a3d"))
-    for x in range(18, 38):
-        k.p(x, 55, (60, 52, 44, 80))
+    for y in range(53, 56):
+        for x in range(12, 44):
+            if ((x - 28) / 16) ** 2 + ((y - 54) / 2) ** 2 <= 1:
+                k.p(x, y, (40, 60, 30, 70))
+    for y in range(34, 54):
+        lebar = 6 + (2 if y > 50 else 0)
+        for x in range(28 - lebar, 28 + lebar):
+            k.p(x, y, hx("9a6440") if x < 27 else hx("74472b"))
+        k.p(28 - lebar - 1, y, GARIS); k.p(28 + lebar, y, GARIS)
+    _tajuk(k, [(28, 9, 9), (16, 13, 9), (40, 13, 9), (8, 22, 8), (48, 22, 8), (22, 22, 12), (36, 22, 12), (14, 31, 8), (28, 31, 9), (42, 31, 8)], "hijau")
+    for x in (13, 19, 37, 44):                                   # akar gantung
+        for y in range(36, 44 + x % 5):
+            k.p(x, y, hx("74472b"))
     return k
 
 
@@ -449,6 +422,90 @@ def palem():
             k.p(x, y + 1, HIJAU_TUA)
     k.kotak(14, 12, 17, 15, hx("8a6a4a"))
     return k
+
+
+# ======================================================================================================
+#  POHON (gaya game bertani: tajuk bergumpal dengan cahaya dari kiri atas, garis tepi hijau tua, batang cokelat)
+# ======================================================================================================
+DAUN = {"hijau": (hx("3f7d34"), hx("58a343"), hx("76c25a"), hx("9edc7a"), hx("2b5426")),
+        "gugur": (hx("a8471f"), hx("d9692b"), hx("f08f3e"), hx("f7c25c"), hx("6b2d14")),
+        "kuning": (hx("b9861f"), hx("e0ad35"), hx("f2cc55"), hx("fae69a"), hx("6e4a10")),
+        "cemara": (hx("2f6b3a"), hx("3f8a4a"), hx("5aa862"), hx("82c784"), hx("1f4a28"))}
+
+
+def _tajuk(k, gumpal, daun):
+    """gumpal: daftar (cx, cy, r); yang lebih bawah tampil di depan. daun: (gelap, isi, terang, kilau, garis)."""
+    gelap, isi, terang, kilau, garis = DAUN[daun]
+    urut = sorted(gumpal, key=lambda g: g[1])
+    depan = {}
+    for y in range(k.h):
+        for x in range(k.w):
+            for i, (cx, cy, r) in enumerate(urut):
+                if (x - cx) ** 2 + (y - cy) ** 2 <= r * r:
+                    depan[(x, y)] = i
+    for (x, y), i in depan.items():
+        cx, cy, r = urut[i]
+        nx, ny = (x - cx) / r, (y - cy) / r
+        terangnya = -(nx * .55 + ny * .85)
+        c = kilau if terangnya > .62 else terang if terangnya > .12 else isi if terangnya > -.5 else gelap
+        if c is kilau and (x + y) % 2:
+            c = terang
+        bawah = depan.get((x, y + 1))
+        if bawah is not None and bawah != i and urut[bawah][1] > cy:      # lipatan antar gumpal
+            c = gelap
+        k.p(x, y, c)
+    for (x, y) in depan:
+        if any((x + dx, y + dy) not in depan for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+            k.p(x, y, garis)
+
+
+def _batang(k, x0, x1, y0, y1):
+    for y in range(y0, y1 + 1):
+        lebar = 1 if y >= y1 - 1 else 0
+        for x in range(x0 - lebar, x1 + lebar + 1):
+            k.p(x, y, hx("9a6440") if x < (x0 + x1) // 2 else hx("74472b"))
+        k.p(x0 - lebar - 1, y, GARIS); k.p(x1 + lebar + 1, y, GARIS)
+    for y in range(y0 + 2, y1 - 2, 4):
+        k.p(x0 + 1, y, hx("74472b"))
+
+
+def _bayang(k, cx, y, rx):
+    for x in range(cx - rx, cx + rx + 1):
+        for dy in (0, 1):
+            if ((x - cx) / rx) ** 2 + (dy / 1.6) ** 2 <= 1:
+                k.p(x, y + dy, (40, 60, 30, 70))
+
+
+def pohon_rimbun(jenis, daun="hijau"):
+    """Pohon kota 2.0. jenis: besar (36 x 46), tinggi (28 x 50), kecil (20 x 28), rumpun (48 x 48, tiga pohon)."""
+    if jenis == "besar":
+        k = Kanvas(36, 46)
+        _bayang(k, 18, 43, 11)
+        _batang(k, 16, 19, 28, 43)
+        _tajuk(k, [(18, 7, 7), (11, 11, 7), (25, 11, 7), (8, 19, 7), (28, 19, 7), (18, 16, 11), (12, 25, 7), (24, 25, 7), (18, 26, 7)], daun)
+    elif jenis == "tinggi":
+        k = Kanvas(28, 50)
+        _bayang(k, 14, 47, 9)
+        _batang(k, 13, 15, 34, 47)
+        _tajuk(k, [(14, 6, 5), (11, 11, 6), (17, 11, 6), (14, 16, 8), (9, 22, 7), (19, 22, 7), (14, 25, 8), (11, 31, 6), (17, 31, 6)], daun)
+    elif jenis == "kecil":
+        k = Kanvas(20, 28)
+        _bayang(k, 10, 25, 6)
+        _batang(k, 9, 10, 18, 25)
+        _tajuk(k, [(10, 6, 5), (6, 11, 5), (14, 11, 5), (10, 13, 6)], daun)
+    else:
+        k = Kanvas(48, 48)
+        _bayang(k, 24, 45, 18)
+        for x in (13, 32):
+            _batang(k, x, x + 2, 34, 45)
+        _tajuk(k, [(14, 10, 8), (32, 8, 8), (24, 13, 9), (8, 20, 8), (40, 19, 8), (17, 22, 10), (31, 22, 10), (12, 30, 7), (24, 31, 8), (36, 30, 7)], daun)
+    return k
+
+
+def semua_pohon():
+    return {"pohon-a": pohon_rimbun("besar"), "pohon-b": pohon_rimbun("tinggi", "cemara"), "pohon-kecil": pohon_rimbun("kecil"),
+            "pohon-gugur-a": pohon_rimbun("besar", "gugur"), "pohon-gugur-b": pohon_rimbun("tinggi", "kuning"),
+            "pohon-gugur-kecil": pohon_rimbun("kecil", "gugur"), "rumpun": pohon_rimbun("rumpun"), "rumpun-gugur": pohon_rimbun("rumpun", "gugur")}
 
 
 def meja_warkop():
@@ -486,33 +543,100 @@ def lampu_merah():
 
 
 # ======================================================================================================
-#  KENDARAAN (tampak atas, sama dengan mobil Kenney: samping 32 x 16, depan/belakang 16 x 32; motor 16 x 16)
+#  KENDARAAN kota 2.0: delman dan sepeda (tampak samping, depan, belakang)
 # ======================================================================================================
-def angkot(arah):
-    """Angkot hijau toska dengan atap putih dan rak."""
-    BADAN, BADAN_G, BADAN_T = hx("2a9d8f"), hx("1f6f66"), hx("5cc0b2")
+def delman(arah):
+    """Delman: kuda cokelat menarik kereta beratap kain. Samping 46 x 30, depan/belakang 22 x 44."""
+    KUDA, KUDA_G, KUDA_T, SURAI = hx("8a5a35"), hx("6b4128"), hx("a8703f"), hx("3b2a20")
+    KAIN_A, KAIN_AG = hx("c0473a"), hx("8f2f27")
+    RODA = hx("4f2f1d")
     if arah in ("kiri", "kanan"):
-        k = Kanvas(32, 16)
-        k.panel(1, 1, 30, 13, BADAN, BADAN_T, BADAN_G, hx("17504a"))
-        k.panel(6, 3, 25, 10, PUTIH, PUTIH, hx("d9dccf"), hx("17504a"))
-        for x in range(8, 24, 4):
-            k.garis_v(x, 4, 9, hx("d9dccf"))
-        depan = 27 if arah == "kanan" else 1
-        k.kotak(depan, 3, depan + 2, 11, KACA_T); k.bingkai(depan, 3, depan + 2, 11, hx("17504a"))
-        lampu = 30 if arah == "kanan" else 1
-        k.p(lampu, 3, KUNING); k.p(lampu, 11, KUNING)
-        for x in (6, 22):
-            k.kotak(x, 13, x + 4, 15, GARIS)
+        k = Kanvas(46, 30)
+        k.kotak(2, 2, 22, 6, KAIN_A); k.garis_h(2, 22, 6, KAIN_AG)               # atap kain
+        for x in (3, 21):
+            k.garis_v(x, 6, 16, BALOK)
+        k.panel(1, 13, 23, 21, KAYU, KAYU_T, KAYU_G)                            # bak kereta
+        k.kotak(14, 8, 18, 13, hx("5b8cc7")); k.kotak(14, 5, 18, 8, hx("ffcb9e")); k.kotak(13, 4, 19, 5, hx("e9c46a"))   # kusir bercaping
+        for y in range(18, 30):                                                 # roda besar
+            for x in range(4, 17):
+                d = ((x - 10) ** 2 + (y - 23.5) ** 2) ** .5
+                if d <= 5.8:
+                    k.p(x, y, RODA if d > 4.6 else KAYU_T if d < 1.2 or (x - 10) * (y - 23.5) == 0 else NOL)
+        k.garis_h(22, 30, 17, BALOK)                                            # gagang
+        for y in range(12, 21):                                                 # badan kuda
+            for x in range(26, 41):
+                if ((x - 33) / 7.5) ** 2 + ((y - 16) / 4.2) ** 2 <= 1:
+                    k.p(x, y, KUDA_T if y < 14 else KUDA)
+        for (x0, y0) in ((38, 5), (39, 6), (40, 7), (40, 8), (39, 9), (39, 10), (38, 11)):     # leher dan kepala
+            k.kotak(x0, y0, x0 + 3, y0 + 1, KUDA)
+        k.kotak(41, 4, 44, 7, KUDA); k.p(44, 7, KUDA_G); k.p(42, 5, GARIS)
+        k.garis_v(38, 4, 11, SURAI); k.p(40, 3, KUDA_G)
+        for x in (28, 31, 36, 39):                                              # kaki
+            k.kotak(x, 20, x + 1, 27, KUDA_G); k.p(x, 28, GARIS); k.p(x + 1, 28, GARIS)
+        k.kotak(24, 13, 25, 19, SURAI)                                          # ekor
+        garis_luar(k)
+        if arah == "kiri":
+            k.im = k.im.transpose(Image.FLIP_LEFT_RIGHT); k.px = k.im.load()
         return k
-    k = Kanvas(16, 32)
-    k.panel(1, 1, 14, 30, BADAN, BADAN_T, BADAN_G, hx("17504a"))
-    kaca_y = 3 if arah == "atas" else 23
-    k.kotak(3, kaca_y, 12, kaca_y + 4, KACA); k.bingkai(3, kaca_y, 12, kaca_y + 4, hx("17504a"))
-    k.panel(3, 9 if arah == "bawah" else 9, 12, 20, PUTIH, PUTIH, hx("d9dccf"), hx("17504a"))
-    ujung = 29 if arah == "bawah" else 2
-    k.p(3, ujung, KUNING if arah == "bawah" else MERAH); k.p(12, ujung, KUNING if arah == "bawah" else MERAH)
-    for y in (6, 22):
-        k.kotak(0, y, 0, y + 3, GARIS); k.kotak(15, y, 15, y + 3, GARIS)
+    k = Kanvas(22, 44)
+    depan = arah == "bawah"
+    kuda_y, kereta_y = (24, 0) if depan else (0, 20)
+    # kereta
+    k.kotak(3, kereta_y + 2, 18, kereta_y + 8, KAIN_A); k.garis_h(3, 18, kereta_y + 8, KAIN_AG)
+    k.panel(2, kereta_y + 9, 19, kereta_y + 20, KAYU, KAYU_T, KAYU_G)
+    for x in (0, 20):
+        k.kotak(x, kereta_y + 12, x + 1, kereta_y + 21, RODA)
+    if depan:
+        k.kotak(8, kereta_y + 10, 13, kereta_y + 15, hx("5b8cc7")); k.kotak(9, kereta_y + 6, 12, kereta_y + 9, hx("ffcb9e")); k.kotak(7, kereta_y + 5, 14, kereta_y + 6, hx("e9c46a"))
+    # kuda (tampak depan: kepala di bawah; tampak belakang: ekor di bawah dekat kereta, kepala di atas)
+    k.kotak(7, kuda_y + 4, 14, kuda_y + 16, KUDA); k.garis_v(7, kuda_y + 4, kuda_y + 16, KUDA_T)
+    if depan:
+        k.kotak(8, kuda_y + 14, 13, kuda_y + 19, KUDA); k.kotak(9, kuda_y + 18, 12, kuda_y + 19, KUDA_G)
+        k.p(8, kuda_y + 15, GARIS); k.p(13, kuda_y + 15, GARIS); k.garis_v(10, kuda_y + 4, kuda_y + 13, SURAI)
+        for x in (7, 13):
+            k.kotak(x, kuda_y + 10, x + 1, kuda_y + 19, KUDA_G)
+    else:
+        k.kotak(8, kuda_y + 0, 13, kuda_y + 5, KUDA); k.garis_v(10, kuda_y, kuda_y + 8, SURAI)
+        k.kotak(10, kuda_y + 15, 11, kuda_y + 20, SURAI)
+        for x in (7, 13):
+            k.kotak(x, kuda_y + 12, x + 1, kuda_y + 20, KUDA_G)
+    garis_luar(k)
+    return k
+
+
+def sepeda(arah):
+    """Sepeda onthel dengan pengendara bercaping. Samping 22 x 22, depan/belakang 12 x 22."""
+    BAJU, BAJU_T, KULIT, CAPING, CAPING_G = hx("3e9e5a"), hx("62bb7c"), hx("ffcb9e"), hx("e9c46a"), hx("c49a3c")
+    if arah in ("kiri", "kanan"):
+        k = Kanvas(22, 22)
+        for cx in (5, 16):
+            for y in range(12, 22):
+                for x in range(cx - 5, cx + 6):
+                    d = ((x - cx) ** 2 + (y - 16.5) ** 2) ** .5
+                    if 3.2 < d <= 4.4:
+                        k.p(x, y, GARIS)
+            k.p(cx, 16, BATU_G); k.p(cx, 17, BATU_G)
+        for i in range(7):                                       # rangka
+            k.p(5 + i, 16 - i // 2, MERAH); k.p(10 + i // 2, 13 + i // 3, MERAH)
+        k.garis_h(8, 14, 12, MERAH); k.garis_v(15, 9, 16, MERAH); k.garis_h(14, 17, 9, GARIS)
+        k.kotak(7, 10, 10, 10, GARIS)                             # sadel
+        k.kotak(8, 3, 11, 9, BAJU); k.garis_v(8, 3, 9, BAJU_T); k.kotak(12, 5, 14, 5, BAJU); k.p(15, 6, KULIT)
+        k.kotak(9, 9, 11, 12, hx("4a4e6e")); k.kotak(11, 13, 12, 15, hx("4a4e6e"))
+        k.kotak(9, 1, 11, 3, KULIT)
+        k.garis_h(6, 14, 1, CAPING); k.garis_h(8, 12, 0, CAPING); k.p(10, 0, CAPING_G); k.garis_h(6, 14, 2, CAPING_G)
+        garis_luar(k)
+        if arah == "kiri":
+            k.im = k.im.transpose(Image.FLIP_LEFT_RIGHT); k.px = k.im.load()
+        return k
+    k = Kanvas(12, 22)
+    k.kotak(5, 14, 6, 21, GARIS)
+    k.kotak(1, 9, 10, 9, GARIS)
+    k.kotak(3, 4, 8, 11, BAJU); k.garis_v(3, 4, 11, BAJU_T)
+    k.p(2, 9, KULIT); k.p(9, 9, KULIT)
+    k.kotak(4, 1, 7, 3, KULIT) if arah == "bawah" else k.kotak(4, 1, 7, 3, hx("3b2a20"))
+    k.garis_h(1, 10, 1, CAPING); k.garis_h(3, 8, 0, CAPING); k.garis_h(1, 10, 2, CAPING_G)
+    k.kotak(4, 13, 7, 13, MERAH)
+    garis_luar(k)
     return k
 
 
@@ -525,63 +649,6 @@ def garis_luar(k, warna=hx("3a3440")):
             n = (x + dx, y + dy)
             if 0 <= n[0] < k.w and 0 <= n[1] < k.h and n not in isi:
                 px[n] = warna
-    return k
-
-
-def motor(arah, ojol=False):
-    """Motor bebek berpengendara berhelm, bergaris tepi gelap. Tampak samping 28 x 21: dua roda bulat berpelek, bodi,
-    jok, tameng depan berlampu, knalpot. Tampak depan/belakang 14 x 23: roda tegak, setang dan spion, lampu.
-    Motor biasa merah dengan jaket biru; ojol bodi biru, jaket dan helm hijau, kotak pesanan di jok belakang."""
-    BODI, BODI_T, BODI_G = (hx("e26c62"), hx("f08a80"), hx("b8443c")) if not ojol else (hx("5466d1"), hx("7a8be0"), hx("3f4ea8"))
-    JAKET, JAKET_T, JAKET_G = (hx("3e9e5a"), hx("62bb7c"), hx("2f7a45")) if ojol else (hx("5b8cc7"), hx("7fa9de"), hx("4870a8"))
-    HELM, HELM_T = (hx("2f7a45"), hx("4f9e66")) if ojol else (hx("e9a23b"), hx("f6c46b"))
-    BAN, PELEK, KULIT, CELANA, KACA, JOK = hx("2e2a33"), hx("c9c3b8"), hx("ffcb9e"), hx("4a4e6e"), hx("2e2a33"), hx("3b3540")
-    KOTAK, KOTAK_T = hx("3e9e5a"), hx("8fd6a5")
-    if arah in ("kiri", "kanan"):
-        k = Kanvas(28, 21)
-        for cx in (6, 21):                                          # roda: ban, pelek, as
-            for y in range(11, 21):
-                for x in range(cx - 5, cx + 6):
-                    d = ((x - cx) ** 2 + (y - 15.5) ** 2) ** .5
-                    if d <= 4.4:
-                        k.p(x, y, BAN if d > 2.6 else PELEK if d > 1.1 else GARIS)
-        k.kotak(3, 10, 9, 11, BODI_G)                               # spakbor belakang
-        k.kotak(2, 14, 8, 14, BATU_G)                               # knalpot
-        k.kotak(8, 11, 18, 13, BODI); k.garis_h(8, 18, 11, BODI_T); k.garis_h(8, 18, 13, BODI_G)
-        for i in range(6):                                          # garpu depan miring
-            k.p(19 + i // 3, 8 + i, GARIS); k.p(20 + i // 3, 8 + i, GARIS)
-        k.kotak(19, 7, 22, 11, BODI); k.garis_v(19, 7, 11, BODI_T); k.kotak(23, 8, 23, 9, KUNING)   # tameng + lampu
-        k.kotak(7, 9, 14, 10, JOK)
-        if ojol:
-            k.kotak(2, 3, 7, 8, KOTAK); k.garis_h(2, 7, 3, KOTAK_T); k.garis_h(3, 6, 6, KOTAK_T)
-        k.kotak(10, 3, 14, 8, JAKET); k.garis_v(10, 3, 8, JAKET_T)  # badan pengendara
-        k.kotak(14, 5, 18, 5, JAKET_G); k.p(19, 5, KULIT)           # lengan dan tangan
-        k.kotak(19, 6, 20, 6, GARIS)                                # setang
-        k.kotak(12, 8, 16, 9, CELANA); k.kotak(15, 10, 16, 12, CELANA); k.kotak(15, 13, 17, 13, GARIS)   # kaki
-        k.kotak(10, 0, 15, 3, HELM); k.garis_h(11, 14, 0, HELM_T); k.kotak(14, 1, 15, 2, KACA)          # helm
-        garis_luar(k)
-        if arah == "kiri":
-            k.im = k.im.transpose(Image.FLIP_LEFT_RIGHT); k.px = k.im.load()
-        return k
-    depan = arah == "bawah"
-    k = Kanvas(14, 23)
-    k.kotak(6, 15, 7, 22, BAN)                                      # roda tegak
-    k.kotak(4, 10, 9, 15, BODI); k.garis_h(4, 9, 10, BODI_T); k.garis_h(4, 9, 15, BODI_G)
-    if depan:
-        k.kotak(6, 11, 7, 12, KUNING)                               # lampu depan
-    else:
-        k.kotak(5, 14, 8, 14, MERAH)                                # lampu rem
-    k.kotak(1, 8, 12, 8, GARIS)                                     # setang
-    k.kotak(1, 5, 1, 7, GARIS); k.kotak(12, 5, 12, 7, GARIS)        # tangkai spion
-    k.kotak(0, 4, 2, 5, PELEK); k.kotak(11, 4, 13, 5, PELEK)        # spion
-    k.kotak(4, 4, 9, 9, JAKET); k.garis_v(4, 4, 9, JAKET_T); k.garis_v(9, 4, 9, JAKET_G)
-    k.p(2, 8, KULIT); k.p(11, 8, KULIT)                             # tangan
-    if ojol and not depan:
-        k.kotak(3, 6, 10, 11, KOTAK); k.garis_h(3, 10, 6, KOTAK_T); k.garis_h(4, 9, 9, KOTAK_T)
-    k.kotak(4, 0, 9, 3, HELM); k.garis_h(5, 8, 0, HELM_T)
-    if depan:
-        k.kotak(5, 2, 8, 2, KACA)                                   # kaca helm
-    garis_luar(k)
     return k
 
 
@@ -781,7 +848,6 @@ def semua():
          "kulkas": kulkas(), "dispenser": dispenser(), "lukisan": lukisan(), "lukisan-hijau": lukisan(20, 14, hx("2a9d8f")),
          "jendela-dinding": jendela_dinding(), "meja-bundar": meja_bundar(), "konter-kopi": mesin_kopi(),
          "meja-komputer": meja_komputer(), "papan-tulis": papan_tulis(),
-         "halte": halte(),
          "lapak-sayur": lapak((hx("2a9d8f"), PUTIH), "sayur"), "lapak-buah": lapak((MERAH, PUTIH), "buah"),
          "lapak-ikan": lapak((hx("5466d1"), PUTIH), "ikan"), "lapak-kain": lapak((hx("e9a23b"), PUTIH), "kain"),
          "lapak-jamu": lapak((hx("86c264"), PUTIH), "jamu"), "lapak-kue": lapak((hx("f7a8c4"), PUTIH), "kue"),
@@ -791,9 +857,8 @@ def semua():
          "kavling-kosong": kavling_kosong(), "papan-kavling": papan_kavling(), "gerbang-perumahan": gerbang_perumahan(), "kasur": kasur(),
          "gantungan-kunci": gantungan_kunci()}
     for arah in ("kiri", "kanan", "bawah", "atas"):
-        g[f"mobil-angkot-{arah}"] = angkot(arah)
-        g[f"mobil-motor-{arah}"] = motor(arah)
-        g[f"mobil-ojol-{arah}"] = motor(arah, ojol=True)
+        g[f"mobil-delman-{arah}"] = delman(arah)
+        g[f"mobil-sepeda-{arah}"] = sepeda(arah)
     return g
 
 
@@ -804,8 +869,8 @@ def semua():
 #  tetapi petak diagonalnya bukan). Tepi yang terbuka diisi rumput Kenney (ubin 28) bergerigi, jadi menyatu dengan rumput peta.
 # ======================================================================================================
 RUMPUT_K = kenney(28)
-TANAH_S, TANAH_SG, TANAH_ST, TANAH_SB = hx("c9a477"), hx("b48f63"), hx("d8b88c"), hx("9b7a52")
-AIR_D, AIR_DT, AIR_DG = hx("6fc2c9"), hx("9adde0"), hx("4fa3b0")
+TANAH_S, TANAH_SG, TANAH_ST, TANAH_SB = hx("dcae6e"), hx("c4955a"), hx("ebc489"), hx("a77f4a")
+AIR_D, AIR_DT, AIR_DG = hx("4aa3d8"), hx("8fd0f0"), hx("2f7fb5")
 
 
 def _gerigi(sisi, i):
@@ -824,47 +889,173 @@ def bentuk_alam():
     return hasil
 
 
-def _alam(topeng, isi, tepi_dalam, tepi_luar, sudut=0):
-    """isi(x, y) -> warna bagian dalam. Tepi: tepi_luar di batas rumput, tepi_dalam satu piksel ke dalam."""
+def _alam(topeng, isi, cincin, sudut=0, gerigi=True):
+    """isi(x, y) -> warna bagian dalam. cincin = warna (atau fungsi x, y) tiap baris tepi dari batas rumput ke dalam.
+    gerigi=False: tepi lurus (jalan batu), selain itu bergerigi seperti tanah dan air."""
     k = _ubin()
     rumput = RUMPUT_K.load()
     U, Tm, S, B = topeng & 1, topeng & 2, topeng & 4, topeng & 8
+    g = _gerigi if gerigi else (lambda sisi, i: 2)
     for y in range(16):
         for x in range(16):
             jarak = 99                                     # jarak ke sisi terbuka terdekat (dikurangi gerigi)
-            if not U: jarak = min(jarak, y - _gerigi(0, x))
-            if not S: jarak = min(jarak, 15 - y - _gerigi(2, x))
-            if not B: jarak = min(jarak, x - _gerigi(3, y))
-            if not Tm: jarak = min(jarak, 15 - x - _gerigi(1, y))
+            if not U: jarak = min(jarak, y - g(0, x))
+            if not S: jarak = min(jarak, 15 - y - g(2, x))
+            if not B: jarak = min(jarak, x - g(3, y))
+            if not Tm: jarak = min(jarak, 15 - x - g(1, y))
             # sudut membulat bila dua sisi bertemu terbuka
             for (cx, cy, a, b) in ((0, 0, U, B), (15, 0, U, Tm), (0, 15, S, B), (15, 15, S, Tm)):
                 if not a and not b:
-                    jarak = min(jarak, int(((x - cx) ** 2 + (y - cy) ** 2) ** .5) - 6)
+                    jarak = min(jarak, int(((x - cx) ** 2 + (y - cy) ** 2) ** .5) - (6 if gerigi else 5))
             for (bit, cx, cy) in ((1, 15, 0), (2, 15, 15), (4, 0, 15), (8, 0, 0)):     # lekuk dalam
                 if sudut & bit:
-                    jarak = min(jarak, int(((x - cx) ** 2 + (y - cy) ** 2) ** .5) - 3)
+                    jarak = min(jarak, int(((x - cx) ** 2 + (y - cy) ** 2) ** .5) - (3 if gerigi else 2))
             if jarak < 0:
                 k.p(x, y, rumput[x, y])
-            elif jarak == 0:
-                k.p(x, y, tepi_luar)
-            elif jarak == 1:
-                k.p(x, y, tepi_dalam(x, y))
+            elif jarak < len(cincin):
+                c = cincin[jarak]
+                k.p(x, y, c(x, y) if callable(c) else c)
             else:
                 k.p(x, y, isi(x, y))
     return k
 
 
 def setapak(topeng, sudut=0):
+    """Jalan setapak tanah kuning kecokelatan berkerikil."""
     def isi(x, y):
         h = (x * 37 + y * 91 + topeng * 13) % 23
         return TANAH_SB if h == 0 else TANAH_ST if h in (3, 11) else TANAH_SG if h in (7, 16) else TANAH_S
-    return _alam(topeng, isi, lambda x, y: TANAH_SG, hx("8c7a4f"), sudut)
+    return _alam(topeng, isi, [hx("9c7446"), TANAH_SG], sudut)
 
 
 def danau(topeng, sudut=0):
+    """Air biru jernih bertepi pasir (danau, kolam, sungai)."""
     def isi(x, y):
-        return AIR_DT if (x + y * 3 + topeng) % 17 == 0 and y % 4 == 1 else AIR_D
-    return _alam(topeng, isi, lambda x, y: hx("e8d9a8") if (x + y) % 3 else hx("d6c48e"), AIR_DG, sudut)
+        kilau = (x + y * 3 + topeng) % 17 == 0 and y % 4 == 1
+        return AIR_DT if kilau else hx("5bb0e0") if (x * 5 + y * 11) % 31 == 0 else AIR_D
+    pasir = lambda x, y: hx("e2bd66") if (x + y) % 4 else hx("d4aa52")
+    return _alam(topeng, isi, [hx("a8823f"), pasir, AIR_DG], sudut)
+
+
+def _batu_kali(x, y, gelap=False):
+    """Pola batu kali 16 x 16 yang menyambung: baris setinggi 4 piksel, batu selebar 4-6 piksel."""
+    batas = ((0, 5, 10), (3, 8, 13), (1, 6, 11), (4, 9, 14))
+    r = y // 4
+    b = batas[r]
+    if y % 4 == 3 or x in b:
+        return hx("8a7f70") if not gelap else hx("766c5e")
+    i = sum(1 for t in b if x > t)
+    warna = (hx("cfc5b4"), hx("bfb4a1"), hx("d9d0c0"), hx("c5baa7"))[(r * 3 + i * 5) % 4]
+    if (x - 1) in b and y % 4 == 0:
+        return hx("e6dfd2")
+    if y % 4 == 2 and (x + 1) % 16 in b:
+        return hx("a99d8a")
+    return warna
+
+
+def jalan_batu(topeng, sudut=0):
+    """Jalan batu kali (pengganti aspal), tepinya lurus dengan nat gelap."""
+    return _alam(topeng, _batu_kali, [hx("6f6456"), hx("a99d8a")], sudut, gerigi=False)
+
+
+def _lempeng(x, y):
+    """Lempeng batu besar 8 x 8 untuk alun-alun dan pasar, baris berselang."""
+    r = y // 8
+    xx = (x + r * 4) % 16
+    if y % 8 == 7 or xx % 8 == 7:
+        return hx("a89c86")
+    warna = (hx("e3d8c3"), hx("d8ccb5"), hx("ddd2bc"))[(r + (xx // 8) * 2) % 3]
+    if y % 8 == 0 or xx % 8 == 0:
+        return hx("efe7d8")
+    return warna
+
+
+def alun(topeng, sudut=0):
+    return _alam(topeng, _lempeng, [hx("7d7262"), hx("b9ad97")], sudut, gerigi=False)
+
+
+def rumput(varian):
+    """Rumput kota (sama dengan rumput Kenney yang sudah diwarnai) dengan rumpun kecil atau bunga liar."""
+    k = _ubin()
+    k.tempel(RUMPUT_K, 0, 0)
+    tua, muda = hx("4f9a3c"), hx("9ad66f")
+    if varian in (1, 3):                                   # rumpun rumput
+        for (x, y) in ((5, 9), (6, 8), (7, 9), (8, 7), (9, 9), (10, 8)):
+            k.p(x, y, tua); k.p(x, y + 1, tua)
+        k.p(8, 6, muda); k.p(6, 7, muda)
+    if varian == 2:                                        # bunga putih
+        for (x, y) in ((4, 4), (11, 10)):
+            for dx, dy in ((0, -1), (-1, 0), (1, 0), (0, 1)):
+                k.p(x + dx, y + dy, PUTIH)
+            k.p(x, y, KUNING)
+    if varian == 3:                                        # bunga kuning kecil
+        k.p(12, 4, KUNING); k.p(13, 5, KUNING); k.p(12, 5, hx("e9a23b"))
+    if varian == 4:                                        # bunga merah muda
+        for (x, y) in ((3, 11), (10, 4)):
+            k.p(x, y, hx("f28cb1")); k.p(x + 1, y, hx("f28cb1")); k.p(x, y + 1, hx("f28cb1")); k.p(x + 1, y + 1, hx("d45d8a"))
+    return k
+
+
+def jembatan(bahan, baris):
+    """Jembatan menyeberangi sungai dari barat ke timur. baris: atas (pagar), tengah (lantai), bawah (pagar)."""
+    k = _ubin()
+    if bahan == "kayu":
+        for x in range(16):                                # papan melintang
+            papan = x // 4
+            c = (hx("b07a4a"), hx("a06c3e"), hx("bf8a56"), hx("a5713f"))[papan % 4]
+            for y in range(16):
+                k.p(x, y, hx("6b4128") if x % 4 == 3 else c)
+            if x % 4 == 1:
+                k.p(x, 3, hx("6b4128")); k.p(x, 12, hx("6b4128"))      # paku
+    else:
+        for y in range(16):
+            for x in range(16):
+                k.p(x, y, _batu_kali(x, y))
+    if baris == "atas":
+        tiang, pagar = (hx("6b4128"), hx("8a5a35")) if bahan == "kayu" else (hx("948a7b"), hx("bdb3a3"))
+        if bahan == "kayu":
+            k.kotak(0, 0, 15, 2, pagar); k.garis_h(0, 15, 3, GARIS)
+            for x in (2, 10):
+                k.kotak(x, 0, x + 2, 5, tiang); k.garis_h(x, x + 2, 6, GARIS)
+        else:                                              # tembok pagar batu, cukup tinggi supaya jelas sebuah jembatan
+            k.kotak(0, 0, 15, 7, hx("cfc6b6"))
+            for x in range(16):
+                if x % 8 == 7:
+                    k.garis_v(x, 2, 7, hx("948a7b"))
+            k.garis_h(0, 15, 0, GARIS); k.garis_h(0, 15, 1, hx("e6dfd2")); k.garis_h(0, 15, 4, hx("948a7b"))
+            k.garis_h(0, 15, 8, GARIS); k.garis_h(0, 15, 9, hx("8a7f70"))
+    if baris == "bawah":
+        if bahan == "kayu":
+            k.kotak(0, 12, 15, 14, hx("8a5a35")); k.garis_h(0, 15, 15, GARIS)
+            for x in (2, 10):
+                k.kotak(x, 10, x + 2, 15, hx("6b4128"))
+        else:
+            k.garis_h(0, 15, 7, hx("8a7f70"))
+            k.kotak(0, 8, 15, 15, hx("cfc6b6"))
+            for x in range(16):
+                if x % 8 == 3:
+                    k.garis_v(x, 10, 15, hx("948a7b"))
+            k.garis_h(0, 15, 8, GARIS); k.garis_h(0, 15, 9, hx("e6dfd2")); k.garis_h(0, 15, 12, hx("948a7b")); k.garis_h(0, 15, 15, GARIS)
+    return k
+
+
+def lentera(bagian):
+    """Lampu jalan lentera besi dua ubin: atas = kepala lentera, bawah = tiang dan alas batu."""
+    k = _ubin()
+    BESI, BESI_T = hx("3b3346"), hx("5a5068")
+    if bagian == "atas":
+        k.kotak(7, 0, 8, 1, BESI)                          # ujung
+        k.kotak(5, 2, 10, 3, BESI); k.kotak(4, 4, 11, 4, BESI)
+        k.kotak(5, 5, 10, 11, BESI)
+        k.kotak(6, 6, 9, 10, hx("f6d77a")); k.p(6, 6, hx("fff3c4")); k.p(7, 6, hx("fff3c4"))
+        k.garis_v(7, 6, 10, hx("e9b44c"))
+        k.kotak(4, 12, 11, 12, BESI); k.p(5, 2, BESI_T)
+        k.kotak(7, 13, 8, 15, BESI); k.p(7, 13, BESI_T)
+    else:
+        k.kotak(7, 0, 8, 11, BESI); k.garis_v(7, 0, 11, BESI_T)
+        k.kotak(6, 5, 9, 5, BESI)
+        k.panel(4, 11, 11, 15, hx("bdb3a3"), hx("d9d0c0"), hx("948a7b"))
+    return k
 
 
 def sawah(varian):
@@ -896,4 +1087,14 @@ def ubin_ruang():
     for (t, m) in bentuk_alam():
         daftar.append((f"danau-{t}-{m}", danau(t, m)))
     daftar += [("sawah-0", sawah(0)), ("sawah-1", sawah(1))]
+    # kota 2.0: rumput berbunga, jalan batu kali, lempeng alun-alun, jembatan, lentera
+    daftar += [(f"rumput-{v}", rumput(v)) for v in range(5)]
+    for (t, m) in bentuk_alam():
+        daftar.append((f"batu-{t}-{m}", jalan_batu(t, m)))
+    for (t, m) in bentuk_alam():
+        daftar.append((f"alun-{t}-{m}", alun(t, m)))
+    for bahan in ("kayu", "batu"):
+        for baris in ("atas", "tengah", "bawah"):
+            daftar.append((f"jembatan-{bahan}-{baris}", jembatan(bahan, baris)))
+    daftar += [("lentera-atas", lentera("atas")), ("lentera-bawah", lentera("bawah"))]
     return daftar

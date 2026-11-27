@@ -10,7 +10,7 @@ Lembar ini memakai susunan karakter RPG Urban Pack (Kenney): tiap karakter 4 kol
 """
 from PIL import Image
 
-from kanvas import URBAN, hx
+from kanvas import URBAN_ASLI as URBAN, hx
 
 NAMA = ["Kaos hijau", "Kaos merah", "Rambut perak", "Helm kuning", "Kepala plontos", "Bando oranye",
         "Hoodie biru", "Mahasiswi", "Bocil bertopi", "Ibu warung", "Kakek", "Nenek", "Jull pemula"]

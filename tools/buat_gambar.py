@@ -8,7 +8,7 @@ Bentuknya mengacu ke paket "CodeIn City Retro" (Markas berbendera, Galeri berkub
 menara observatorium Aetheria, ruko Toko Mbak Tika, Warkop CodeIn), tapi ukurannya mengikuti tapak gedung di peta.
 Atlas ini juga berisi pohon-pohon Kenney yang dipotong utuh, dipakai untuk hutan di tepi kota.
 
-Jalankan dari folder proyek (tidak butuh berkas lain selain assets/tiles/urban.png):
+Jalankan dari folder proyek (tidak butuh berkas lain selain assets/tiles/urban-kenney.png):
     python3 tools/buat_gambar.py
 lalu tools/buat_peta.py. Butuh Pillow.
 """
@@ -176,11 +176,11 @@ def news():
 
 
 def aetheria():
-    """Menara observatorium (rumah proyek 2): menara bulat, kubah ungu, teleskop, jendela bundar. 7 x 6 ubin + 34 piksel atas."""
+    """Menara observatorium batu (rumah proyek 2): kubah ungu, teleskop, jendela bundar. 7 x 6 ubin + 34 piksel atas."""
     A = 34
     k = Kanvas(112, 96 + A)
     b = A
-    k.dinding(10, b + 10, 101, b + 95)
+    k.dinding(10, b + 10, 101, b + 95, BATU, BATU_G, BATU_T)
     # kubah dan teleskop
     for i in range(16):
         k.p(80 + i, b - 22 - i // 2, GARIS); k.p(80 + i, b - 21 - i // 2, KUNING); k.p(80 + i, b - 20 - i // 2, ORANYE_G)
@@ -280,6 +280,133 @@ def warkop():
 
 
 
+BESI_LENTERA = hx("3b3346")
+
+
+def galeri_komunitas():
+    """Galeri Komunitas: rumah kayu berangka balok, atap toska, jendela atap bundar, etalase berisi foto kegiatan,
+    papan GALERI, lentera gantung. 6 x 6 ubin + 30 piksel atas."""
+    A = 30
+    k = Kanvas(96, 96 + A)
+    b = A
+    k.atap(1, 2, 94, b + 22, TEAL, TEAL_G, TEAL_T, miring=3)
+    for y in range(8, 25):                                     # jendela atap bundar
+        for x in range(38, 59):
+            d = ((x - 48) ** 2 + (y - 16) ** 2) ** .5
+            if d <= 8.5:
+                k.p(x, y, GARIS if d > 7.5 else BALOK if d > 6.3 else KACA_T if (x - y) % 6 < 2 else KACA)
+    k.garis_h(42, 54, 16, BALOK); k.garis_v(48, 10, 22, BALOK)
+    k.dinding(4, b + 23, 91, b + 95)
+    k.panel(24, b + 27, 71, b + 37, BALOK, KAYU, BALOK_G)      # papan nama
+    k.tulis("GALERI", 48, b + 30, KUNING)
+    # etalase lengkung berisi foto
+    k.kotak(18, b + 46, 60, b + 89, BALOK); k.bingkai(18, b + 46, 60, b + 89, GARIS)
+    k.kotak(20, b + 48, 58, b + 89, hx("cfe8ee"))
+    foto = (hx("e9a23b"), HIJAU, MERAH, BIRU, KUNING, UNGU)
+    for i, c in enumerate(foto):
+        x, y = 23 + (i % 3) * 12, b + 52 + (i // 3) * 16
+        k.kotak(x, y, x + 9, y + 11, PUTIH); k.kotak(x + 1, y + 1, x + 8, y + 7, c)
+        k.p(x + 3, y + 3, PUTIH); k.garis_h(x + 2, x + 7, y + 9, BATU_G)
+    k.garis_v(39, b + 48, b + 89, BALOK)
+    k.pintu(66, b + 62, 18, 30, ganda=False)
+    k.panel(16, b + 90, 86, b + 95, BATU, BATU_T, BATU_G)
+    k.kotak(9, b + 46, 10, b + 52, BESI_LENTERA); k.panel(7, b + 52, 12, b + 59, KUNING, hx("fff3c4"), ORANYE)   # lentera
+    k.jendela(7, b + 64, 9, 12, kayu=True)
+    return k, A
+
+
+def galeri_investasi():
+    """Galeri Investasi (bersama GIBEI, segera dibuka): balai batu bertiang, atap tembaga berpatina, papan ticker LED,
+    perancah kayu dan spanduk SEGERA. 6 x 6 ubin + 34 piksel atas."""
+    A = 34
+    k = Kanvas(96, 96 + A)
+    b = A
+    PATINA, PATINA_G, PATINA_T = hx("4e9d86"), hx("3a7a68"), hx("72bea6")
+    k.panel(40, 2, 55, 12, hx("b87333"), hx("d9944f"), hx("8a5222"))      # menara kecil tembaga
+    k.pelana(48, 0, 18, 4, hx("b87333"), hx("8a5222"), hx("d9944f"))
+    k.atap(0, 12, 95, b + 16, PATINA, PATINA_G, PATINA_T, miring=4)
+    k.panel(18, b - 10, 77, b + 2, hx("1a2228"), hx("26323a"), hx("10161a"))   # papan ticker LED
+    for i, x in enumerate(range(21, 75, 3)):
+        tinggi = 2 + (i * 7) % 5
+        k.garis_v(x, b - 2 - tinggi, b - 2, hx("4cd97b") if i % 5 else hx("e8504a"))
+    k.dinding(4, b + 17, 91, b + 95, BATU, BATU_G, BATU_T)
+    k.kotak(4, b + 17, 91, b + 20, BATU_T); k.garis_h(4, 91, b + 21, GARIS)
+    for x in (12, 28, 64, 80):
+        k.tiang(x, b + 26, b + 90, PUTIH, BATU_G)
+    k.kotak(38, b + 52, 57, b + 92, BALOK); k.kotak(40, b + 54, 55, b + 92, KACA)
+    k.garis_v(47, b + 54, b + 92, BALOK); k.p(42, b + 56, KACA_T); k.p(43, b + 57, KACA_T)
+    k.panel(30, b + 92, 65, b + 95, BATU_T, PUTIH, BATU_G)
+    # perancah dan spanduk "segera"
+    for x in (1, 94):
+        k.garis_v(x, b + 4, b + 95, KAYU); k.garis_v(x + 1, b + 4, b + 95, KAYU_G)
+    for y in (b + 30, b + 60):
+        k.kotak(0, y, 95, y + 1, KAYU); k.garis_h(0, 95, y + 2, KAYU_G)
+    k.panel(14, b + 40, 81, b + 50, hx("e9a23b"), hx("f6c46b"), hx("b87a1f"))
+    k.tulis("SEGERA", 48, b + 43, hx("3b2a20"))
+    for x in range(0, 96, 8):                                   # pita pembatas kuning-hitam di alas
+        k.kotak(x, b + 93, x + 3, b + 95, KUNING); k.kotak(x + 4, b + 93, x + 7, b + 95, GELAP)
+    return k, A
+
+
+def menara_jam():
+    """Menara Jam Server di alun-alun: menara batu, atap genteng runcing, antena berlampu toska, jam (jarumnya digambar
+    js/menara.js sesuai jam WIB), dua jendela lampu server (warnanya mengikuti kesehatan server), pintu lengkung.
+    64 x 160; tapaknya 4 x 2 ubin. Mengembalikan juga letak jam dan jendela server (relatif gambar)."""
+    W, H = 64, 160
+    k = Kanvas(W, H)
+    k.garis_v(32, 0, 14, GELAP); k.garis_h(27, 37, 8, GELAP)            # antena
+    k.kotak(30, 0, 34, 3, SERVER); k.bingkai(30, 0, 34, 3, GARIS)
+    k.pelana(32, 12, 62, 30, GENTENG, GENTENG_G, GENTENG_T)
+    k.dinding(6, 42, 57, H - 1, BATU, BATU_G, BATU_T)
+    k.kotak(4, 40, 59, 44, BATU_T); k.bingkai(4, 40, 59, 44, GARIS)
+    jam = (32, 62, 12)
+    cx, cy, r = jam
+    for y in range(cy - r - 2, cy + r + 3):
+        for x in range(cx - r - 2, cx + r + 3):
+            d = ((x - cx) ** 2 + (y - cy) ** 2) ** .5
+            if d <= r + 2:
+                k.p(x, y, GARIS if d > r + 1 else BALOK if d > r else PUTIH)
+    for i in range(12):                                          # titik jam
+        import math
+        a = i * math.pi / 6
+        k.p(round(cx + math.sin(a) * (r - 2)), round(cy - math.cos(a) * (r - 2)), GARIS if i % 3 else MERAH)
+    led = []
+    for y0 in (84, 106):
+        k.panel(16, y0, 47, y0 + 14, hx("1a2228"), hx("26323a"), hx("10161a"))
+        for yy in (y0 + 4, y0 + 9):
+            for x in range(19, 46, 3):
+                k.p(x, yy, SERVER if (x + yy) % 4 else KUNING)
+        led.append((17, y0 + 1, 30, 13))
+    for y in range(126, H - 2):                                  # pintu lengkung kayu
+        for x in range(20, 44):
+            d = ((x - 31.5) ** 2 + (y - 138) ** 2) ** .5
+            if y >= 138 or d <= 12:
+                k.p(x, y, GARIS if (y < 138 and d > 11) or x in (20, 43) else KAYU_G if x % 4 == 0 else KAYU)
+    k.p(39, 146, KUNING)
+    k.panel(16, H - 3, 47, H - 1, BATU_T, PUTIH, BATU_G)
+    return k, {"jam": jam, "led": led}
+
+
+def sumur():
+    """Sumur timba 32 x 36: cincin batu, atap kayu kecil di dua tiang, ember di tali."""
+    k = Kanvas(32, 36)
+    k.pelana(16, 0, 32, 9, GENTENG, GENTENG_G, GENTENG_T)
+    for x in (5, 25):
+        k.kotak(x, 9, x + 1, 26, BALOK)
+    k.garis_h(5, 26, 11, BALOK)
+    k.garis_v(16, 12, 17, GARIS); k.panel(13, 17, 19, 22, KAYU, KAYU_T, KAYU_G)
+    for y in range(20, 35):
+        for x in range(2, 30):
+            d = ((x - 15.5) / 13.5) ** 2 + ((y - 27) / 7) ** 2
+            if d <= 1:
+                k.p(x, y, GARIS if d > .82 else BATU_G if (x + (y // 3) * 3) % 6 == 0 or y % 3 == 0 else BATU if (x // 6) % 2 else BATU_T)
+    for y in range(22, 27):
+        for x in range(7, 25):
+            if ((x - 15.5) / 8) ** 2 + ((y - 24.5) / 2.4) ** 2 <= 1:
+                k.p(x, y, hx("2f5f7a"))
+    return k
+
+
 def ikon_musik():
     """Not balok 16 x 16 untuk tombol musik di bilah atas."""
     k = Kanvas(16, 16)
@@ -291,16 +418,8 @@ def ikon_musik():
 
 
 def pohon():
-    """Pohon Kenney dipotong utuh (puncak dan batang jadi satu gambar) untuk hutan dan pohon pengisi."""
-    def susun(kolom, baris):
-        g = Image.new("RGBA", (16 * len(kolom), 16 * baris), NOL)
-        for c, i in enumerate(kolom):
-            for r in range(baris):
-                g.alpha_composite(kenney(i + 27 * r), (c * 16, r * 16))
-        return g.crop(g.getchannel("A").getbbox())
-    return {"pohon-a": susun([232], 2), "pohon-b": susun([233], 2), "pohon-kecil": susun([238], 2),
-            "pohon-gugur-a": susun([313], 2), "pohon-gugur-b": susun([314], 2), "pohon-gugur-kecil": susun([319], 2),
-            "rumpun": susun([234, 235, 236], 3), "rumpun-gugur": susun([315, 316, 317], 3)}
+    """Pohon kota 2.0 digambar sendiri (tools/gambar_benda.py), menggantikan pohon Kenney dengan nama yang sama."""
+    return {n: k.im for n, k in gambar_benda.semua_pohon().items()}
 
 
 def kemas(gambar, lebar=1024, jarak=2):
@@ -321,7 +440,8 @@ def kemas(gambar, lebar=1024, jarak=2):
 def main():
     gambar, info = {}, {}
     for nama, f in (("gedung-markas", markas), ("gedung-galeri", galeri), ("gedung-news", news),
-                    ("gedung-aetheria", aetheria), ("gedung-toko", toko), ("warkop", warkop)):
+                    ("gedung-aetheria", aetheria), ("gedung-toko", toko), ("warkop", warkop),
+                    ("galeri-komunitas", galeri_komunitas), ("galeri-investasi", galeri_investasi)):
         hasil = f()
         gambar[nama] = hasil[0].im
         info[nama] = {"atas": hasil[1]}
@@ -329,6 +449,10 @@ def main():
             info[nama]["ticker"] = hasil[2]
     for i in range(2):
         gambar[f"bendera-{i}"] = bendera(i).im
+    k, letak_jam = menara_jam()
+    gambar["menara-jam"] = k.im
+    info["menara-jam"] = letak_jam
+    gambar["sumur"] = sumur().im
     # rumah warga: (atap, dinding, varian) seperti gaya rumah kampung sebelumnya
     for i, (atap, dinding, varian) in enumerate((("merah", "krem", 0), ("oranye", "batu", 1), ("merah", "kayu", 2),
                                                  ("oranye", "krem", 2), ("merah", "batu", 1), ("oranye", "kayu", 0))):
@@ -342,6 +466,7 @@ def main():
     gambar.update({n: k.im for n, k in gambar_benda.semua().items()})
     keluar = PROYEK / "assets" / "sprites"
     keluar.mkdir(parents=True, exist_ok=True)
+    URBAN.save(PROYEK / "assets" / "tiles" / "urban.png", optimize=True)      # tileset Kenney yang sudah diwarnai ulang
     lembar, letak = kemas(gambar)
     lembar.save(keluar / "gedung.png", optimize=True)
     frames = {n: {"frame": {"x": x, "y": y, "w": w, "h": h}, "rotated": False, "trimmed": False,

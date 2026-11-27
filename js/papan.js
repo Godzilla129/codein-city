@@ -123,11 +123,12 @@ const Papan = (() => {
     if (b.jenis === "videotron") { e.classList.add("layar"); layar.add(e); gambarLayar(e, false); }
     else if (b.jenis === "baliho") { baliho.add({e, n: b.urutan}); gambarBaliho(e, slotKe(b.urutan), keadaan.slot); }
     else if (b.jenis === "pengumuman") { e.classList.add("gabus"); gambarGabus(e); gabus.add(e); }
+    else if (b.jenis === "foto") return Komunitas.buat(b);
     else { e.classList.add("tulis"); gambarInfo(e, b.id); }
     return e;
   }
   // peta berganti: elemen papan lama sudah dibuang kota.js
-  function bersih() { baliho.clear(); layar.clear(); gabus.clear(); }
+  function bersih() { baliho.clear(); layar.clear(); gabus.clear(); Komunitas.bersih(); }
   const segarkanGabus = () => gabus.forEach(gambarGabus);
 
   /* ---------- dialog ---------- */
@@ -295,6 +296,7 @@ const Papan = (() => {
     if (b.jenis === "videotron") panelLayar();
     else if (b.jenis === "baliho") panelBaliho(b.urutan);
     else if (b.jenis === "pengumuman") Acara.papan();
+    else if (b.jenis === "foto") Komunitas.lihat(b.urutan - 1);
     else panelInfo(b.id);
   }
   // pintu = zona interaksi dari peta; true kalau dialognya ditangani di sini
@@ -302,6 +304,7 @@ const Papan = (() => {
     if (p.tujuan === "videotron") panelLayar();
     else if (p.tujuan === "baliho") panelBaliho(+p.id.split("-")[1]);
     else if (p.tujuan === "info") panelInfo(p.id);
+    else if (p.tujuan === "foto") Komunitas.lihat(+p.id.split("-")[1] - 1);
     else if (p.id === "galeri") panelGaleri();
     else if (p.id === "papan") Acara.papan();
     else return false;

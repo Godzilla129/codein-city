@@ -16,7 +16,7 @@ const Kota = (() => {
   const T = KOTA.ubin;
   const KOLOM = {kiri: 0, bawah: 1, atas: 2, kanan: 3};          // kolom arah di orang.png (susunan karakter Kenney)
   const ARAH = ["bawah", "kiri", "kanan", "atas"];               // nomor arah yang dikirim lewat jaringan
-  const PETA = ["kota", "markas", "galeri", "redaksi", "perumahan", "rumah", "toko"];
+  const PETA = ["kota", "markas", "galeri", "redaksi", "perumahan", "rumah", "toko", "komunitas"];
   const LUAR = ["kota", "perumahan"];                            // peta di luar ruangan: ada langit malam dan lampu jalan
   // assets/sprites/orang.png (tools/gambar_orang.py): tiap karakter 4 kolom arah x 3 baris langkah, k = urutan karakter
   const frame = (k, arah, langkah) => (k * 3 + langkah) * 4 + KOLOM[arah];
@@ -344,7 +344,8 @@ const Kota = (() => {
     return {kunci: "Periksa gedung", baliho: ruang === "galeri" ? "Lihat karya" : "Baca baliho", videotron: "Lihat kabar ramai",
             rumah: "Ketuk pintu", info: "Baca papan", sapa: `Sapa ${p.penghuni}`, redaksi: `Sapa ${p.penghuni}`,
             proyek: p.proyek ? `Kunjungi ${p.proyek.judul}` : "Lihat rumah kosong", kavling: Perumahan.teksAksi(p), petak: Kebun.teksAksi(p),
-            "kunci-rumah": Perumahan.teksKunci()}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
+            "kunci-rumah": Perumahan.teksKunci(), menara: "Lihat jam dan server", album: "Buka album foto", foto: "Lihat foto",
+            "galeri-investasi": "Lihat Galeri Investasi"}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
   }
   function cariTerdekat() {
     let baru = null;
@@ -416,6 +417,8 @@ const Kota = (() => {
       else if (p.tujuan === "petak") Kebun.buka(p);
       else if (p.tujuan === "kunci-rumah") Perumahan.aturKunci();
       else if (p.tujuan === "redaksi") Redaksi.buka(p.penghuni);
+      else if (p.tujuan === "menara") Menara.buka();
+      else if (p.tujuan === "album") Komunitas.album();
       else Panel.gedung(KOTA.panel[p.id] ? p.id : p.tujuan, p.nama);
       return;
     }
@@ -544,7 +547,7 @@ const Kota = (() => {
   }
 
   return {
-    tahan: f => penahan.push(f), ditahan, aturCuaca, fase: () => fase().nama,
+    tahan: f => penahan.push(f), ditahan, aturCuaca, fase: () => fase().nama, jam: jamWIB,
     nyalakan, mulai, pindahKe, masuk, keTempat, padatkan, segarkanAksi, keResepsionis, bukaNews, ucap, balon, tempelkan, lepaskan, frame, ARAH, waktu, kabar,
     pintu: () => pintu, ruang: () => ruang, profil: () => profil, adegan: () => adegan, luar: () => LUAR.includes(ruang),
     // nama ruangan untuk layanan obrolan: tiap rumah warga punya ruangannya sendiri (rumah-A07), jadi tamu di rumah yang sama saling terlihat

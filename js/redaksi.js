@@ -34,7 +34,7 @@ const Redaksi = (() => {
   const KELILING = 60, PINTU_KANTOR = "depan-news";
   const RUTE = {
     Eko: {rute: ["depan-videotron", "alun-alun", "depan-toko", "gerobak-bakso", "depan-news"], ket: "keliling kota: videotron, taman kota, Toko Mbak Tika, bakso di Pasar CodeIn"},
-    Tekno: {rute: ["depan-galeri", "trotoar-utara-1", "halte", "dekat-patung", "depan-markas", "depan-news"], ket: "keliling kota: Galeri, baliho, halte, taman kota, Markas"},
+    Tekno: {rute: ["depan-galeri", "trotoar-utara-1", "halte", "dekat-patung", "depan-markas", "depan-news"], ket: "keliling kota: Galeri, baliho, sumur, alun-alun, Markas"},
     Rina: {rute: ["depan-papan", "taman-kolam", "gazebo", "pasar-1", "depan-news"], ket: "keliling kota: Papan Pengumuman, kolam taman, gazebo, Pasar CodeIn"},
   };
 

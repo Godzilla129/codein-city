@@ -16,7 +16,7 @@ const Musik = (() => {
 
   function laguSekarang() {
     const r = Kota.ruang();
-    if (r === "galeri") return "galeri";
+    if (r === "galeri" || r === "komunitas") return "galeri";
     if (!Kota.luar()) return "dalam";
     return Kota.waktu().kunci === "malam" ? "kota-malam" : "kota-siang";
   }

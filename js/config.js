@@ -5,7 +5,7 @@
 const KOTA = {
   nama: "CodeIn City",
   ubin: 16,                  // ukuran satu tile dalam piksel
-  versiPeta: 2,               // naikkan saat tata letak peta kota berubah, supaya posisi tersimpan yang lama tidak dipakai
+  versiPeta: 3,               // naikkan saat tata letak peta kota berubah, supaya posisi tersimpan yang lama tidak dipakai
   kecepatan: 74,             // kecepatan jalan pemain (piksel dunia per detik)
 
   // Alamat CodeIn News. Isi baliho dan videotron diambil dari sini, pengajuan baliho juga dikirim ke sini (lihat js/papan.js).
@@ -53,6 +53,7 @@ const KOTA = {
       judul: "Papan Pengumuman",
       // tiga yang teratas ikut tampil di papan gabus di kota
       daftar: [
+        "CodeIn City 2.0: sungai berjembatan, Menara Jam Server di alun-alun, dan Galeri Komunitas berisi foto kegiatan. Cuacanya ikut cuaca asli Bengkulu.",
         "Kantor Redaksi CodeIn News sudah bisa dimasuki. Lihat Eko, Tekno, dan Rina bekerja, lalu sapa mereka.",
         "Hosting proyek gratis untuk anggota. Daftar lewat Kak Rani di Markas, unggah zip, situsmu tayang dan masuk Direktori Proyek.",
         "Di Markas CodeIn sekarang ada Patung Pendiri dan meja resepsionis. Kak Rani yang jaga.",
@@ -89,7 +90,13 @@ const KOTA = {
     gerbang: {
       judul: "Gerbang Kota",
       isi: ["Jalan ke luar kota belum dibuka untuk pejalan kaki.",
-            "Kendaraan keluar masuk lewat sini. Kota ini bertambah luas seiring bertambahnya proyek anggota."],
+            "Delman dan sepeda keluar masuk lewat sini. Kota ini bertambah luas seiring bertambahnya proyek anggota."],
+      tombol: [{teks: "Tutup"}],
+    },
+    "galeri-investasi": {
+      judul: "Galeri Investasi",
+      isi: ["Galeri Investasi sedang dibangun bersama GIBEI (Galeri Investasi Bursa Efek Indonesia).",
+            "Nanti di sini warga bisa belajar mengenal pasar modal dan investasi bareng komunitas. Pengumumannya menyusul di Papan Pengumuman dan Instagram CodeIn."],
       tombol: [{teks: "Tutup"}],
     },
   },
@@ -112,7 +119,7 @@ const KOTA = {
       isi: ["CodeIn adalah komunitas teknologi tempat belajar bareng dan saling memamerkan karya.",
             "Motto kami: Get in, Learn and Grow with CodeIn.",
             "Mau bergabung atau punya ide kegiatan? Hubungi admin CodeIn lewat grup komunitas.",
-            "Kredit kota: ubin dan karakter dari RPG Urban Pack karya Kenney (CC0). Musik dari High Quality 16-bit RPG Music karya Hydrogene (CC0)."],
+            "Kredit kota: karakter dan sebagian ubin dari RPG Urban Pack karya Kenney (CC0), selebihnya digambar sendiri oleh CodeIn. Musik dari High Quality 16-bit RPG Music karya Hydrogene (CC0). Data cuaca dari Open-Meteo."],
     },
     kebun: {
       judul: "Kebun Kota",
@@ -137,14 +144,15 @@ const KOTA = {
     },
     rencana: {
       judul: "Rencana kota",
-      baris: ["Sudah: kota, baliho, obrolan.", "Redaksi, hosting, Perumahan.", "Segera: berkebun, memancing."],
+      baris: ["Sudah: kota 2.0, galeri foto.", "Mancing, kebun, perabot.", "Segera: Galeri Investasi."],
       isi: ["Kota ini dibangun bertahap."],
       daftar: ["Sudah jadi: kota yang bisa dijelajahi, baliho dan videotron, pengunjung lain dan obrolan, Markas dan Galeri yang bisa dimasuki, warga dengan jadwal pagi sampai malam.",
                "Warkop CodeIn sengaja dikunci sampai ada anggota yang mau ikut membangun kota ini.",
                "Hosting proyek: anggota mendaftar lewat Kak Rani, unggah zip, situsnya tayang. Proyek unggulan dapat rumah di kota.",
                "Kantor Redaksi CodeIn News: Eko, Tekno, dan Rina bekerja sesuai kabar yang benar-benar masuk.",
                "Perumahan CodeIn lewat Gerbang Selatan: warga yang masuk dengan akun Google bisa menempati kavling dan mendapat rumah starter.",
-               "Mancing dan koin: pancing ikan di kolam Taman Kota atau danau Perumahan, jual ke Pak Ikan di Pasar CodeIn. Koinnya dipakai belanja perabot di Toko Mbak Tika."],
+               "Mancing dan koin: pancing ikan di kolam Taman Kota, tepi sungai, atau danau Perumahan, jual ke Pak Ikan di Pasar CodeIn. Koinnya dipakai belanja perabot di Toko Mbak Tika.",
+               "Kota 2.0: kota bergaya abad pertengahan dengan sungai dan jembatan, delman dan sepeda, Menara Jam Server, Galeri Komunitas, dan cuaca yang mengikuti Bengkulu. Galeri Investasi bersama GIBEI segera dibuka."],
     },
   },
 
@@ -168,8 +176,8 @@ const KOTA = {
     {nama: "Bang Jo", karakter: 3, jadwal: {
       pagi:  {di: "depan-markas", r: 2, ket: "di depan Markas CodeIn",
               ucapan: ["Pagi! Markas sudah buka. Mau daftar hosting atau baliho? Kak Rani jaga di meja resepsionis.", "Di dalam Markas ada patung pendiri CodeIn. Mampir lihat."]},
-      siang: {di: "depan-galeri", r: 2, ket: "di depan Galeri Showcase",
-              ucapan: ["Lagi lihat-lihat karya anggota di Galeri.", "Punya proyek? Pajang di baliho, gratis."]},
+      siang: {di: "depan-galeri-komunitas", r: 2, ket: "di depan Galeri Komunitas, seberang jembatan batu",
+              ucapan: ["Ada gedung baru: Galeri Komunitas. Isinya foto kegiatan CodeIn, masuk saja.", "Punya proyek? Pajang di baliho, gratis."]},
       sore:  {di: "depan-warkop", r: 1, ket: "di depan Warkop CodeIn",
               ucapan: ["Warkop ini masih dikunci. Katanya buat anggota yang mau ikut membangun kota.", "Sore-sore begini enaknya ngopi. Sayang belum buka."]},
       malam: {pulang: true}}},
@@ -178,14 +186,17 @@ const KOTA = {
               ucapan: ["Pagi. Peregangan dulu di taman sambil baca baliho."]},
       siang: {di: "depan-toko", r: 2, ket: "di depan Toko Mbak Tika",
               ucapan: ["Toko Mbak Tika sekarang jual perabot. Aku lagi nabung koin buat beli sofa.", "Kalau ada pengunjung lain, kamu bisa lihat mereka jalan-jalan di sini."]},
-      sore:  {di: "alun-alun", r: 2, ket: "di taman kota",
-              ucapan: ["Mau ngobrol sama pengunjung lain? Tekan Enter, ketik, lalu Enter lagi.", "Sore ini taman kota ramai, ya."]},
+      sore:  {di: "depan-menara", r: 2, ket: "di alun-alun, dekat Menara Jam Server",
+              ucapan: ["Mau ngobrol sama pengunjung lain? Tekan Enter, ketik, lalu Enter lagi.",
+                       "Lampu jendela Menara Jam itu hijau kalau server CodeIn sehat. Kalau kuning, admin lagi turun tangan."]},
       malam: {pulang: true}}},
     {nama: "Pak Harun", karakter: 10, jadwal: {
       pagi:  {di: "pos-timur", r: 1, ket: "di pos dekat Gerbang Timur",
-              ucapan: ["Pagi. Mobil pertama sudah lewat gerbang dari subuh.", "Jalan ke luar kota belum dibuka untuk pejalan kaki."]},
+              ucapan: ["Pagi. Delman pertama sudah lewat gerbang dari subuh.", "Jalan ke luar kota belum dibuka untuk pejalan kaki.",
+                       "Gedung beratap toska di seberang jembatan itu Galeri Komunitas. Isinya foto-foto kegiatan CodeIn."]},
       siang: {di: "pos-timur", r: 1, ket: "di pos dekat Gerbang Timur",
-              ucapan: ["Siang ramai mobil. Tenang, sopirnya berhenti kalau ada yang menyeberang."]},
+              ucapan: ["Siang ramai delman dan sepeda. Tenang, kusirnya berhenti kalau ada yang menyeberang.",
+                       "Galeri Investasi sebelah itu masih dibangun. Katanya bareng GIBEI, buat belajar pasar modal."]},
       sore:  {di: "pos-timur", r: 1, ket: "di pos dekat Gerbang Timur",
               ucapan: ["Sebentar lagi giliran jaga malam. Eh, yang jaga aku juga."]},
       malam: {di: "pos-timur", r: 1, ket: "berjaga malam di Gerbang Timur",
@@ -198,7 +209,7 @@ const KOTA = {
       siang: {di: "gazebo", r: 1, ket: "istirahat di gazebo taman kota",
               ucapan: ["Nenek istirahat dulu di gazebo. Adem di sini."]},
       sore:  {di: "taman-kolam", r: 1, ket: "di tepi kolam taman kota",
-              ucapan: ["Sore begini Nenek suka lihat ikan di kolam taman.", "Mau mancing? Berdiri di tepi kolam, menghadap ke air. Ikannya jual ke Pak Ikan di pasar.",
+              ucapan: ["Sore begini Nenek suka lihat ikan di kolam taman.", "Mau mancing? Berdiri di tepi kolam atau sungai, menghadap ke air. Ikannya jual ke Pak Ikan di pasar.",
                        "Dulu tempat ini masih sawah semua, Nak."]},
       malam: {pulang: true}}},
     {nama: "Rafi", karakter: 8, jadwal: {
@@ -210,8 +221,8 @@ const KOTA = {
               ucapan: ["Lagi main badminton sama Lia! Skornya 15-13, aku unggul.", "Sore-sore paling enak main di lapangan kampung."]},
       malam: {pulang: true}}},
     {nama: "Lia", karakter: 5, jadwal: {
-      pagi:  {di: "zebra-news", r: 1, ket: "dekat zebra cross depan CodeIn News",
-              ucapan: ["Kalau mau nyeberang, lewat zebra cross. Mobilnya pasti berhenti."]},
+      pagi:  {di: "zebra-news", r: 1, ket: "di depan CodeIn News",
+              ucapan: ["Hati-hati nyeberang, delman sering lewat. Kudanya baik kok, pasti berhenti.", "Aku suka dengar bunyi kring sepeda pagi-pagi."]},
       siang: {di: "depan-galeri", r: 2, ket: "di depan Galeri Showcase",
               ucapan: ["Aku suka lihat baliho. Ada yang pasang proyek baru belum, ya?"]},
       sore:  {di: "lapangan-2", r: 0, ket: "main badminton dengan Rafi di lapangan kampung",
@@ -222,10 +233,10 @@ const KOTA = {
               ucapan: ["Pagi! Jalan kaki keliling kampung dulu, biar sehat."]},
       siang: {di: "depan-aetheria", r: 1, ket: "di depan menara Aetheria",
               ucapan: ["Rumah yang masih kosong itu untuk proyek unggulan. Mau situsmu dihosting? Daftar saja lewat Kak Rani di Markas."]},
-      sore:  {rute: ["kampung-1", "kampung-2"], ket: "jalan sore ke arah Gerbang Selatan",
-              ucapan: ["Tiap sore aku jalan kaki sampai dekat Gerbang Selatan."]},
+      sore:  {di: "tepi-sungai", r: 1, ket: "mancing di tepi sungai",
+              ucapan: ["Sore begini ikan sungai lagi rajin makan. Coba mancing di sini juga.", "Kalau Bengkulu lagi hujan, ikannya lebih cepat makan umpan, lho."]},
       malam: {rute: ["cincin-1", "cincin-2", "cincin-3", "cincin-4"], laju: 18, ket: "jalan santai di taman kota",
-              ucapan: ["Malam-malam jalan santai di bawah lampu taman kota. Tenang rasanya.", "Warga lain sudah pulang. Tinggal aku dan Pak Harun yang masih di luar."]}}},
+              ucapan: ["Malam-malam jalan santai di bawah lentera taman kota. Tenang rasanya.", "Warga lain sudah pulang. Tinggal aku dan Pak Harun yang masih di luar."]}}},
     // Satpam di gapura Perumahan CodeIn: keterangan perumahan, antar pulang, ganti warna rumah (dialognya di js/perumahan.js)
     {nama: "Pak Darto", karakter: 4, ruang: "perumahan", di: [59, 6], hadap: "kiri", peran: "satpam", ket: "jaga di gapura Perumahan CodeIn"},
     // Resepsionis Markas: semua pendaftaran (hosting proyek, baliho) lewat dia; dialognya dibuat di js/warga.js
@@ -272,11 +283,11 @@ const KOTA = {
       malam: {di: "gerobak-bakso", r: 0, ket: "masih jualan bakso di Pasar CodeIn",
               ucapan: ["Bakso malam paling enak. Tinggal sepuluh mangkuk lagi.", "Kunang-kunang keluar dari pohon dekat sini kalau malam."]}}},
     {nama: "Bang Ojol", karakter: 6, jadwal: {
-      pagi:  {di: "halte", r: 1, ket: "menunggu penumpang di halte utara",
-              ucapan: ["Pagi! Lagi nunggu orderan di halte.", "Angkot hijau itu lewat tiap beberapa menit, motor ojek juga."]},
-      siang: {rute: ["trotoar-utara-1", "trotoar-utara-2"], laju: 30, ket: "mondar-mandir di trotoar utara",
+      pagi:  {di: "halte", r: 1, ket: "menunggu penumpang di dekat sumur utara",
+              ucapan: ["Pagi! Lagi nunggu orderan di dekat sumur.", "Sekarang kota pakai delman dan sepeda. Ojekku ganti sepeda onthel, lebih sehat."]},
+      siang: {rute: ["trotoar-utara-1", "trotoar-utara-2"], laju: 30, ket: "mondar-mandir di jalan utama",
               ucapan: ["Siang panas, orderan sepi. Jalan-jalan dulu."]},
-      sore:  {di: "halte", r: 1, ket: "menunggu penumpang di halte utara",
+      sore:  {di: "halte", r: 1, ket: "menunggu penumpang di dekat sumur utara",
               ucapan: ["Sore ramai orderan. Mau diantar ke Gerbang Timur? Bercanda, gerbangnya belum dibuka."]},
       malam: {di: "pos-timur-2", r: 0, ket: "ngobrol dengan Pak Harun di pos ronda",
               ucapan: ["Malam-malam nemenin Pak Harun ronda. Kopinya dari Warkop, eh, Warkop masih tutup ding."]}}},

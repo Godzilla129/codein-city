@@ -1,12 +1,11 @@
 /* CodeIn City · warga dan rutinitas hariannya.
    Jadwal ada di KOTA.warga (config.js), dibagi empat waktu WIB (KOTA.waktu): pagi, siang, sore, malam.
-   Saat waktu berganti, setiap warga berjalan ke tempat barunya lewat trotoar dan zebra cross (pencarian jalur A*),
+   Saat waktu berganti, setiap warga berjalan ke tempat barunya lewat jalan batu dan jalan setapak (pencarian jalur A*),
    lalu jalan-jalan kecil di sekitar tempat itu dengan jeda istirahat. Malam hari sebagian besar pulang ke rumahnya
    di kampung selatan dan menghilang ke dalam rumah. Warga di dalam gedung (Markas, Galeri) berjaga di satu titik. */
 
 const Warga = (() => {
   const T = KOTA.ubin, JARAK_SAPA = 22;
-  const ASPAL = new Set([441, 468, 406, 460, 433, 461, 463, 462]), ZEBRA = new Set([405, 432, 459]), RUMPUT = 28;
   const ARAH4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
   let daftar = [], adegan = null, ruang = "kota", grid = null, komp = null, W = 0, H = 0, waktuKini = null, cekWaktu = 0;
@@ -21,14 +20,29 @@ const Warga = (() => {
   // titik jadwal: [x, y] langsung, atau id tempat di peta ("depan-papan"). null kalau id tidak ada di peta.
   const titik = v => typeof v === "string" ? tempat[v] || null : v || null;
 
-  /* ---------- peta biaya untuk pencarian jalur: trotoar murah, rumput agak mahal, aspal mahal (kecuali zebra cross) ---------- */
+  /* ---------- peta biaya untuk pencarian jalur: jalan murah, rumput agak mahal, lajur delman mahal ----------
+     Rumput dikenali dari properti ubin "rumput" (tools/buat_peta.py). Lajur delman dan sepeda = petak di sepanjang layer "rute":
+     warga boleh menyeberang, tetapi tidak berjalan memanjang di tengah jalan. */
   function bangunGrid(peta) {
     W = peta.width; H = peta.height; grid = new Float32Array(W * H);
+    const lajur = new Set(), rute = peta.getObjectLayer("rute");
+    for (const o of rute ? rute.objects : []) {
+      const pts = (o.polyline || []).map(q => [o.x + q.x, o.y + q.y]);
+      for (let i = 1; i < pts.length; i++) {
+        const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+        if (y0 === y1) {
+          const r = Math.floor((y0 - 1) / T);
+          for (let x = Math.max(0, Math.floor(Math.min(x0, x1) / T)); x <= Math.min(W - 1, Math.floor(Math.max(x0, x1) / T)); x++) { lajur.add(r * W + x); lajur.add((r - 1) * W + x); }
+        } else {
+          const c = Math.floor(x0 / T);
+          for (let y = Math.max(0, Math.floor(Math.min(y0, y1) / T)); y <= Math.min(H - 1, Math.floor(Math.max(y0, y1) / T)); y++) lajur.add(y * W + c);
+        }
+      }
+    }
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const keras = peta.getTileAt(x, y, true, "rintangan"), dasar = peta.getTileAt(x, y, true, "tanah");
       if (keras && keras.index > 0) { grid[y * W + x] = 0; continue; }
-      const t = dasar ? dasar.index - 1 : -1;
-      grid[y * W + x] = ASPAL.has(t) ? 6 : ZEBRA.has(t) ? 1 : t === RUMPUT ? 2 : 1;
+      grid[y * W + x] = lajur.has(y * W + x) ? 5 : dasar && dasar.properties && dasar.properties.rumput ? 2 : 1;
     }
     // nomor wilayah: petak yang saling tersambung punya nomor sama (untuk tahu tujuan mana yang bisa dicapai)
     komp = new Int32Array(W * H).fill(-1);
@@ -114,7 +128,7 @@ const Warga = (() => {
 
   /* ---------- waktu dan jadwal ---------- */
   function jadwalKini(w) { return w.def.jadwal ? w.def.jadwal[waktuKini] || null : null; }
-  // tile tujuan jalan-jalan kecil: acak di sekitar titik jadwal, hanya di tempat yang enak diinjak (bukan aspal)
+  // tile tujuan jalan-jalan kecil: acak di sekitar titik jadwal, hanya di tempat yang enak diinjak (bukan lajur delman)
   function tileSekitar([x0, y0], r) {
     for (let i = 0; i < 12; i++) {
       const x = x0 + Math.round(acak(-r, r)), y = y0 + Math.round(acak(-r, r)), k = biaya(x, y);
