@@ -63,7 +63,8 @@ const Judul = (() => {
     } else if (k === "memuat") {
       $("akun-teks").textContent = "Memeriksa akun…"; tombol.textContent = "Masuk dengan Google";
     } else {
-      $("akun-teks").textContent = "Jadi warga supaya bisa daftar hosting dan memasang baliho. Tanpa masuk pun kamu tetap bisa jalan-jalan dan mengobrol.";
+      $("akun-teks").textContent = Gerbang.lewati ? "Jadi warga supaya bisa daftar hosting dan memasang baliho. Tanpa masuk pun kamu tetap bisa jalan-jalan dan mengobrol."
+        : "Masuk kota wajib login dengan akun Google. Gratis, cukup sekali.";
       tombol.textContent = k === "galat" ? "Coba masuk lagi" : "Masuk dengan Google";
     }
   }
@@ -72,6 +73,7 @@ const Judul = (() => {
     sibuk = true; tulisAkun();
     if (Akun.keadaan() === "warga") {
       await Akun.keluar();
+      if (!Gerbang.lewati) { location.reload(); return; }      // keluar dari akun = kembali ke Gerbang CodeIn
     } else {
       // profil yang sedang diisi dipakai untuk warga baru
       const cek = Profil.cekNama($("nama").value);
@@ -95,6 +97,8 @@ const Judul = (() => {
       return;
     }
     const p = Kota.profil();
+    // sesi login habis atau dicabut saat di kota: kembali ke gerbang
+    if ((k === "tamu" || k === "galat") && p && !Gerbang.lewati) { Gerbang.tampil(k === "galat" ? Akun.pesan() : "Sesi loginmu sudah berakhir. Masuk lagi, ya."); return; }
     if (k === "warga" && w.perluNama) tampil(Profil.muat(), "Pilih nama wargamu dulu. " + Akun.pesan());
     else if (k === "warga" && p && (p.nama !== w.nama || p.karakter !== w.karakter)) masuk({nama: w.nama, karakter: w.karakter});
   });
@@ -102,6 +106,10 @@ const Judul = (() => {
   $("form-judul").addEventListener("submit", async e => {
     e.preventDefault();
     if (sibuk) return;
+    if (Akun.keadaan() !== "warga" && !Gerbang.lewati) {          // masuk kota wajib login
+      $("pesan-nama").textContent = "Masuk dengan akun Google dulu, lewat tombol di bawah.";
+      $("btn-akun").focus(); return;
+    }
     const warga = Akun.keadaan() === "warga", w = Akun.warga();
     if (warga && !$("nama").value.trim()) { $("pesan-nama").textContent = "Isi nama wargamu dulu."; $("nama").focus(); return; }
     const cek = Profil.cekNama($("nama").value);

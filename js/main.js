@@ -1,5 +1,8 @@
-/* CodeIn City · mulai. Kota langsung dimuat di latar; pengunjung baru melihat layar judul lebih dulu. */
+/* CodeIn City · mulai. Kota dimuat di latar; setiap pengunjung melihat Gerbang CodeIn lebih dulu (js/gerbang.js).
+   Uji otomatis di localhost (?uji=1) langsung masuk seperti dulu. */
 
 const permainan = Kota.nyalakan();
-const profilTersimpan = Profil.muat();
-if (profilTersimpan) Judul.masuk(profilTersimpan); else Judul.tampil(null);
+if (Gerbang.lewati) {
+  const profilTersimpan = Profil.muat();
+  if (profilTersimpan) Judul.masuk(profilTersimpan); else Judul.tampil(null);
+} else Gerbang.tampil();

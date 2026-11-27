@@ -74,6 +74,52 @@
   </section>
 </div>
 
+<!-- Gerbang CodeIn (js/gerbang.js): tampil setiap kali codeinhub.my.id dibuka, sebelum masuk kota -->
+<div class="tirai gerbang" id="gerbang" hidden>
+  <div class="gerbang-atas">
+    <span class="lencana-merek"><b>CodeIn</b><span>codeinhub.my.id</span></span>
+    <span class="lencana-cuaca" id="gerbang-cuaca" hidden></span>
+  </div>
+  <section class="kotak lebar" id="gerbang-sambut" aria-labelledby="gerbang-judul">
+    <p class="kecil">Komunitas teknologi Bengkulu</p>
+    <h1 id="gerbang-judul">Get in, Learn and Grow with CodeIn</h1>
+    <p class="lead">CodeIn City adalah kota virtual tempat anggota CodeIn tinggal, memamerkan proyek, ikut acara, dan saling berkolaborasi. Kenali komunitasnya dulu, atau langsung masuk ke kota.</p>
+    <ul class="fitur-gerbang">
+      <li>Lihat proyek anggota di Galeri</li>
+      <li>Daftar workshop dan acara</li>
+      <li>Punya rumah, kebun, dan kolam</li>
+      <li>Ngobrol dan kolaborasi</li>
+    </ul>
+    <p class="sapa-kembali" id="gerbang-sapa" hidden></p>
+    <div class="baris-tombol">
+      <button type="button" class="tbl utama besar" id="btn-masuk-kota">Masuk Kota</button>
+      <button type="button" class="tbl besar" id="btn-kenali">Kenali CodeIn</button>
+    </div>
+    <p class="pesan" id="gerbang-pesan" role="status"></p>
+    <p class="redup kecil-biasa" id="gerbang-catatan">Masuk kota wajib login dengan akun Google. Gratis, cukup sekali. Email hanya terlihat oleh admin CodeIn.</p>
+  </section>
+  <section class="kotak lebar" id="gerbang-tentang" aria-labelledby="tentang-judul" hidden>
+    <p class="kecil">Kenali CodeIn</p>
+    <h1 id="tentang-judul">Apa itu CodeIn?</h1>
+    <p class="lead">CodeIn adalah komunitas teknologi dari Bengkulu untuk siapa saja yang mau belajar dan berkembang bareng, dari jaringan komputer sampai pemrograman. Mottonya: Get in, Learn and Grow with CodeIn.</p>
+    <h2>Yang kami lakukan</h2>
+    <ul>
+      <li><b>Sharing session dan workshop</b> yang dibawakan anggota, misalnya Sharing Santai Network. Pendaftarannya lewat Papan Pengumuman di kota.</li>
+      <li><b>Proyek anggota</b> dipamerkan di Galeri Showcase dan bisa di-hosting di subdomain codeinhub.my.id.</li>
+      <li><b>CodeIn News</b>: rangkuman kabar teknologi dan ekonomi, bisa dibaca siapa saja.</li>
+      <li><b>Galeri Investasi</b> bersama GIBEI, segera hadir.</li>
+    </ul>
+    <h2>CodeIn City</h2>
+    <p>Kota virtual tempat anggota punya rumah dan kebun, mancing, ikut acara, melihat proyek anggota lain, dan ngobrol. Cuacanya mengikuti cuaca asli Kota Bengkulu.</p>
+    <h2>Gabung</h2>
+    <p>Masuk kota dengan akun Google untuk jadi warga, lalu ikuti kabar komunitas di Instagram <a href="https://www.instagram.com/codein_community/" target="_blank" rel="noopener">@codein_community</a>. Kabar teknologi ada di <a href="https://news.codeinhub.my.id/" target="_blank" rel="noopener">CodeIn News</a>.</p>
+    <div class="baris-tombol">
+      <button type="button" class="tbl utama besar" id="btn-masuk-kota-2">Masuk Kota</button>
+      <button type="button" class="tbl besar" id="btn-kembali-gerbang">Kembali</button>
+    </div>
+  </section>
+</div>
+
 <!-- Layar judul: pilih karakter dan nama -->
 <div class="tirai judul" id="judul" hidden>
   <form class="kotak" id="form-judul" novalidate>
@@ -126,6 +172,7 @@
 <script src="js/ramai.js"></script>
 <script src="js/musik.js"></script>
 <script src="js/judul.js"></script>
+<script src="js/gerbang.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

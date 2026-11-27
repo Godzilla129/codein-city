@@ -139,6 +139,30 @@ legend,label{display:block;font-weight:600;margin-bottom:6px;padding:0}
 #nama{width:100%;min-height:46px;padding:0 12px;background:#fff;border:3px solid var(--tinta);border-radius:10px;font-size:18px}
 .pesan{min-height:1.4em;color:#B23A2E;font-size:14px;margin:4px 0 8px!important}
 #form-judul .utama{width:100%;min-height:50px;font-size:19px}
+/* Gerbang CodeIn (js/gerbang.js): kota buram di belakang, kartu sambutan di tengah */
+body.di-gerbang #game, body.di-gerbang #label{filter:blur(3px) saturate(1.25) brightness(.7);transition:filter .4s}
+.tirai.gerbang{background:rgba(20,28,22,.32);align-content:start;padding:76px 16px 24px}
+.gerbang-atas{position:fixed;top:14px;left:16px;right:16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;pointer-events:none}
+.lencana-merek,.lencana-cuaca{display:inline-flex;align-items:center;gap:8px;background:var(--kertas);border:3px solid var(--tinta);border-radius:10px;
+  box-shadow:0 4px 0 var(--tinta);padding:5px 12px;font-size:14px;font-weight:600}
+.lencana-merek b{font:700 19px var(--judul)} .lencana-merek span{color:var(--redup);font-size:13px;font-weight:500}
+.lencana-cuaca{border-radius:999px}
+.kotak.lebar{width:min(640px,100%);padding:28px 30px 24px}
+.gerbang .kotak h1{font-size:40px;margin:4px 0 12px}
+.gerbang .kotak h2{font-size:20px;margin:14px 0 6px}
+.gerbang .lead{font-size:17px;line-height:1.55}
+.fitur-gerbang{list-style:none;padding:0!important;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.fitur-gerbang li{margin:0;background:var(--kertas-2);border-radius:10px;padding:10px 12px;font-weight:600;font-size:15px}
+.tbl.besar{min-height:52px;font-size:18px;padding:0 22px}
+.sapa-kembali{font-weight:600;color:#2E7D46}
+.kecil-biasa{font-size:13px}
+.gerbang a{color:#7A3E12;font-weight:600}
+@media (max-width:480px){
+  .gerbang .kotak h1{font-size:30px}
+  .kotak.lebar{padding:20px 18px 18px}
+  .fitur-gerbang{grid-template-columns:1fr}
+  .tbl.besar{flex:1 1 auto}
+}
 /* dialog: judul dan tombol bawah selalu terlihat, hanya isinya yang digulir (daftar Tempat bisa lebih tinggi dari layar) */
 #panel .kotak{display:flex;flex-direction:column;max-height:min(80vh, calc(100dvh - 32px));overflow:hidden}
 #panel-judul,#panel-tombol{flex:none}
