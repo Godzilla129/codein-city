@@ -313,6 +313,20 @@ def pasang_jembatan(p, sungai, y0, y1, bahan):
     return lantai, xs
 
 
+def papan_sponsor(p, x0, y):
+    """Papan iklan LED CodeIn (4 ubin) berdiri di baris y mulai kolom x0, seperti papan sponsor di pinggir lapangan.
+    Layarnya diisi js/sponsor.js lewat titik "sponsor". Dilewati kalau petaknya sudah terpakai."""
+    sel = [(x0 + i, y) for i in range(4)]
+    if any(c in p.lantai or c in p.keras for c in sel):
+        print(f"   papan sponsor di ({x0},{y}) dilewati: petaknya terpakai")
+        return False
+    lx, ly, lw, lh = INFO["papan-sponsor"]["layar"]
+    p.sprite("papan-sponsor", x0 * T, (y + 1) * T)
+    p.halangi(x0 * T + 2, y * T + 6, 4 * T - 4, T - 6)
+    p.obj(p.points, "sponsor", x0 * T + lx, (y + 1) * T - UKURAN["papan-sponsor"][1] + ly, lebar=lw, tinggi=lh, dasar=(y + 1) * T)
+    return True
+
+
 def kota():
     W, H = 96 + GESER, 80
     p = Peta(W, H, seed=7)
@@ -430,6 +444,9 @@ def kota():
         p.thing(x, y, 250)
     for (x, y) in ((27, 22), (68, 22), (27, 35), (68, 35), (41, 24), (54, 24), (41, 33), (54, 33), (23, 28), (72, 28), (43, 19), (52, 19), (48, 48)):
         p.lamp(x, y)
+    # papan iklan LED CodeIn: di sepanjang jalan utama (tepi taman) dan di pinggir lapangan badminton
+    for (x0, y) in ((24, 18), (55, 18), (66, 18), (58, 34), (62, 34)):
+        papan_sponsor(p, x0, y)
     taman = cells(23, 18, 72, 48)
     for (x, y) in sorted(taman, key=lambda c: (c[1], c[0])):
         if (x, y) in p.lantai or (x, y) in p.keras or (x, y - 1) in p.lantai or (x, y + 1) in p.lantai or (x, y) in kolam:
@@ -504,6 +521,9 @@ def kota():
     for (x, y) in ((45, H - 3), (49, H - 3)):
         p.lamp(x, y)
 
+    # papan iklan LED di pinggir lapangan kampung, utara dan selatan
+    for (x0, y) in ((28, 66), (34, 66), (28, 73), (34, 73)):
+        papan_sponsor(p, x0, y)
     # jalan setapak tanah dari tiap rumah ke jalan terdekat (A*), lalu ke lapangan, kolam, kebun, dan jembatan kampung
     tepi = set()
     for x in range(W):
@@ -543,7 +563,7 @@ def kota():
               ("gazebo", 31, 29), ("taman-timur", 62, 25), ("taman-baliho", 66, 49), ("depan-markas", 28, 49),
               ("depan-warkop", 39, 49), ("depan-toko", tim(83), 50), ("depan-aetheria", 54, 49), ("pos-timur", tim(89), 13), ("pos-timur-2", tim(87), 13),
               ("halte", 69, 13), ("gerobak-bakso", tim(81), 39), ("lapangan-1", 31, 69), ("lapangan-2", 31, 72),
-              ("kebun", 16, 36), ("taman-lapangan", 61, 34),
+              ("kebun", 16, 36), ("taman-lapangan", 66, 32),
               ("patung-1", 45, 25), ("patung-2", 50, 25), ("patung-3", 51, 32), ("patung-4", 44, 32),
               ("cincin-1", 28, 22), ("cincin-2", 67, 22), ("cincin-3", 67, 35), ("cincin-4", 28, 35),
               ("trotoar-utara-1", 50, 13), ("trotoar-utara-2", 72, 13), ("kampung-1", 47, 55), ("kampung-2", 45, 74),

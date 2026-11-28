@@ -19,6 +19,8 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 - Jalan dengan WASD atau tombol panah. Di ponsel, sentuh layar lalu geser.
 - Kota 112 x 80 petak bergaya abad pertengahan: jalan utama batu kali dengan gedung-gedung utama, **Taman Kota** dengan alun-alun berlantai lempeng batu, air mancur dan Patung Si Pemula, **Menara Jam Server** (jarumnya jam WIB asli, lampu jendelanya hijau kalau server CodeIn sehat dan kuning kalau ada gangguan), jalan setapak taman, kolam teratai, gazebo, dan lapangan badminton; **Kebun Kota** di barat; **sungai** di sisi timur yang bisa dipancing, dengan jembatan batu di jalan utama, jembatan kayu di jalan selatan, dan jembatan kecil di kampung; di seberang sungai **Galeri Komunitas**, **Galeri Investasi**, **Pasar CodeIn**, dan Toko Mbak Tika; Markas, Warkop, dan menara Aetheria di selatan taman; lalu kampung warga dengan jalan setapak tanah sampai Gerbang Selatan (ke Perumahan CodeIn).
 - **Galeri Komunitas**: foto kegiatan CodeIn. Empat foto terbaru dipajang berbingkai di dinding, meja album membuka semua foto. Admin mengunggah foto dari halaman admin CodeIn News (bagian Galeri); server membuang data lokasi dan info kamera di dalam foto.
+- **Logo CodeIn** di papan Markas, bendera Markas, meja resepsionis, bilah atas, gerbang, layar judul, ikon situs, dan gambar pratinjau tautan (`assets/logo/`).
+- **Papan iklan LED CodeIn** di tepi taman sepanjang jalan utama, di pinggir lapangan badminton taman, dan di pinggir lapangan kampung, seperti papan sponsor di stadion: tulisan berjalan, logo berkedip, motto, dan sapuan warna, serempak di semua papan dan tetap menyala saat malam (`js/sponsor.js`).
 - **Galeri Investasi** bersama GIBEI: gedungnya sudah berdiri dengan perancah dan spanduk "Segera".
 - Gedung: Kantor Redaksi CodeIn News, Galeri Showcase, Galeri Komunitas, Markas CodeIn, dan Toko Mbak Tika (bisa dimasuki), Warkop CodeIn dan dua gedung lain (belum buka), Galeri Investasi (segera).
 - **Pengunjung lain terlihat** di kota dan di dalam gedung, lengkap dengan nama. Jumlah orang tampil di bilah atas.
@@ -72,6 +74,7 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/cuaca.js` | Cuaca Bengkulu: efek langit, awan, kabut, hujan, payung, kilat, suara rintik (`?cuaca=hujan` di localhost untuk mencoba) |
 | `js/menara.js` | Menara Jam Server: jarum jam, lampu status server, dialog |
 | `js/komunitas.js` | Galeri Komunitas: foto di bingkai dinding, album, dan foto besar |
+| `js/sponsor.js` | Papan iklan LED CodeIn: animasi layar 60 x 9 piksel yang dipakai bersama semua papan |
 | `js/main.js` | Titik mulai |
 | `assets/maps/kota.tmj` | Peta kota, dibuka dan diubah dengan Tiled |
 | `assets/maps/markas.tmj`, `galeri.tmj`, `redaksi.tmj`, `komunitas.tmj` | Peta ruangan Markas CodeIn, Galeri Showcase, Kantor Redaksi, dan Galeri Komunitas |

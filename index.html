@@ -11,6 +11,7 @@
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#141830">
 <link rel="icon" href="assets/ikon.png">
+<link rel="apple-touch-icon" href="assets/ikon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
@@ -24,7 +25,7 @@
 
 <!-- Bilah atas -->
 <header id="hud" hidden>
-  <div class="merek"><b>CodeIn City</b><span id="jam"></span><span id="ramai" hidden><i class="titik"></i><span id="ramai-teks"></span></span></div>
+  <div class="merek"><b><img class="logo-kecil" src="assets/logo/codein-logo.png" alt="" width="235" height="212">CodeIn City</b><span id="jam"></span><span id="ramai" hidden><i class="titik"></i><span id="ramai-teks"></span></span></div>
   <div class="tombol-hud">
     <button type="button" class="tbl" id="btn-musik" aria-pressed="true"><span>Musik</span></button>
     <button type="button" class="tbl" id="btn-tas" hidden><span aria-hidden="true">🎒</span> <span id="hud-koin"></span><span class="sr"> koin, buka tas</span></button>
@@ -77,7 +78,7 @@
 <!-- Gerbang CodeIn (js/gerbang.js): tampil setiap kali codeinhub.my.id dibuka, sebelum masuk kota -->
 <div class="tirai gerbang" id="gerbang" hidden>
   <div class="gerbang-atas">
-    <span class="lencana-merek"><b>CodeIn</b><span>codeinhub.my.id</span></span>
+    <span class="lencana-merek"><img class="logo-tulisan" src="assets/logo/codein-tulisan.png" alt="CodeIn" width="517" height="124"><span>codeinhub.my.id</span></span>
     <span class="lencana-cuaca" id="gerbang-cuaca" hidden></span>
   </div>
   <section class="kotak lebar" id="gerbang-sambut" aria-labelledby="gerbang-judul">
@@ -123,6 +124,7 @@
 <!-- Layar judul: pilih karakter dan nama -->
 <div class="tirai judul" id="judul" hidden>
   <form class="kotak" id="form-judul" novalidate>
+    <img class="logo-judul" src="assets/logo/codein-logo.png" alt="" width="235" height="212">
     <p class="kecil">Komunitas CodeIn</p>
     <h1>CodeIn City</h1>
     <p class="moto">Get in, Learn and Grow with CodeIn</p>
@@ -176,6 +178,7 @@
 <script src="js/cuaca.js"></script>
 <script src="js/menara.js"></script>
 <script src="js/komunitas.js"></script>
+<script src="js/sponsor.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

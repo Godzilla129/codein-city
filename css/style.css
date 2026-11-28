@@ -337,3 +337,10 @@ body.di-gerbang #game, body.di-gerbang #label{filter:blur(3px) saturate(1.25) br
 .isian .pilihan .setuju{grid-template-columns:28px 1fr;align-items:center;min-height:40px;margin:0}
 .berhasil{background:#E6F1E2;border-radius:8px;padding:8px 10px}
 .pw-kertas span.acara{background:#FCE9C2;font-weight:600;transform:rotate(-1.5deg)}
+
+/* logo CodeIn (assets/logo): ikon di bilah atas, tulisan di gerbang, ikon besar di layar judul */
+.merek b{display:flex;align-items:center;gap:6px}
+.logo-kecil{width:auto;height:1.05em;flex:none}
+.lencana-merek .logo-tulisan{height:22px;width:auto;display:block}
+.logo-judul{display:block;width:auto;height:56px;margin:0 auto 6px}
+@media (max-width:400px){ .lencana-merek .logo-tulisan{height:18px} .logo-judul{height:44px} }

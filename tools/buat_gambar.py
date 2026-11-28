@@ -61,7 +61,7 @@ def rumah(ubin, atap, dinding, varian, kol_pintu=2):
 
 
 def markas():
-    """Markas CodeIn: balai dengan menara tengah berpelana, bendera, papan </>, dua sayap beratap genteng merah. 9 x 6 ubin + 28 piksel atas."""
+    """Markas CodeIn: balai dengan menara tengah berpelana, bendera, papan logo CodeIn, dua sayap beratap genteng merah. 9 x 6 ubin + 28 piksel atas."""
     A = 28
     k = Kanvas(144, 96 + A)
     b = A                       # y tepi atas badan (baris ubin 0)
@@ -78,11 +78,10 @@ def markas():
     # jendela sayap
     for x in (12, 28, 104, 120):
         k.jendela(x, b + 56, 12, 16)
-    # papan nama </>
-    k.panel(56, b + 16, 88, b + 32, GELAP, GELAP_T, hx("2f2b3a"))
-    for (x, y) in ((63, 22), (62, 23), (61, 24), (62, 25), (63, 26), (80, 22), (81, 23), (82, 24), (81, 25), (80, 26),
-                   (73, 21), (73, 22), (72, 23), (72, 24), (71, 25), (71, 26), (70, 27)):
-        k.p(x, b + y, KUNING)
+    # papan nama: logo CodeIn di papan krem berbingkai kayu
+    k.panel(54, b + 14, 90, b + 34, PUTIH, KREM_S, KREM_G)
+    k.bingkai(53, b + 13, 91, b + 35, BALOK)
+    k.tempel(logo_piksel(16), 72 - logo_piksel(16).width // 2, b + 16)
     # tiang dan pintu ganda dengan anak tangga
     k.tiang(52, b + 42, b + 92)
     k.tiang(88, b + 42, b + 92)
@@ -94,16 +93,21 @@ def markas():
 
 
 def bendera(frame):
-    """Bendera CodeIn berkibar, 18 x 10, dua bingkai."""
-    k = Kanvas(18, 10)
+    """Bendera CodeIn berkibar, 18 x 12, dua bingkai: kain putih, logo CodeIn, lis biru di bawah."""
+    k = Kanvas(18, 12)
+    logo = logo_piksel(7).load()
+    lw = logo_piksel(7).width
     for x in range(17):
         ombak = (1 if (x // 4 + frame) % 2 else 0)
-        for y in range(1 + ombak, 8 + ombak):
-            k.p(x, y, hx("e9a23b") if y - ombak < 5 else hx("2a9d8f"))
-        k.p(x, 1 + ombak, GARIS); k.p(x, 8 + ombak, GARIS)
-    k.garis_v(17 - (frame % 2), 2, 8, GARIS)
-    for (x, y) in ((5, 4), (6, 3), (6, 5), (10, 3), (11, 4), (10, 5)):
-        k.p(x, y + (1 if (x // 4 + frame) % 2 else 0), PUTIH)
+        for y in range(1 + ombak, 10 + ombak):
+            k.p(x, y, hx("1f8ef5") if y - ombak >= 8 else PUTIH)
+        k.p(x, 1 + ombak, GARIS); k.p(x, 10 + ombak, GARIS)
+        lx = x - 4
+        if 0 <= lx < lw:
+            for ly in range(7):
+                if logo[lx, ly][3]:
+                    k.p(x, 2 + ly + ombak - (1 if ly == 6 else 0) * 0, logo[lx, ly])
+    k.garis_v(17 - (frame % 2), 2, 10, GARIS)
     return k
 
 
@@ -387,6 +391,22 @@ def menara_jam():
     return k, {"jam": jam, "led": led}
 
 
+def papan_sponsor():
+    """Papan iklan LED di pinggir lapangan 64 x 16 (4 ubin): rangka besi gelap, layar LED 60 x 9 di (2, 2), dua kaki.
+    Isi layarnya (logo dan tulisan CodeIn yang bergerak) digambar js/sponsor.js."""
+    k = Kanvas(64, 16)
+    for x in (7, 55):
+        k.kotak(x, 12, x + 1, 15, hx("3b3346")); k.p(x, 12, hx("5a5068"))
+    k.panel(0, 0, 63, 12, hx("2a2f3a"), hx("454c5c"), hx("1a1d24"))
+    k.kotak(2, 2, 61, 10, hx("0b0e14"))
+    for x in range(2, 62, 2):                                  # kisi LED redup saat layar kosong
+        for y in range(2, 11, 2):
+            k.p(x, y, hx("161b25"))
+    k.garis_h(1, 62, 11, hx("1a1d24"))
+    k.p(3, 12, hx("e04a3a"))                                   # lampu daya
+    return k
+
+
 def sumur():
     """Sumur timba 32 x 36: cincin batu, atap kayu kecil di dua tiang, ember di tali."""
     k = Kanvas(32, 36)
@@ -453,6 +473,9 @@ def main():
     gambar["menara-jam"] = k.im
     info["menara-jam"] = letak_jam
     gambar["sumur"] = sumur().im
+    gambar["papan-sponsor"] = papan_sponsor().im
+    info["papan-sponsor"] = {"layar": [2, 2, 60, 9]}
+    gambar["logo-led"] = logo_piksel(9, terang=True)          # dipakai js/sponsor.js untuk isi layar LED
     # rumah warga: (atap, dinding, varian) seperti gaya rumah kampung sebelumnya
     for i, (atap, dinding, varian) in enumerate((("merah", "krem", 0), ("oranye", "batu", 1), ("merah", "kayu", 2),
                                                  ("oranye", "krem", 2), ("merah", "batu", 1), ("oranye", "kayu", 0))):

@@ -263,6 +263,32 @@ def garis_luar(k, warna=GARIS):
     return k
 
 
+# logo CodeIn (assets/logo/codein-logo.png dari Jull) dalam bentuk piksel: C biru tua kehitaman dan panah < biru.
+LOGO_PALET = {"gelap": hx("141b26"), "biru_t": hx("4fb0ff"), "biru": hx("1f8ef5"), "biru_g": hx("0f5fd0")}
+
+
+def logo_piksel(tinggi, terang=False):
+    """Logo CodeIn setinggi `tinggi` piksel, warnanya dikunci ke palet supaya tajam. terang=True: huruf C putih
+    (untuk latar gelap seperti layar LED)."""
+    asli = Image.open(PROYEK / "assets" / "logo" / "codein-logo.png").convert("RGBA")
+    lebar = max(1, round(asli.width * tinggi / asli.height))
+    kecil = asli.resize((lebar, tinggi), Image.LANCZOS)
+    px = kecil.load()
+    out = Image.new("RGBA", (lebar, tinggi), NOL)
+    op = out.load()
+    pilihan = [LOGO_PALET["gelap"], LOGO_PALET["biru_t"], LOGO_PALET["biru"], LOGO_PALET["biru_g"]]
+    for y in range(tinggi):
+        for x in range(lebar):
+            r, g, b, a = px[x, y]
+            if a < 110:
+                continue
+            c = min(pilihan, key=lambda q: (q[0] - r) ** 2 + (q[1] - g) ** 2 + (q[2] - b) ** 2)
+            if terang and c == LOGO_PALET["gelap"]:
+                c = PUTIH
+            op[x, y] = c
+    return out
+
+
 # huruf piksel 3 x 5 untuk papan nama
 HURUF = {"W": ["101", "101", "101", "111", "101"], "A": ["010", "101", "111", "101", "101"], "R": ["110", "101", "110", "101", "101"],
          "K": ["101", "110", "100", "110", "101"], "B": ["110", "101", "110", "101", "110"], "S": ["011", "100", "010", "001", "110"], "O": ["010", "101", "101", "101", "010"], "P": ["110", "101", "110", "100", "100"],

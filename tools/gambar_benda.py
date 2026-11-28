@@ -37,14 +37,13 @@ def meja(w=32, h=20, laci=True):
 
 
 def meja_resepsionis():
-    """Meja resepsionis Markas 48 x 22: daun meja, panel krem dengan logo </> CodeIn, buku tamu dan telepon."""
+    """Meja resepsionis Markas 48 x 22: daun meja, panel putih dengan logo CodeIn, buku tamu dan telepon."""
     k = Kanvas(48, 22)
     k.panel(0, 0, 47, 6, MEJA_T, hx("ecd2b0"), MEJA)
     k.panel(1, 6, 46, 21, KREM, KREM_T, KREM_G)
-    k.panel(16, 9, 31, 17, hx("2a9d8f"), hx("5cc0b2"), hx("1f6f66"))
-    for (x, y) in ((20, 11), (19, 12), (18, 13), (19, 14), (20, 15), (27, 11), (28, 12), (29, 13), (28, 14), (27, 15),
-                   (24, 11), (24, 12), (23, 13), (23, 14), (22, 15)):
-        k.p(x, y, PUTIH)
+    k.panel(15, 8, 32, 18, PUTIH, KREM_S, KREM_G)
+    logo = logo_piksel(8)
+    k.tempel(logo, 24 - logo.width // 2, 9)
     k.kotak(3, 1, 9, 4, hx("efe6d6")); k.bingkai(3, 1, 9, 4, GARIS)
     k.kotak(38, 1, 43, 4, GELAP); k.bingkai(38, 1, 43, 4, GARIS); k.p(40, 2, KUNING)
     return k
