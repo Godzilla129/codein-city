@@ -16,6 +16,7 @@ const Kota = (() => {
   const T = KOTA.ubin;
   const KOLOM = {kiri: 0, bawah: 1, atas: 2, kanan: 3};          // kolom arah di orang.png (susunan karakter Kenney)
   const ARAH = ["bawah", "kiri", "kanan", "atas"];               // nomor arah yang dikirim lewat jaringan
+  const muatDengar = []; let sudahMuat = false;        // kemajuan memuat aset pertama kali (ditampilkan di gerbang)
   const PETA = ["kota", "markas", "galeri", "redaksi", "perumahan", "rumah", "toko", "komunitas"];
   const LUAR = ["kota", "perumahan"];                            // peta di luar ruangan: ada langit malam dan lampu jalan
   // assets/sprites/orang.png (tools/gambar_orang.py): tiap karakter 4 kolom arah x 3 baris langkah, k = urutan karakter
@@ -132,6 +133,8 @@ const Kota = (() => {
     init(d) { this.kunciPeta = d && PETA.includes(d.peta) ? d.peta : "kota"; this.dariPintu = (d && d.pintu) || null; }
 
     preload() {
+      this.load.on("progress", v => muatDengar.forEach(f => f(v)));
+      this.load.once("complete", () => { sudahMuat = true; muatDengar.forEach(f => f(1)); });
       for (const n of PETA) if (!this.cache.tilemap.exists(n)) this.load.tilemapTiledJSON(n, `assets/maps/${n}.tmj`);
       if (!this.textures.exists("ubin")) {
         this.load.image("ubin", "assets/tiles/urban.png");
@@ -549,7 +552,7 @@ const Kota = (() => {
   }
 
   return {
-    tahan: f => penahan.push(f), ditahan, aturCuaca, angkatNama, fase: () => fase().nama, jam: jamWIB,
+    tahan: f => penahan.push(f), ditahan, aturCuaca, angkatNama, saatMemuat: f => { muatDengar.push(f); if (sudahMuat) f(1); }, fase: () => fase().nama, jam: jamWIB,
     nyalakan, mulai, pindahKe, masuk, keTempat, padatkan, segarkanAksi, keResepsionis, bukaNews, ucap, balon, tempelkan, lepaskan, frame, ARAH, waktu, kabar,
     pintu: () => pintu, ruang: () => ruang, profil: () => profil, adegan: () => adegan, luar: () => LUAR.includes(ruang),
     // nama ruangan untuk layanan obrolan: tiap rumah warga punya ruangannya sendiri (rumah-A07), jadi tamu di rumah yang sama saling terlihat

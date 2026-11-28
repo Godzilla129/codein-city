@@ -111,7 +111,7 @@ const Akun = (() => {
     const ket = el("p", "pesan"); ket.setAttribute("role", "status");
     if (pesan) ket.textContent = pesan;
     const isi = [el("p", null, `${fitur} khusus warga CodeIn City. Masuk dengan akun Google untuk jadi warga; gratis, cukup sekali.`),
-      el("p", "redup", "Tanpa masuk pun kamu tetap bisa jalan-jalan dan mengobrol sebagai tamu. Email akunmu hanya terlihat oleh admin CodeIn."), ket];
+      el("p", "redup", "Tanpa login kamu hanya bisa mengintip kota. Email akunmu hanya terlihat oleh admin CodeIn."), ket];
     Panel.buka("Masuk sebagai warga", isi, [{teks: "Masuk dengan Google", utama: true, aksi: async () => {
       Kota.kabar("Membuka jendela login Google…");
       const salah = await masuk();

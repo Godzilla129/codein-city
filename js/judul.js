@@ -27,6 +27,7 @@ const Judul = (() => {
   const diJudul = () => !$("judul").hidden;
 
   function masuk(p) {
+    if (Akun.keadaan() === "warga") Gerbang.selesaiIntip();
     Profil.simpan(p);
     $("judul").hidden = true; $("hud").hidden = false;
     $("hud-nama").textContent = p.nama; aturMuka($("hud-muka"), p.karakter);
@@ -63,8 +64,7 @@ const Judul = (() => {
     } else if (k === "memuat") {
       $("akun-teks").textContent = "Memeriksa akun…"; tombol.textContent = "Masuk dengan Google";
     } else {
-      $("akun-teks").textContent = Gerbang.lewati ? "Jadi warga supaya bisa daftar hosting dan memasang baliho. Tanpa masuk pun kamu tetap bisa jalan-jalan dan mengobrol."
-        : "Masuk kota wajib login dengan akun Google. Gratis, cukup sekali.";
+      $("akun-teks").textContent = "Masuk kota wajib login dengan akun Google. Gratis, cukup sekali. Tanpa login kamu hanya bisa mengintip kota.";
       tombol.textContent = k === "galat" ? "Coba masuk lagi" : "Masuk dengan Google";
     }
   }
@@ -97,10 +97,11 @@ const Judul = (() => {
       return;
     }
     const p = Kota.profil();
+    if (Gerbang.mengintip() && k !== "warga") return;            // tamu yang sedang mengintip kota memang belum login
     // sesi login habis atau dicabut saat di kota: kembali ke gerbang
     if ((k === "tamu" || k === "galat") && p && !Gerbang.lewati) { Gerbang.tampil(k === "galat" ? Akun.pesan() : "Sesi loginmu sudah berakhir. Masuk lagi, ya."); return; }
     if (k === "warga" && w.perluNama) tampil(Profil.muat(), "Pilih nama wargamu dulu. " + Akun.pesan());
-    else if (k === "warga" && p && (p.nama !== w.nama || p.karakter !== w.karakter)) masuk({nama: w.nama, karakter: w.karakter});
+    else if (k === "warga" && p && (Gerbang.mengintip() || p.nama !== w.nama || p.karakter !== w.karakter)) masuk({nama: w.nama, karakter: w.karakter});
   });
 
   $("form-judul").addEventListener("submit", async e => {

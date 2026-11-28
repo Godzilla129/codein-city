@@ -20,6 +20,11 @@
 <body>
 
 <!-- Kota (kanvas Phaser) -->
+<div class="memuat-awal" id="memuat-awal" role="status">
+  <img src="assets/logo/codein-logo.png" alt="" width="235" height="212">
+  <p>Memuat CodeIn City…</p>
+  <noscript><p>CodeIn City butuh JavaScript. Nyalakan JavaScript di browsermu, lalu muat ulang halaman ini.</p></noscript>
+</div>
 <div id="game" aria-label="Peta CodeIn City. Gunakan tombol Tempat untuk daftar gedung tanpa harus berjalan."></div>
 <div id="label" aria-hidden="true"></div>
 
@@ -57,6 +62,10 @@
 <div id="joy" hidden><i></i></div>
 
 <!-- Obrolan: muncul hanya saat tersambung ke layanan ramai -->
+<div class="intip-bar" id="intip-bar" hidden>
+  <span><b>Kamu sedang mengintip kota.</b><span class="intip-lagi"> Masuk untuk ngobrol, punya rumah, mancing, dan menulis di buku tamu.</span></span>
+  <button type="button" class="tbl utama" id="btn-intip-masuk">Masuk<span class="intip-lagi"> dengan Google</span></button>
+</div>
 <div id="obrol" hidden>
   <ol id="obrol-log" aria-live="polite" aria-label="Obrolan kota"></ol>
   <form id="obrol-form" autocomplete="off">
@@ -81,23 +90,40 @@
     <span class="lencana-merek"><img class="logo-tulisan" src="assets/logo/codein-tulisan.png" alt="CodeIn" width="517" height="124"><span>codeinhub.my.id</span></span>
     <span class="lencana-cuaca" id="gerbang-cuaca" hidden></span>
   </div>
-  <section class="kotak lebar" id="gerbang-sambut" aria-labelledby="gerbang-judul">
-    <p class="kecil">Komunitas teknologi Bengkulu</p>
-    <h1 id="gerbang-judul">Get in, Learn and Grow with CodeIn</h1>
-    <p class="lead">CodeIn City adalah kota virtual tempat anggota CodeIn tinggal, memamerkan proyek, ikut acara, dan saling berkolaborasi. Kenali komunitasnya dulu, atau langsung masuk ke kota.</p>
-    <ul class="fitur-gerbang">
-      <li>Proyek anggota dan foto kegiatan</li>
-      <li>Daftar workshop dan acara</li>
-      <li>Punya rumah, kebun, dan kolam</li>
-      <li>Ngobrol dan kolaborasi</li>
-    </ul>
-    <p class="sapa-kembali" id="gerbang-sapa" hidden></p>
-    <div class="baris-tombol">
-      <button type="button" class="tbl utama besar" id="btn-masuk-kota">Masuk Kota</button>
-      <button type="button" class="tbl besar" id="btn-kenali">Kenali CodeIn</button>
+  <section class="kotak lebar gerbang-kartu" id="gerbang-sambut" aria-labelledby="gerbang-judul">
+    <div class="gerbang-pratinjau">
+      <img id="gerbang-gambar" src="assets/pratinjau-kota.png" alt="Pratinjau CodeIn City: alun-alun dengan Menara Jam Server, papan LED CodeIn, dan jalan utama" width="1200" height="380">
+      <span class="gerbang-ramai" id="gerbang-ramai" hidden><i class="titik"></i><span id="gerbang-ramai-teks"></span></span>
+      <div class="gerbang-muat" id="gerbang-muat" role="status"><span id="gerbang-muat-teks">Memuat kota…</span><i><b id="gerbang-muat-isi"></b></i></div>
     </div>
-    <p class="pesan" id="gerbang-pesan" role="status"></p>
-    <p class="redup kecil-biasa" id="gerbang-catatan">Masuk kota wajib login dengan akun Google. Gratis, cukup sekali. Email hanya terlihat oleh admin CodeIn.</p>
+    <div class="gerbang-isi">
+      <div class="gerbang-utama">
+        <p class="kecil">Komunitas teknologi Bengkulu</p>
+        <p class="sapa-kembali" id="gerbang-sapa" hidden></p>
+        <p class="kabar-kembali" id="gerbang-kabar" hidden></p>
+        <h1 id="gerbang-judul">Get in, Learn and Grow with CodeIn</h1>
+        <p class="lead">CodeIn City adalah kota virtual tempat anggota CodeIn tinggal, memamerkan proyek, ikut acara, dan saling berkolaborasi.</p>
+        <div class="baris-tombol">
+          <button type="button" class="tbl utama besar" id="btn-masuk-kota">Masuk Kota</button>
+          <button type="button" class="tbl besar" id="btn-intip">Intip kota</button>
+          <button type="button" class="tbl besar" id="btn-kenali">Kenali CodeIn</button>
+        </div>
+        <p class="pesan" id="gerbang-pesan" role="status"></p>
+        <p class="redup kecil-biasa" id="gerbang-catatan">Intip kota: lihat-lihat dulu tanpa login. Ngobrol, punya rumah, mancing, berkebun, dan buku tamu butuh akun Google (gratis, cukup sekali). Email hanya terlihat oleh admin CodeIn.</p>
+      </div>
+      <aside class="gerbang-samping" aria-label="Kabar CodeIn">
+        <div class="gerbang-acara" id="gerbang-acara" hidden>
+          <p class="kecil">Acara terdekat</p>
+          <b id="gerbang-acara-judul"></b>
+          <p class="redup" id="gerbang-acara-kapan"></p>
+          <button type="button" class="tbl" id="btn-gerbang-acara">Lihat dan daftar</button>
+        </div>
+        <div class="gerbang-foto" id="gerbang-foto" hidden>
+          <p class="kecil">Foto kegiatan terbaru</p>
+          <div class="foto-baris" id="gerbang-foto-baris"></div>
+        </div>
+      </aside>
+    </div>
   </section>
   <section class="kotak lebar" id="gerbang-tentang" aria-labelledby="tentang-judul" hidden>
     <p class="kecil">Kenali CodeIn</p>

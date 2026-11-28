@@ -91,6 +91,8 @@ const Komunitas = (() => {
   }
 
   Kota.saatSiap(({ruang}) => { if (ruang === "komunitas" && Date.now() - terakhir > 60000) muat(); });
-  muat();
-  return {buat, bersih, lihat, album, jumlah: () => foto.length};
+  const awal = muat();
+  // daftar foto setelah muatan pertama selesai (dipakai gerbang untuk foto kegiatan terbaru)
+  const siap = () => awal.then(() => foto);
+  return {buat, bersih, lihat, album, siap, pasangGambar, jumlah: () => foto.length};
 })();

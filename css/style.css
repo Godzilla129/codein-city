@@ -165,8 +165,41 @@ body.di-gerbang #game, body.di-gerbang #label{filter:blur(3px) saturate(1.25) br
 .gerbang .kotak h1{font-size:40px;margin:4px 0 12px}
 .gerbang .kotak h2{font-size:20px;margin:14px 0 6px}
 .gerbang .lead{font-size:17px;line-height:1.55}
-.fitur-gerbang{list-style:none;padding:0!important;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.fitur-gerbang li{margin:0;background:var(--kertas-2);border-radius:10px;padding:10px 12px;font-weight:600;font-size:15px}
+/* kartu gerbang: pratinjau kota di atas, isi dan kabar (acara terdekat, foto kegiatan) berdampingan */
+.kotak.lebar.gerbang-kartu{width:min(900px,100%);padding:0;overflow:hidden}
+.gerbang-pratinjau{position:relative;border-bottom:3px solid var(--tinta);background:#2a3a28;aspect-ratio:1200/380}
+.gerbang-pratinjau img{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.gerbang-ramai{position:absolute;right:12px;bottom:12px;display:inline-flex;align-items:center;gap:7px;background:var(--kertas);border:3px solid var(--tinta);
+  border-radius:999px;padding:4px 12px;font-size:14px;font-weight:600;box-shadow:0 3px 0 var(--tinta)}
+.gerbang-ramai .titik{width:9px;height:9px;border-radius:50%;background:#2E9E5A;display:inline-block}
+.gerbang-muat{position:absolute;left:12px;bottom:12px;display:flex;align-items:center;gap:8px;background:rgba(251,247,234,.94);border:2px solid var(--tinta);
+  border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600}
+.gerbang-muat i{display:block;width:90px;height:8px;border-radius:99px;background:#e3d7bf;overflow:hidden}
+.gerbang-muat b{display:block;height:100%;width:0;background:var(--emas);transition:width .2s}
+.gerbang-muat.siap{display:none}
+.gerbang-isi{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:22px;padding:22px 26px 22px}
+.gerbang-isi:has(.gerbang-samping:empty), .gerbang-isi.tanpa-samping{grid-template-columns:1fr}
+.gerbang .gerbang-kartu h1{font-size:36px;margin:2px 0 10px}
+.gerbang-samping{display:flex;flex-direction:column;gap:12px}
+.gerbang-acara,.gerbang-foto{background:var(--kertas-2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.gerbang-acara b{font:600 18px var(--judul);line-height:1.25}
+.gerbang-acara p{margin:0}
+.gerbang-acara .tbl{margin-top:6px}
+.foto-baris{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}
+.foto-baris button{padding:0;border:2px solid var(--tinta);border-radius:8px;overflow:hidden;background:#e8dcc6;cursor:pointer;aspect-ratio:4/3;min-height:44px}
+.foto-baris img{width:100%;height:100%;object-fit:cover;display:block}
+.kabar-kembali{background:#fff3c4;border:2px solid var(--tinta);border-radius:8px;padding:6px 10px;font-weight:600;font-size:15px;margin:4px 0 8px}
+/* mode intip: bilah ajakan masuk menggantikan kolom obrolan */
+.intip-bar b{font-weight:700}
+.intip-bar{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom));width:min(420px, calc(100vw - 24px));display:flex;align-items:center;gap:10px;
+  background:var(--kertas);border:3px solid var(--tinta);border-radius:12px;box-shadow:0 4px 0 var(--tinta);padding:8px 10px 8px 14px;font-size:14px;line-height:1.35;z-index:5}
+.intip-bar .tbl{flex:none;min-height:44px}
+body.mengintip #obrol-form{display:none}
+/* layar memuat sebelum skrip kota siap */
+.memuat-awal{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--malam, #141830);color:#fbf7ea;z-index:50;font-weight:600}
+.memuat-awal img{width:72px;height:auto;animation:denyut 1.4s ease-in-out infinite}
+@keyframes denyut{50%{transform:scale(.9);opacity:.7}}
+@media (prefers-reduced-motion: reduce){.memuat-awal img{animation:none}}
 .tbl.besar{min-height:52px;font-size:18px;padding:0 22px}
 .sapa-kembali{font-weight:600;color:#2E7D46}
 .kecil-biasa{font-size:13px}
@@ -174,8 +207,20 @@ body.di-gerbang #game, body.di-gerbang #label{filter:blur(3px) saturate(1.25) br
 @media (max-width:480px){
   .gerbang .kotak h1{font-size:30px}
   .kotak.lebar{padding:20px 18px 18px}
-  .fitur-gerbang{grid-template-columns:1fr}
-  .tbl.besar{flex:1 1 auto}
+  .tbl.besar{flex:1 1 100%}
+}
+@media (max-width:720px){
+  .gerbang-isi{grid-template-columns:1fr;gap:14px;padding:18px 18px 18px}
+  .gerbang .gerbang-kartu h1{font-size:28px}
+  .gerbang-foto{display:none!important}
+  .gerbang-pratinjau{aspect-ratio:1200/520}
+  .intip-bar{width:auto;right:12px}
+  .intip-bar .intip-lagi{display:none}
+  /* tombol aksi naik ke atas bilah ajakan */
+  body.mengintip .aksi{bottom:calc(84px + env(safe-area-inset-bottom))}
+}
+@media (max-width:480px){
+  .tirai.gerbang{padding-top:118px}             /* lencana merek dan cuaca turun jadi dua baris */
 }
 /* dialog: judul dan tombol bawah selalu terlihat, hanya isinya yang digulir (daftar Tempat bisa lebih tinggi dari layar) */
 #panel .kotak{display:flex;flex-direction:column;max-height:min(80vh, calc(100dvh - 32px));overflow:hidden}

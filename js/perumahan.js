@@ -107,6 +107,7 @@ const Perumahan = (() => {
         Panel.buka(`Rumah ${k.pemilik.nama}`, [el("p", null, "Tok, tok."), el("p", null, `Pintunya dikunci. ${k.pemilik.nama} sedang tidak menerima tamu.`)], [{teks: "Tutup"}]);
         return;
       }
+      if (!Akun.sudahWarga()) { Akun.pastikan(`Bertamu ke rumah ${k.pemilik.nama}`, () => buka(p)); return; }   // tamu yang mengintip belum boleh masuk rumah warga
       masukRumah(k.kode); return;
     }
     if (!Akun.sudahWarga()) { Akun.pastikan("Menempati rumah di Perumahan CodeIn", () => buka(p)); return; }
