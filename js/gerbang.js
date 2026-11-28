@@ -95,10 +95,13 @@ const Gerbang = (() => {
     }));
     $("gerbang-foto").hidden = !foto.length;
     sambut.querySelector(".gerbang-isi").classList.toggle("tanpa-samping", $("gerbang-acara").hidden && $("gerbang-foto").hidden);
-    if (Akun.keadaan() === "warga" && typeof BukuTamu !== "undefined") {
-      kabar = await BukuTamu.ringkas().catch(() => null);
-      tulis();
-    }
+    muatSapa();
+  }
+  // kabar buku tamu untuk warga yang kembali: tulisan baru dan tamu yang mampir ke rumahnya
+  async function muatSapa() {
+    if (Akun.keadaan() !== "warga" || Akun.warga().perluNama) { kabar = null; return; }
+    kabar = await BukuTamu.ringkas().catch(() => null);
+    if (terbuka()) tulis();
   }
 
   /* ---------- masuk dan intip ---------- */
@@ -133,7 +136,7 @@ const Gerbang = (() => {
     document.body.classList.remove("mengintip");
     $("intip-bar").hidden = true;
   }
-  Akun.saatBerubah(() => { if (terbuka()) tulis(); });
+  Akun.saatBerubah(k => { if (!terbuka()) return; tulis(); if (k === "warga") muatSapa(); });
   $("btn-masuk-kota").onclick = masukKota;
   $("btn-masuk-kota-2").onclick = masukKota;
   $("btn-intip").onclick = mulaiIntip;

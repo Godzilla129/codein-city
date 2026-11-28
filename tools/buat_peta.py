@@ -465,12 +465,18 @@ def kota():
                     p.thing(x, y, 329 if x % 5 else 331)
 
     # ---------- kebun kota di barat taman ----------
-    kebun = cells(4, 31, 15, 40)
-    pematang = {(x, y) for (x, y) in kebun if (x - 4) % 4 == 0 or (y - 31) % 3 == 0 or x == 15 or y == 40}
+    # 12 lahan 2 x 2 (K01-K12, baris demi baris) yang bisa dibuka warga dengan koin (js/lahan.js, services/lahan.py).
+    # Petak lahan boleh diinjak seperti kebun halaman: pemilik berdiri di petaknya untuk menanam dan memanen.
+    kebun = cells(4, 31, 16, 40)
+    pematang = {(x, y) for (x, y) in kebun if (x - 4) % 3 == 0 or (y - 31) % 3 == 0}
     for (x, y) in kebun - pematang:
         p.put("tanah", x, y, ruang(f"sawah-{(x + y) % 2}"))
-        p.block(x, y)
-    jalan_kebun = pematang | cells(16, 35, 17, 35)
+    for n, (bx, by) in enumerate((bx, by) for by in (32, 35, 38) for bx in (5, 8, 11, 14)):
+        kode = f"K{n + 1:02d}"
+        for i, (dx, dy) in enumerate(((0, 0), (1, 0), (0, 1), (1, 1))):
+            p.door(f"lahan-{kode}-{i}", f"Lahan {kode}", bx + dx, by + dy, "panel", "lahan",
+                   zone=((bx + dx) * T, (by + dy) * T, T, T), label=False, lahan=kode, petak=i)
+    jalan_kebun = pematang | cells(17, 35, 17, 35)
     p.board("info", "kebun", 6, 26, 4, 2, 29, name="Kebun Kota")
     for (x, y) in ((4, 24), (12, 24), (16, 44)):
         p.thing(x, y, 250)
@@ -704,6 +710,9 @@ def markas():
     p.perabot("tanaman-besar", 1, 10, dx=-2)
     p.perabot("tanaman-besar", 20, 10, dx=0)
     p.perabot("dispenser", 14, 4, dx=4)
+    # Peti Kas Markas: saldo dan riwayat kas warga (js/lahan.js)
+    p.perabot("peti-kas", 17, 4)
+    p.door("kas", "Kas Markas", 17, 4, "panel", "kas", zone=(int(16.5 * T), 5 * T, 2 * T, T), label=False)
     p.tulis("markas")
 
 

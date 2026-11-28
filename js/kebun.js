@@ -173,5 +173,5 @@ const Kebun = (() => {
   // tahap tumbuh diperbarui tiap 30 detik selama di perumahan
   Kota.tiapBingkai(dt => { if (ruang === "perumahan" && (jeda -= dt) <= 0) { jeda = 30000; gambarSemua(); } });
 
-  return {teksAksi, buka, gambarSemua};
+  return {teksAksi, buka, gambarSemua, tekstur: (sc, tanaman, tahap) => { adegan = adegan || sc; return tekstur(tanaman, tahap); }};
 })();

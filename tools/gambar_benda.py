@@ -214,6 +214,21 @@ def dispenser():
     return k
 
 
+def peti_kas():
+    """Peti Kas Markas 16 x 15: peti kayu berpelat besi, tutupnya terbuka, penuh koin emas."""
+    k = Kanvas(16, 15)
+    EMAS, EMAS_T, EMAS_G = hx("e9a23b"), hx("f7d36b"), hx("b97a1f")
+    k.panel(1, 0, 14, 4, MEJA_G, MEJA, MEJA_GG)                 # tutup terbuka di belakang
+    for x in range(2, 14):                                       # tumpukan koin
+        k.p(x, 5 - (1 if x % 3 == 0 else 0), EMAS_T if x % 2 else EMAS)
+        k.p(x, 6, EMAS if x % 2 else EMAS_G)
+    k.panel(0, 6, 15, 14, MEJA_G, MEJA, MEJA_GG)                # badan peti
+    k.garis_h(1, 14, 9, MEJA_GG)
+    k.garis_v(3, 7, 13, hx("5a5f66")); k.garis_v(12, 7, 13, hx("5a5f66"))   # pelat besi
+    k.kotak(7, 8, 8, 10, EMAS); k.p(7, 10, EMAS_G)               # gembok
+    return k
+
+
 def lukisan(w=18, h=13, warna=hx("e9a23b")):
     """Lukisan berbingkai kayu untuk dinding."""
     k = Kanvas(w, h)
@@ -921,7 +936,7 @@ def semua():
          "lapak-bunga": lapak((hx("f7a8c4"), PUTIH), "sayur"), "gerobak": gerobak(), "pos-ronda": pos_ronda(), "kolam": kolam(), "beringin": beringin(),
          "palem": palem(), "meja-warkop": meja_warkop(), "net-badminton": net_badminton(), "lampu-merah": lampu_merah(),
          "kavling-kosong": kavling_kosong(), "papan-kavling": papan_kavling(), "gerbang-perumahan": gerbang_perumahan(), "kasur": kasur(),
-         "gantungan-kunci": gantungan_kunci()}
+         "gantungan-kunci": gantungan_kunci(), "peti-kas": peti_kas()}
     for arah in ("kiri", "kanan", "bawah", "atas"):
         for n, f in (("delman", delman), ("sepeda", sepeda)):
             g[f"mobil-{n}-{arah}"] = f(arah, 0)          # langkah 0 (juga gambar diam)

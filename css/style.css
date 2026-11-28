@@ -389,3 +389,34 @@ body.mengintip #obrol-form{display:none}
 .lencana-merek .logo-tulisan{height:22px;width:auto;display:block}
 .logo-judul{display:block;width:auto;height:56px;margin:0 auto 6px}
 @media (max-width:400px){ .lencana-merek .logo-tulisan{height:18px} .logo-judul{height:44px} }
+/* buku tamu rumah warga (js/bukutamu.js) */
+.buku-tamu{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.tamu-baris{display:flex;align-items:flex-start;gap:10px;background:var(--kertas-2);border-radius:10px;padding:8px 10px}
+.tamu-baris .muka.kecil{--s:2;border-radius:6px;background-color:#e8dcc6;margin-top:2px}
+.tamu-isi{flex:1;min-width:0}
+.tamu-kepala{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.tamu-kepala .redup{font-size:13px}
+.tamu-isi p{margin:2px 0 0;overflow-wrap:anywhere}
+.tamu-baris .tbl.kecil{flex:none;min-height:44px;padding:0 12px;font-size:14px}
+.buku-tamu .kosong{padding:6px 2px}
+.tulis-tamu{display:flex;flex-direction:column;gap:6px;margin:4px 0 6px}
+.salam-siap{display:flex;flex-wrap:wrap;gap:6px}
+.chip{min-height:44px;padding:0 12px;border:2px solid var(--tinta);border-radius:999px;background:var(--kertas);font:inherit;font-size:14px;cursor:pointer}
+.chip:hover{background:#fff3c4}
+.chip:focus-visible{outline:3px solid var(--emas);outline-offset:2px}
+.tulis-baris{display:flex;gap:6px}
+.tulis-baris input{flex:1;min-width:0;min-height:44px;padding:0 10px;border:3px solid var(--tinta);border-radius:10px;font-size:16px;background:#fffdf8}
+.tulis-tamu .sisa{font-size:13px;align-self:flex-end}
+.catatan-tamu{background:#fff3c4;border-radius:8px;padding:6px 10px}
+@media (max-width:480px){ .tulis-baris{flex-direction:column} }
+/* Lahan Kebun Kota dan Kas Markas (js/lahan.js) */
+.daftar-aturan{margin:6px 0 8px;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.kas-ringkas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0}
+.kas-ringkas div{background:var(--kertas-2);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.kas-ringkas .redup{font-size:13px}
+.kas-ringkas b{font:600 18px var(--judul)}
+.kas-riwayat{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.kas-riwayat li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed #D2BFA3}
+.kas-riwayat .masuk{color:#2E7D46;white-space:nowrap} .kas-riwayat .keluar{color:#B23A2E;white-space:nowrap}
+#panel h3{font-size:16px;margin:12px 0 4px}
+@media (max-width:480px){ .kas-ringkas{grid-template-columns:1fr} }

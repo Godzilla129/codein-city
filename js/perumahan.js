@@ -92,6 +92,7 @@ const Perumahan = (() => {
   }
   function masukRumah(kode) {
     kini = kode;
+    BukuTamu.mampir(kode);                 // tercatat sebagai tamu yang mampir (rumah sendiri tidak dihitung)
     Kota.keTempat("rumah", null);
   }
   async function buka(p) {

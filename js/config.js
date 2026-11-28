@@ -5,7 +5,7 @@
 const KOTA = {
   nama: "CodeIn City",
   ubin: 16,                  // ukuran satu tile dalam piksel
-  versiPeta: 3,               // naikkan saat tata letak peta kota berubah, supaya posisi tersimpan yang lama tidak dipakai
+  versiPeta: 4,               // naikkan saat tata letak peta kota berubah, supaya posisi tersimpan yang lama tidak dipakai
   kecepatan: 74,             // kecepatan jalan pemain (piksel dunia per detik)
 
   // Alamat CodeIn News. Isi baliho dan videotron diambil dari sini, pengajuan baliho juga dikirim ke sini (lihat js/papan.js).
@@ -53,6 +53,7 @@ const KOTA = {
       judul: "Papan Pengumuman",
       // tiga yang teratas ikut tampil di papan gabus di kota
       daftar: [
+        "Baru: buka lahan di Kebun Kota (100 koin, masuk Kas Markas) dan tulis salam di buku tamu rumah warga lewat kotak suratnya.",
         "CodeIn City 2.0: sungai berjembatan, Menara Jam Server di alun-alun, dan Galeri Komunitas berisi foto kegiatan. Cuacanya ikut cuaca asli Bengkulu.",
         "Kantor Redaksi CodeIn News sudah bisa dimasuki. Lihat Eko, Tekno, dan Rina bekerja, lalu sapa mereka.",
         "Hosting proyek gratis untuk anggota. Daftar lewat Kak Rani di Markas, unggah zip, situsmu tayang dan masuk Direktori Proyek.",
@@ -123,9 +124,10 @@ const KOTA = {
     },
     kebun: {
       judul: "Kebun Kota",
-      baris: ["Petak sawah kota.", "Segera: berkebun", "bareng warga."],
-      isi: ["Kebun kota dikelola bersama warga. Pematangnya boleh dilewati, petak sawahnya jangan diinjak, ya.",
-            "Rencananya warga bisa ikut berkebun di sini dan di Perumahan CodeIn."],
+      baris: ["12 lahan untuk warga.", "Buka 100 koin,", "masuk Kas Markas."],
+      isi: ["Kebun Kota punya 12 lahan, masing-masing 4 petak. Lahan yang masih tidur bisa dibuka warga seharga 100 koin; uangnya masuk Kas Markas, kas bersama warga yang saldonya bisa dilihat di peti kas dalam Markas.",
+            "Setiap menanam di lahan kota ada pajak tanam 10% dari harga jual panennya, juga untuk Kas Markas. Kebun di halaman rumah tetap bebas pajak.",
+            "Satu warga satu lahan. Lahan yang 7 hari tidak ditanami atau dipanen kembali ke kota supaya warga lain kebagian. Pematangnya boleh dilewati siapa saja."],
     },
     pasar: {
       judul: "Pasar CodeIn",
@@ -140,7 +142,8 @@ const KOTA = {
             "Pilih kavling yang masih kosong (bertanda papan kecil), lalu tempati. Rumah starter langsung berdiri dengan nama dan model pilihanmu. Satu warga satu kavling.",
             "Siapa pun boleh bertamu ke rumah warga. Dari menu Tempat, tombol Pulang ke rumahku mengantarmu langsung ke depan rumah.",
             "Mancing: berdiri di tepi danau atau kolam, menghadap ke air, lalu tekan Mancing. Danau Perumahan punya ikan yang lebih beragam daripada kolam Taman Kota, katanya ada arwana. Hasilnya dijual ke Pak Ikan di Pasar CodeIn."],
-      daftar: ["Segera: menata isi rumah dengan perabot, buku tamu, dan komputer yang membuka situs hosting pemiliknya."],
+      daftar: ["Kotak surat di depan setiap rumah adalah buku tamunya. Tamu yang sudah login boleh menulis satu salam sehari, dan pemilik rumah disapa kabarnya di Gerbang CodeIn.",
+               "Segera: komputer di rumah yang membuka situs hosting pemiliknya."],
     },
     rencana: {
       judul: "Rencana kota",

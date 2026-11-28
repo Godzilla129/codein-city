@@ -15,12 +15,13 @@ const Panel = (() => {
     const baris = $("panel-tombol"); baris.replaceChildren();
     for (const t of tombol) {
       const b = el("button", "tbl" + (t.utama ? " utama" : ""), t.teks); b.type = "button";
+      if (t.nonaktif) b.disabled = true;
       b.onclick = () => { tutup(); if (t.aksi) t.aksi(); };
       baris.append(b);
     }
     $("panel").hidden = false;
     $("panel").scrollTop = 0; $("panel-isi").scrollTop = 0;
-    (fokus || baris.querySelector("button")).focus();
+    (fokus || baris.querySelector("button:not(:disabled)") || baris.querySelector("button")).focus();
   }
   function tutup() {
     if ($("panel").hidden) return;
@@ -46,7 +47,7 @@ const Panel = (() => {
   function tempat() {
     const ul = el("ul", "tempat"), sudah = new Set();
     for (const p of Kota.pintu()) {
-      if (p.tujuan === "petak") continue;          // petak kebun halaman (js/kebun.js)
+      if (p.tujuan === "petak" || p.tujuan === "bukutamu" || p.tujuan === "lahan") continue;   // petak kebun, kotak surat, lahan kota
       // baliho dan rumah proyek yang kosong cukup muncul sekali; rumah warga, gerbang, dan rumah proyek berpenghuni punya baris sendiri
       const kunci = p.aksi === "pindah" || p.tujuan === "rumah" || p.tujuan === "gerbang" || (p.tujuan === "proyek" && p.proyek) ? p.id : (p.tujuan || p.id);
       if (sudah.has(kunci)) continue; sudah.add(kunci);

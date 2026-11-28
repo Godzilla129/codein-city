@@ -11,6 +11,8 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 - **Koin dan tas**: warga baru mendapat 50 koin dan perabot rumah starter. Tombol tas di bilah atas menampilkan koin, isi tas, dan juara mancing hari ini. Semua perubahan koin tercatat di server (admin bisa memberi koin sebagai hadiah lomba).
 - **Mancing**: berdiri di tepi kolam Taman Kota, tepi sungai, atau danau Perumahan, menghadap ke air, lalu tekan Mancing. Tunggu umpan dimakan, tarik tepat waktu, lalu adu tarik (tekan saat jarum di zona hijau). Server yang memilih ikan dan waktunya; 40 tangkapan per hari. Ikan dijual ke Pak Ikan di Pasar CodeIn.
 - **Kebun halaman**: tiap rumah warga punya 3 petak kebun di halaman depan. Beli bibit (kangkung, cabai, tomat, jagung, semangka), tanaman tumbuh menurut jam asli, panennya dijual ke Bu Sayur.
+- **Lahan Kebun Kota dan Kas Markas**: Kebun Kota punya 12 lahan 2 x 2 petak. Warga membuka satu lahan seharga 100 koin, dan setiap menanam di lahan kota ada pajak tanam 10% dari harga jual panennya. Semua uang itu masuk **Kas Markas**, kas bersama warga yang saldo dan riwayatnya bisa dilihat siapa saja lewat peti kas di dalam Markas; pengurus memakainya untuk hadiah lomba. Lahan yang 7 hari tidak ditanami atau dipanen kembali ke kota supaya warga lain kebagian. Kebun di halaman rumah tetap bebas pajak.
+- **Buku tamu rumah warga**: kotak surat di depan setiap rumah berpenghuni adalah buku tamunya. Warga yang bertamu boleh menulis satu salam singkat per hari (enam salam siap pakai atau tulis sendiri, maks. 80 huruf, tanpa tautan, kata kasar ditolak). Pemilik membaca dan boleh menghapus tulisan di bukunya, dan di Gerbang CodeIn disapa dengan jumlah tulisan baru dan tamu yang mampir. Menulis tidak memberi koin.
 - **Tata rumah**: pemilik menata perabot di dalam rumahnya (tombol Tata rumah): pilih perabot dari tas, ketuk lantai untuk menaruh, ketuk perabot untuk memindahkan atau menyimpannya. Perabot baru dibeli di **Toko Mbak Tika** (26 perabot). Toko bisa dimasuki: Mbak Tika menjaga kasir, menjual perabot dan membeli kembali perabot yang tidak terpasang setengah harga. Kasur menempati dua baris lantai dan seluruhnya padat.
 - **Desain rumah sendiri** (lewat Pak Darto): editor piksel 96 x 106 dengan garis bantu pintu dan dinding, atau impor PNG. Desain tampil di Perumahan setelah disetujui admin.
 - **Gerbang CodeIn**: setiap kali `codeinhub.my.id` dibuka, pengunjung melihat sambutan berisi pratinjau kota (siang atau malam sesuai jam WIB), jumlah orang di kota saat itu, kemajuan memuat kota, acara CodeIn terdekat, dan foto kegiatan terbaru. Pilihannya **Masuk Kota** (wajib login Google; warga yang kembali cukup satu klik dan disapa kabar buku tamu rumahnya), **Intip kota** tanpa login, atau **Kenali CodeIn**.
@@ -63,6 +65,8 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/tata.js` | Isi rumah warga (perabot dari data) dan mode Tata rumah; aturan letak sama dengan `services/rumahku.py` di CodeIn News |
 | `js/toko.js` | Toko Mbak Tika: kasir, beli perabot, jual perabot bekas |
 | `js/kebun.js` | Kebun halaman: petak, tahap tumbuh, tanam, panen, cabut |
+| `js/lahan.js` | Lahan Kebun Kota (buka lahan, pajak tanam, tanam, panen, lepas) dan dialog Kas Markas |
+| `js/bukutamu.js` | Buku tamu rumah warga lewat kotak surat, catatan tamu yang mampir, ringkasan untuk gerbang |
 | `js/desain.js` | Editor desain rumah dan gambar rumah berdesain di Perumahan |
 | `js/rumah.js` | Hosting proyek anggota: formulir pendaftaran, Direktori Proyek, dan nama proyek unggulan di pintu rumahnya (data dari CodeIn News) |
 | `js/warga.js` | Warga dan jadwal hariannya: pencarian jalur, jalan-jalan kecil, pulang ke rumah, ucapan per waktu |
@@ -70,13 +74,14 @@ Situs ini statis: hanya HTML, CSS, dan JavaScript, tanpa server dan tanpa proses
 | `js/ramai.js` | Pengunjung lain dan obrolan (WebSocket ke layanan ramai) |
 | `js/musik.js` | Musik latar: lagu menurut tempat dan waktu, tombol musik |
 | `js/judul.js` | Layar judul |
-| `js/gerbang.js` | Gerbang CodeIn: sambutan, Kenali CodeIn, Masuk Kota (wajib login) |
+| `js/gerbang.js` | Gerbang CodeIn: pratinjau kota, jumlah orang di kota, kemajuan memuat, acara terdekat, foto kegiatan, Masuk Kota (wajib login), Intip kota, Kenali CodeIn |
 | `js/cuaca.js` | Cuaca Bengkulu: efek langit, awan, kabut, hujan, payung, kilat, suara rintik (`?cuaca=hujan` di localhost untuk mencoba) |
 | `js/menara.js` | Menara Jam Server: jarum jam, lampu status server, dialog |
 | `js/komunitas.js` | Galeri Komunitas: foto di bingkai dinding, album, dan foto besar |
 | `js/sponsor.js` | Papan iklan LED CodeIn: animasi layar 60 x 9 piksel yang dipakai bersama semua papan |
 | `js/main.js` | Titik mulai |
-| `assets/maps/kota.tmj` | Peta kota, dibuka dan diubah dengan Tiled |
+| `assets/maps/kota.tmj` | Peta kota, dibuka dan diubah dengan Tiled (pintu `lahan-K01-0` .. `lahan-K12-3` = petak Lahan Kebun Kota) |
+| `assets/pratinjau-kota.png`, `pratinjau-kota-malam.png` | Pratinjau alun-alun untuk Gerbang CodeIn (siang dan malam), dibuat dari kota dengan Playwright |
 | `assets/maps/markas.tmj`, `galeri.tmj`, `redaksi.tmj`, `komunitas.tmj` | Peta ruangan Markas CodeIn, Galeri Showcase, Kantor Redaksi, dan Galeri Komunitas |
 | `assets/maps/toko.tmj` | Dalam Toko Mbak Tika: ruang pamer perabot dan meja kasir |
 | `assets/maps/perumahan.tmj`, `rumah.tmj` | Perumahan CodeIn (pintu `kav-A01` .. `kav-A24` menyimpan letak kavling) dan dalam rumah warga (satu peta untuk semua rumah) |
@@ -173,8 +178,9 @@ Situs diterbitkan lewat Cloudflare (Workers dengan aset statis) yang terhubung k
 | 9 | Login warga, Perumahan CodeIn, kunci rumah, pendaftaran acara | Selesai |
 | 10 | Koin, mancing, kebun halaman, Toko Mbak Tika, tata rumah, desain rumah sendiri | Selesai |
 | 11 | Kota 2.0: gerbang dan login wajib, cuaca Bengkulu, kota abad pertengahan, sungai, Menara Jam Server, Galeri Komunitas | Selesai |
+| 12 | Gerbang baru dan Intip kota, buku tamu rumah warga, Lahan Kebun Kota, Kas Markas | Selesai |
 | - | Galeri Investasi bersama GIBEI | Segera |
-| - | Lahan kebun tambahan (beli atau buka lahan, pajak ke Markas), minigame desa | Rencana |
+| - | Minigame desa | Rencana |
 | - | Warkop CodeIn: dibuka bersama anggota yang mau ikut membangun | Menunggu kontributor |
 
 ## Lisensi aset

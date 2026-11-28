@@ -168,7 +168,7 @@ const Kota = (() => {
       pintu = lapis("pintu").map(o => {
         const p = prop(o);
         return {id: p.id, nama: o.name, aksi: p.aksi, tujuan: p.tujuan || "", ke: p.ke || "", penghuni: p.penghuni || "",
-                kavling: p.kavling || "", kiri: p.kiri || 0, bawah: p.bawah || 0,
+                kavling: p.kavling || "", kiri: p.kiri || 0, bawah: p.bawah || 0, lahan: p.lahan || "", petak: p.petak ?? null,
                 x: o.x, y: o.y, w: o.width, h: o.height,
                 lx: p.label_x ?? o.x + o.width / 2, ly: p.label_y ?? o.y - T, tanpaLabel: !!p.tanpa_label};
       });
@@ -346,11 +346,14 @@ const Kota = (() => {
     if (p.aksi === "pindah" || p.aksi === "masuk") return `Masuk ${p.nama}`;
     if (p.aksi === "keluar") return "Keluar ke kota";
     if (p.id === "pendiri") return "Baca plakat patung";
-    return {kunci: "Periksa gedung", baliho: ruang === "galeri" ? "Lihat karya" : "Baca baliho", videotron: "Lihat kabar ramai",
-            rumah: "Ketuk pintu", info: "Baca papan", sapa: `Sapa ${p.penghuni}`, redaksi: `Sapa ${p.penghuni}`,
-            proyek: p.proyek ? `Kunjungi ${p.proyek.judul}` : "Lihat rumah kosong", kavling: Perumahan.teksAksi(p), petak: Kebun.teksAksi(p),
-            "kunci-rumah": Perumahan.teksKunci(), menara: "Lihat jam dan server", album: "Buka album foto", foto: "Lihat foto",
-            "galeri-investasi": "Lihat Galeri Investasi"}[p.tujuan] || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
+    // hanya teks untuk tujuan pintu ini yang dihitung, supaya modul lain yang datanya belum siap tidak ikut terpanggil
+    const teks = {kunci: () => "Periksa gedung", baliho: () => ruang === "galeri" ? "Lihat karya" : "Baca baliho", videotron: () => "Lihat kabar ramai",
+            rumah: () => "Ketuk pintu", info: () => "Baca papan", sapa: () => `Sapa ${p.penghuni}`, redaksi: () => `Sapa ${p.penghuni}`,
+            proyek: () => p.proyek ? `Kunjungi ${p.proyek.judul}` : "Lihat rumah kosong", kavling: () => Perumahan.teksAksi(p), petak: () => Kebun.teksAksi(p),
+            bukutamu: () => BukuTamu.teksAksi(p), lahan: () => Lahan.teksAksi(p), kas: () => "Lihat Kas Markas",
+            "kunci-rumah": () => Perumahan.teksKunci(), menara: () => "Lihat jam dan server", album: () => "Buka album foto", foto: () => "Lihat foto",
+            "galeri-investasi": () => "Lihat Galeri Investasi"}[p.tujuan];
+    return (teks && teks()) || (p.id === "papan" ? "Baca pengumuman" : `Lihat ${p.nama}`);
   }
   function cariTerdekat() {
     let baru = null;
@@ -420,6 +423,9 @@ const Kota = (() => {
       else if (p.tujuan === "proyek") RumahProyek.buka(p);
       else if (p.tujuan === "kavling") Perumahan.buka(p);
       else if (p.tujuan === "petak") Kebun.buka(p);
+      else if (p.tujuan === "bukutamu") BukuTamu.buka(p);
+      else if (p.tujuan === "lahan") Lahan.buka(p);
+      else if (p.tujuan === "kas") Lahan.kas();
       else if (p.tujuan === "kunci-rumah") Perumahan.aturKunci();
       else if (p.tujuan === "redaksi") Redaksi.buka(p.penghuni);
       else if (p.tujuan === "menara") Menara.buka();
